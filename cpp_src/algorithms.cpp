@@ -6,10 +6,6 @@
 using namespace std;
 
 namespace algorithms {
-    char const* hello() {
-        return "Hello!!!!";
-    }
-
     int convSubTreeKernel(Node* root1, Node* root2) {
         int value = 0;
 
@@ -124,7 +120,6 @@ BOOST_PYTHON_MODULE(algorithms)
 {
     using namespace boost::python;
 
-    def("hello", algorithms::hello);
     def("conv_subtree_kernel", algorithms::convSubTreeKernel);
     def("conv_tree_kernel", algorithms::convTreeKernel);
 }

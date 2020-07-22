@@ -1,39 +1,51 @@
 import sys
+import glob
 import os
 from sysconfig import get_paths
 import setuptools
 from pprint import pprint
 
+
+C_SRC = 'cpp_src'
+README = "README.md"
+
+
 vinfo = sys.version_info
 path_info = get_paths()
 
 
-with open("README.md", "r") as fh:
+with open(README, "r") as fh:
     long_description = fh.read()
 
-c_src = 'cpp_src'
 
 core_module = setuptools.Extension(
     'udon2.core',
     sources=[
-        os.path.join(c_src, 'Util.cpp'),
-        os.path.join(c_src, 'Node.cpp'),
-        os.path.join(c_src, 'Tree.cpp'),
-        os.path.join(c_src, 'ConllReader.cpp'),
-        os.path.join(c_src, 'core.cpp')
+        os.path.join(C_SRC, 'Util.cpp'),
+        os.path.join(C_SRC, 'Node.cpp'),
+        os.path.join(C_SRC, 'Tree.cpp'),
+        os.path.join(C_SRC, 'ConllReader.cpp'),
+        os.path.join(C_SRC, 'core.cpp')
     ],
     include_dirs=[path_info['include']],
     libraries=[f'boost_python{vinfo.major}{vinfo.minor}']
 )
 
+def compiled_obj_files_iter():
+    # we know for sure that each of these globs will contain only one such file
+    for x in [
+        glob.glob(os.path.join('build', 'temp*', C_SRC, 'Util.o'))[0],
+        glob.glob(os.path.join('build', 'temp*', C_SRC, 'Node.o'))[0],
+        glob.glob(os.path.join('build', 'temp*', C_SRC, 'Tree.o'))[0]
+    ]:
+        yield x
+
 algorithms_module = setuptools.Extension(
     'udon2.algorithms',
     sources=[
-        os.path.join(c_src, 'Util.cpp'),
-        os.path.join(c_src, 'Node.cpp'),
-        os.path.join(c_src, 'Tree.cpp'),
-        os.path.join(c_src, 'algorithms.cpp')
+        os.path.join(C_SRC, 'algorithms.cpp')
     ],
+    extra_objects=compiled_obj_files_iter(), # sort of lazy eval here to reuse the already compiled files
     include_dirs=[path_info['include']],
     libraries=[f'boost_python{vinfo.major}{vinfo.minor}']
 )
