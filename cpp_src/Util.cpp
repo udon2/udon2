@@ -1,0 +1,27 @@
+#include <sstream>
+#include "Util.h"
+
+using namespace std;
+
+namespace Util {
+    vector<string> stringSplit(string strToSplit, char delimeter) {
+        stringstream ss(strToSplit);
+        string item;
+        vector<string> splittedStrings;
+        while (getline(ss, item, delimeter)) {
+            if (!item.empty())
+                splittedStrings.push_back(item);
+        }
+        return splittedStrings;
+    }
+
+    string stringJoin(vector<string> v, char joinStr) {
+        stringstream ss;
+        for(int i = 0; i < v.size(); ++i) {
+            if(i != 0)
+                ss << joinStr;
+            ss << v[i];
+        }
+        return ss.str();
+    }
+}
