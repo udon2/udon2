@@ -252,12 +252,14 @@ string Node::getSubtreeText() {
     }
 
     map<int, string> words;
+    map<int, bool> isPunct;
     words[id] = text;
     int wordsNum = 1;
 
     while (!nodes.empty()) {
         if (!nodes.front()->isIgnored() && words.find(nodes.front()->getId()) == words.end()) {
             words[nodes.front()->getId()] = nodes.front()->getText();
+            isPunct[nodes.front()->getId()] = nodes.front()->getPos() == "PUNCT";
             wordsNum++;
         }
         
@@ -272,9 +274,9 @@ string Node::getSubtreeText() {
     ostringstream os;
     int j = 0;
     for (std::map<int, string>::iterator it = words.begin(); it != words.end(); it++) {
+        if (j > 0 && j < wordsNum && !isPunct[it->first]) os << " ";
         j++;
         os << it->second;
-        if (j < wordsNum) os << " ";
     }
     return os.str();
 }
@@ -366,17 +368,19 @@ NodeList Node::selectBy(string prop, string value, bool negate) {
 
     while (!nodes.empty()) {
         // check the POS-tag and if matches add to the result
-        string nodeValue = (nodes.front()->*getterFn)();
+        if (!nodes.front()->isIgnored()) {
+            string nodeValue = (nodes.front()->*getterFn)();
 
-        if ((!negate && nodeValue == value) || (negate && nodeValue != value)) {
-            result.push_back(nodes.front());
+            if ((!negate && nodeValue == value) || (negate && nodeValue != value)) {
+                result.push_back(nodes.front());
+            }
+            
+            // add children of the head node to the stack
+            NodeList ch = nodes.front()->getChildren();
+            for (int i = 0, len = ch.size(); i < len; i++) {
+                nodes.push(ch[i]);
+            } 
         }
-        
-        // add children of the head node to the stack
-        NodeList ch = nodes.front()->getChildren();
-        for (int i = 0, len = ch.size(); i < len; i++) {
-            nodes.push(ch[i]);
-        } 
         nodes.pop();
     }
     return result;
@@ -414,6 +418,10 @@ NodeList Node::selectExceptLemma(string value) {
 
 NodeList Node::selectExceptRel(string value) {
     return selectBy("rel", value, true);
+}
+
+NodeList Node::selectExceptText(string value) {
+    return selectBy("text", value, true);
 }
 
 // NodeList Node::selectByRelChain(string value) {
@@ -526,7 +534,7 @@ bool Node::isIdentical(Node* node, string excludeProps) {
  * Query should be a csv list of properties to exclude
  * if all properties should be included, pass an empty string
  */
-NodeList Node::identicalExcept(Node* node, string excludeProps) {
+NodeList Node::selectIdenticalExcept(Node* node, string excludeProps) {
     queue<Node*> nodes;
     NodeList result;
 
@@ -577,7 +585,7 @@ NodeList Node::identicalExcept(Node* node, string excludeProps) {
 }
 
 NodeList Node::selectIdentical(Node* node) {
-    return identicalExcept(node, "");
+    return selectIdenticalExcept(node, "");
 }
 
 /*
@@ -694,6 +702,10 @@ bool Node::lemmaExists(string value) {
     return propExists("lemma", value);
 }
 
+bool Node::textExists(string value) {
+    return propExists("text", value);
+}
+
 /*
  * Check if the subtree induced by the node has a node with the prop
  * NOTE: excluding the node itself
@@ -720,6 +732,10 @@ bool Node::childHasRel(string value) {
 
 bool Node::childHasLemma(string value) {
     return childHasProp("lemma", value);
+}
+
+bool Node::childHasText(string value) {
+    return childHasProp("text", value);
 }
 
 Node* Node::copy() {

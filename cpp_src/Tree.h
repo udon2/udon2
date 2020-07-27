@@ -12,7 +12,7 @@ public:
     Tree();
     void initNodes(std::vector<std::string> words);
     Node* getRoot();
-    Node* getWordRoot();
+    Node* getRootWord();
     std::string toString();
 };
 

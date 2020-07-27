@@ -1,0 +1,5 @@
+.tox
+.python-version
+TODO
+*/__pycache__/
+*/*/__pycache__/

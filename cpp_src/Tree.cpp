@@ -38,10 +38,10 @@ Node* Tree::getRoot() {
     return root;
 }
 
-Node* Tree::getWordRoot() {
+Node* Tree::getRootWord() {
     return root->getChildren()[0];
 }
 
 string Tree::toString() {
-    return getWordRoot()->getSubtreeText();
+    return getRootWord()->getSubtreeText();
 }

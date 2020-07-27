@@ -130,7 +130,7 @@ public:
 
     bool isIdentical(Node* node, std::string excludeProps);
     NodeList selectIdentical(Node* node);
-    NodeList identicalExcept(Node* node, std::string excludeProps);
+    NodeList selectIdenticalExcept(Node* node, std::string excludeProps);
     NodeList select(std::string query);
 
     void prune(std::string rel);
@@ -139,6 +139,7 @@ public:
     NodeList selectExceptPos(std::string value);
     NodeList selectExceptLemma(std::string value);
     NodeList selectExceptRel(std::string value);
+    NodeList selectExceptText(std::string value);
     
     NodeList immediateByPos(std::string value);
     NodeList immediateByLemma(std::string value);
@@ -149,10 +150,12 @@ public:
     bool posExists(std::string value);
     bool lemmaExists(std::string value);
     bool relExists(std::string value);
+    bool textExists(std::string value);
 
     bool childHasPos(std::string value);
     bool childHasLemma(std::string value);
     bool childHasRel(std::string value);
+    bool childHasText(std::string value);
 
     std::string toString();
 };

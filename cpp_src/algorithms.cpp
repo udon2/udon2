@@ -111,7 +111,7 @@ namespace algorithms {
     }
 
     int convTreeKernel(Tree* t1, Tree* t2) {
-        return convSubTreeKernel(t1->getWordRoot(), t2->getWordRoot());
+        return convSubTreeKernel(t1->getRootWord(), t2->getRootWord());
     }
 }
 

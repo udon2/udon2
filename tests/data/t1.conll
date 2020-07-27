@@ -1,0 +1,6 @@
+1	Då	då	SCONJ	HA	_	3	mark	_	_
+2	teknikutvecklingen	teknikutveckling	NOUN	NN|UTR|SIN|DEF|NOM	Case=Nom|Definite=Def|Gender=Com|Number=Sing	3	nsubj	_	_
+3	går	gå	VERB	VB|PRS|AKT	Mood=Ind|Tense=Pres|VerbForm=Fin|Voice=Act	0	root	_	_
+4	väldigt	väldig	ADV	AB|POS	Degree=Pos	5	advmod	_	_
+5	fort	fort	ADV	AB	_	3	advmod	_	_
+
