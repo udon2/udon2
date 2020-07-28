@@ -195,6 +195,25 @@ void Node::reset() {
     this->mIgnore = false;
 }
 
+void Node::ignoreSubtree() {
+    this->ignore();
+    queue<Node*> nodes;
+    for (int i = 0, len = children.size(); i < len; i++) {
+        nodes.push(children[i]);
+    }
+
+    while (!nodes.empty()) {
+        // add children of the head node to the stack
+        nodes.front()->ignore();
+
+        NodeList ch = nodes.front()->getChildren();
+        for (int i = 0, len = ch.size(); i < len; i++) {
+            nodes.push(ch[i]);
+        } 
+        nodes.pop();
+    }
+}
+
 void Node::resetSubtree() {
     this->reset();
     queue<Node*> nodes;
@@ -253,8 +272,14 @@ string Node::getSubtreeText() {
 
     map<int, string> words;
     map<int, bool> isPunct;
-    words[id] = text;
-    int wordsNum = 1;
+    int wordsNum;
+    if (!isIgnored()) {
+        words[id] = text;
+        wordsNum = 1;
+    } else {
+        wordsNum = 0;
+    }
+        
 
     while (!nodes.empty()) {
         if (!nodes.front()->isIgnored() && words.find(nodes.front()->getId()) == words.end()) {
@@ -353,7 +378,7 @@ getterptr Node::getterByProp(string prop) {
 
 /*
  * Select by a node by a property from the subtree induced by the node
- * NOTE: excluding the node itself
+ * NOTE: including the node itself
  */
 NodeList Node::selectBy(string prop, string value, bool negate) {
     getterptr getterFn = getterByProp(prop);
@@ -361,6 +386,11 @@ NodeList Node::selectBy(string prop, string value, bool negate) {
 
     queue<Node*> nodes;
     NodeList result;
+
+    string nodeValue = (this->*getterFn)();
+    if ((!negate && nodeValue == value) || (negate && nodeValue != value)) {
+        result.push_back(this);
+    }
 
     for (int i = 0, len = children.size(); i < len; i++) {
         nodes.push(children[i]);
@@ -424,10 +454,36 @@ NodeList Node::selectExceptText(string value) {
     return selectBy("text", value, true);
 }
 
-// NodeList Node::selectByRelChain(string value) {
-//     // TODO: select all chains in the tree
-//     return NULL;
-// }
+void Node::accumulateByRelChain(string value, NodeList* res, int depth) {
+    if (value.empty()) return;
+
+    vector<string> chain = Util::stringSplit(value, '.');
+
+    NodeList list = depth > 0 ? children : selectByRel(chain[0]);
+
+    vector<Node*>::iterator node = list.begin();
+    while (node != list.end()) {
+        if ((*node)->getRel() == chain[0]) {
+            if (chain.size() == 1) {
+                // TODO: do not erase directly, but mark it instead
+                //       should be able to reset it later
+                res->push_back(*node);
+            } else {
+                vector<string> subChain(chain.begin() + 1, chain.end());
+                (*node)->accumulateByRelChain(Util::stringJoin(subChain, '.'), res, depth + 1);
+            }
+        }
+        ++node;
+    }
+    return;
+}
+
+NodeList Node::selectByRelChain(string value) {
+    // return all possible nodes satisfying the relchain
+    NodeList res;
+    accumulateByRelChain(value, &res, 0);
+    return res;
+}
 
 
 GroupedNodes Node::groupBy(string prop) {
@@ -512,7 +568,7 @@ bool Node::isIdentical(Node* node, string excludeProps) {
     if (!excludeProps.empty()) {
         vector<string> banned = Util::stringSplit(excludeProps, ',');
     
-        for (int i = 0; i < banned.size(); i++) {
+        for (vector<string>::size_type i = 0; i < banned.size(); i++) {
             if (banned[i] == "pos") {
                 posIncluded = false;
             } else if (banned[i] == "rel") {
@@ -546,7 +602,7 @@ NodeList Node::selectIdenticalExcept(Node* node, string excludeProps) {
     if (!excludeProps.empty()) {
         vector<string> banned = Util::stringSplit(excludeProps, ',');
     
-        for (int i = 0; i < banned.size(); i++) {
+        for (vector<string>::size_type i = 0; i < banned.size(); i++) {
             if (banned[i] == "pos") {
                 posIncluded = false;
             } else if (banned[i] == "rel") {

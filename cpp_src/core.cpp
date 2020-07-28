@@ -1,6 +1,6 @@
 #include "ConllReader.h"
+#include "map_indexing_suite_v2.hpp"
 #include <boost/python.hpp>
-#include <boost/python/suite/indexing/map_indexing_suite.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 
@@ -13,7 +13,11 @@ BOOST_PYTHON_MODULE(core)
     package.attr("__path__") = "core";
 
     class_<FeatMap>("FeatMap")
-        .def(map_indexing_suite<FeatMap>())
+        .def(map_indexing_suite_v2<FeatMap>())
+        ;
+
+    class_<GroupedNodes>("GroupedNodes")
+        .def(map_indexing_suite_v2<GroupedNodes>())
         ;
 
     class_<NodeList>("NodeList", init<>())
@@ -51,6 +55,7 @@ BOOST_PYTHON_MODULE(core)
         .def("select_by_morph", &Node::selectByMorph)
         .def("select_by_rel", &Node::selectByRel)
         .def("select_by_text", &Node::selectByText)
+        .def("select_by_rel_chain", &Node::selectByRelChain)
         .def("has_all_morph", &Node::hasAllMorph)
         .def("select_having_morph", &Node::selectHavingMorph)
         .def("select_missing_morph", &Node::selectMissingMorph)
@@ -83,10 +88,12 @@ BOOST_PYTHON_MODULE(core)
         .def("textual_intersect", &Node::textualIntersect,
             return_internal_reference<1>())
         .def("ignore", &Node::ignore)
+        .def("ignore_subtree", &Node::ignoreSubtree)
         .def("reset", &Node::reset)
         .def("reset_subtree", &Node::resetSubtree)
         .def("get_by_rel_chain", &Node::getByRelChain,
             return_internal_reference<1>())
+        .def("group_by", &Node::groupBy)
         ;
 
     class_<Tree, Tree*>("Tree")

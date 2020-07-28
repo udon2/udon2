@@ -30,6 +30,7 @@ public:
     }
 
     Node* operator[](int i) const {
+        // TODO: add negative indices
         return nodes[i];
     }
 
@@ -73,7 +74,7 @@ class Node {
     bool childHasProp(std::string prop, std::string value);
     FeatMap parseMorphFeatures(std::string morph);
     NodeList selectHaving(std::string value, bool negate);
-
+    void accumulateByRelChain(std::string value, NodeList* res, int depth);
 public:
     Node();
     Node(int id, std::string text, std::string lemma, std::string pos, std::string morph, 
@@ -99,6 +100,7 @@ public:
 
     bool isIgnored();
     void ignore();
+    void ignoreSubtree();
     void reset();
     void resetSubtree();
 
@@ -121,7 +123,7 @@ public:
     NodeList selectByRel(std::string value);
     NodeList selectByMorph(std::string value);
     NodeList selectByText(std::string value);
-    // NodeList selectByRelChain(std::string value);
+    NodeList selectByRelChain(std::string value);
 
     GroupedNodes groupBy(std::string prop);
 

@@ -17,7 +17,7 @@ namespace Util {
 
     string stringJoin(vector<string> v, char joinStr) {
         stringstream ss;
-        for(int i = 0; i < v.size(); ++i) {
+        for(vector<string>::size_type i = 0; i < v.size(); ++i) {
             if(i != 0)
                 ss << joinStr;
             ss << v[i];
