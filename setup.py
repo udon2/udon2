@@ -25,7 +25,6 @@ core_module = setuptools.Extension(
     sources=[
         os.path.join(C_SRC, 'Util.cpp'),
         os.path.join(C_SRC, 'Node.cpp'),
-        os.path.join(C_SRC, 'Tree.cpp'),
         os.path.join(C_SRC, 'ConllReader.cpp'),
         os.path.join(C_SRC, 'core.cpp')
     ],
@@ -37,8 +36,7 @@ core_module = setuptools.Extension(
 def compiled_obj_files_iter():
     for x in [
         glob.glob(os.path.join('build', 'temp*', C_SRC, 'Util.o')),
-        glob.glob(os.path.join('build', 'temp*', C_SRC, 'Node.o')),
-        glob.glob(os.path.join('build', 'temp*', C_SRC, 'Tree.o'))
+        glob.glob(os.path.join('build', 'temp*', C_SRC, 'Node.o'))
     ]:
         try:
             # we know for sure that each of these globs will contain only one such file

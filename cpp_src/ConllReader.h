@@ -3,14 +3,13 @@
 
 #include <string>
 #include <vector>
-#include "Tree.h"
-
-typedef std::vector<Tree*> TreeList;
+#include "Node.h"
 
 
 class ConllReader {
+    static Node* initNodes(std::vector<std::string> words);
 public:
-    static TreeList readFile(std::string fname);
+    static NodeList readFile(std::string fname);
 };
 
 #endif

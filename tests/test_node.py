@@ -11,12 +11,12 @@ class TestNode(unittest.TestCase):
     def test_pos_getter(self, trees):
         answers = ["NOUN", "NOUN", "NOUN", "NUM", "VERB", "AUX", "VERB", "VERB", "NOUN", "VERB", "VERB"]
         for tree, correct in zip(trees, answers):
-            rw = tree.get_root_word()
+            rw = tree.get_children()[0] # get the root word
             self.assertEqual(rw.get_pos(), correct, f"POS-tag should be {correct}, got {rw.get_pos()} instead.")
 
     @data_from_file('t3.conll', udon2.ConllReader.read_file)
     def test_rel_getter(self, trees):
-        rw = trees[0].get_root_word()
+        rw = trees[0].get_children()[0] # get the root word
         self.assertEqual(rw.get_rel(), "root", f"Dependency relation should be root, got {rw.get_rel()} instead.")
 
     @data_from_file('t3.conll', udon2.ConllReader.read_file)
@@ -35,7 +35,7 @@ class TestNode(unittest.TestCase):
             "VerbForm=Sup|Voice=Act"
         ]
         for tree, correct in zip(trees, answers):
-            rw = tree.get_root_word()
+            rw = tree.get_children()[0] # get the root word
             self.assertEqual(rw.get_morph(), correct, f"Morphological properties should be {correct}, got {rw.get_morph()} instead.")
 
     @data_from_file('t3.conll', udon2.ConllReader.read_file)
@@ -45,7 +45,7 @@ class TestNode(unittest.TestCase):
             "vara", "pågå", "ha", "utveckling", "stabilisera", "fortsätta"
         ]
         for tree, correct in zip(trees, answers):
-            rw = tree.get_root_word()
+            rw = tree.get_children()[0] # get the root word
             self.assertEqual(rw.get_lemma(), correct, f"Lemma should be '{correct}', got '{rw.get_lemma()}' instead.")
 
     @data_from_file('t3.conll', udon2.ConllReader.read_file)
@@ -55,7 +55,7 @@ class TestNode(unittest.TestCase):
             "var", "pågår", "hade", "utveckling", "stabiliserats", "fortsatt"
         ]
         for tree, correct in zip(trees, answers):
-            rw = tree.get_root_word()
+            rw = tree.get_children()[0] # get the root word
             self.assertEqual(rw.get_text(), correct, f"Text should be '{correct}', got '{rw.get_text()}' instead.")
 
     @data_from_file('t3.conll', udon2.ConllReader.read_file)
@@ -74,14 +74,14 @@ class TestNode(unittest.TestCase):
             "Minskningen av antalet doktorander som skett de senaste åren har fortsatt under 2018."
         ]
         for tree, correct in zip(trees, answers):
-            rw = tree.get_root_word()
+            rw = tree.get_children()[0] # get the root word
             self.assertEqual(rw.get_subtree_text(), correct, f"Subtree text should be '{correct}', got '{rw.get_subtree_text()}' instead.")
 
     @data_from_file('t3.conll', udon2.ConllReader.read_file)
     def test_number_of_children(self, trees):
         answers = [7, 5, 7, 4, 4, 3, 4, 5, 5, 5, 4]
         for tree, correct in zip(trees, answers):
-            rw = tree.get_root_word()
+            rw = tree.get_children()[0] # get the root word
             N = len(rw.get_children())
             self.assertEqual(N, correct, f"A node should have {correct} children, got {N} instead.")
 
@@ -102,7 +102,7 @@ class TestNode(unittest.TestCase):
             ["som"]
         ]
         for tree, query, correct in zip(trees, queries, answers):
-            rw = tree.get_root_word()
+            rw = tree.get_children()[0] # get the root word
             res = sorted([x.get_text() for x in rw.select_by_pos(query)])
             key = sorted(correct)
             self.assertEqual(res, key, f"A search should return '{key}', got '{res}' instead.")
@@ -124,7 +124,7 @@ class TestNode(unittest.TestCase):
             [6]
         ]
         for tree, query, correct in zip(trees, queries, answers):
-            rw = tree.get_root_word()
+            rw = tree.get_children()[0] # get the root word
             res = sorted([x.get_id() for x in rw.select_by_rel(query)])
             key = sorted(correct)
             self.assertEqual(res, key, f"A search should return '{key}', got '{res}' instead.")
@@ -146,7 +146,7 @@ class TestNode(unittest.TestCase):
             [11]
         ]
         for tree, query, correct in zip(trees, queries, answers):
-            rw = tree.get_root_word()
+            rw = tree.get_children()[0] # get the root word
             res = sorted([x.get_id() for x in rw.select_by_text(query)])
             key = sorted(correct)
             self.assertEqual(res, key, f"A search should return '{key}', got '{res}' instead.")
@@ -157,7 +157,7 @@ class TestNode(unittest.TestCase):
                    'nsubj.amod', 'obl.case', 'advcl.acl:relcl.obl']
         answers = [[15], [], [4, 8], [], [8], [1], [9], [], [1, 2], [1, 14, 22], []]
         for tree, query, correct in zip(trees, queries, answers):
-            rw = tree.get_root_word()
+            rw = tree.get_children()[0] # get the root word
             res = sorted([x.get_id() for x in rw.select_by_rel_chain(query)])
             key = sorted(correct)
             self.assertEqual(res, key, f"A search should return '{key}', got '{res}' instead.")
@@ -165,7 +165,7 @@ class TestNode(unittest.TestCase):
     @data_from_file('t3.conll', udon2.ConllReader.read_file)
     def test_ignore(self, trees):
         tree = trees[0]
-        rw = tree.get_root_word()
+        rw = tree.get_children()[0] # get the root word
         rw.ignore()
         text = rw.get_subtree_text()
         correct = "Uppsala universitet är ett fullskaligt, internationellt orienterat som bedriver forskning och utbildning inom nio fakulteter organiserade i de tre vetenskapsområdena humaniora och samhällsvetenskap, medicin och farmaci samt teknik och naturvetenskap."
@@ -174,7 +174,7 @@ class TestNode(unittest.TestCase):
     @data_from_file('t3.conll', udon2.ConllReader.read_file)
     def test_ignore_subtree(self, trees):
         tree = trees[0]
-        rw = tree.get_root_word()
+        rw = tree.get_children()[0] # get the root word
         rw.immediate_by_rel('acl:relcl')[0].ignore_subtree()
         text = rw.get_subtree_text()
         correct = "Uppsala universitet är ett fullskaligt, internationellt orienterat forskningsuniversitet."
@@ -183,7 +183,7 @@ class TestNode(unittest.TestCase):
     @data_from_file('t3.conll', udon2.ConllReader.read_file)
     def test_reset(self, trees):
         tree = trees[0]
-        rw = tree.get_root_word()
+        rw = tree.get_children()[0] # get the root word
         correct = rw.get_subtree_text()
         rw.ignore()
         rw.reset()
@@ -193,7 +193,7 @@ class TestNode(unittest.TestCase):
     @data_from_file('t3.conll', udon2.ConllReader.read_file)
     def test_reset_subtree(self, trees):
         tree = trees[0]
-        rw = tree.get_root_word()
+        rw = tree.get_children()[0] # get the root word
         correct = rw.get_subtree_text()
         node = rw.immediate_by_rel('acl:relcl')[0]
         node.ignore_subtree()
@@ -204,7 +204,7 @@ class TestNode(unittest.TestCase):
     @data_from_file('t3.conll', udon2.ConllReader.read_file)
     def test_ignore_subtree_and_search_by_pos(self, trees):
         tree = trees[0]
-        rw = tree.get_root_word()
+        rw = tree.get_children()[0] # get the root word
         rw.immediate_by_rel('acl:relcl')[0].ignore_subtree()
         res = sorted([x.get_id() for x in rw.select_by_pos('NOUN')])
         correct = [2, 9]
@@ -213,7 +213,7 @@ class TestNode(unittest.TestCase):
     @data_from_file('t3.conll', udon2.ConllReader.read_file)
     def test_prune(self, trees):
         tree = trees[0]
-        rw = tree.get_root_word()
+        rw = tree.get_children()[0] # get the root word
         rw.prune('acl:relcl')
         text = rw.get_subtree_text()
         correct = "Uppsala universitet är ett fullskaligt, internationellt orienterat forskningsuniversitet."
@@ -222,7 +222,7 @@ class TestNode(unittest.TestCase):
     @data_from_file('t3.conll', udon2.ConllReader.read_file)
     def test_prune_and_search_by_pos(self, trees):
         tree = trees[0]
-        rw = tree.get_root_word()
+        rw = tree.get_children()[0] # get the root word
         rw.prune('acl:relcl')
         res = sorted([x.get_id() for x in rw.select_by_pos('NOUN')])
         correct = [2, 9]
@@ -231,7 +231,7 @@ class TestNode(unittest.TestCase):
     @data_from_file('t3.conll', udon2.ConllReader.read_file)
     def test_group_by_pos(self, trees):
         tree = trees[0]
-        rw = tree.get_root_word()
+        rw = tree.get_children()[0] # get the root word
         groups = rw.group_by('pos')
         correct = {
             'PROPN': 1,
@@ -254,7 +254,7 @@ class TestNode(unittest.TestCase):
     @data_from_file('t3.conll', udon2.ConllReader.read_file)
     def test_group_by_rel(self, trees):
         tree = trees[0]
-        rw = tree.get_root_word()
+        rw = tree.get_children()[0] # get the root word
         groups = rw.group_by('rel')
         correct = {
             'nsubj': 2,

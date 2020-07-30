@@ -32,7 +32,7 @@ void NodeList::push_sorted(Node* node) {
  * Node methods
  */
 Node::Node()
-    : text("root"), pos("ROOT"), rel("None"), id(-1), lemma(""), parent(NULL) {
+    : text("root"), pos("ROOT"), rel(""), id(-1), lemma(""), parent(NULL) {
     this->mIgnore = false;
 }
 

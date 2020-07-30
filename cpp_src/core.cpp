@@ -27,11 +27,6 @@ BOOST_PYTHON_MODULE(core)
         .def("__iter__", range(&NodeList::begin, &NodeList::end))
         ;
 
-    class_<TreeList>("TreeList")
-        .def(vector_indexing_suite<TreeList>())
-        ;
-
-
     class_<Node, Node*>("Node")
         .def(init<int, std::string, std::string, std::string, std::string, std::string, Node*>())
         .def("get_text", &Node::getText)
@@ -94,15 +89,6 @@ BOOST_PYTHON_MODULE(core)
         .def("get_by_rel_chain", &Node::getByRelChain,
             return_internal_reference<1>())
         .def("group_by", &Node::groupBy)
-        ;
-
-    class_<Tree, Tree*>("Tree")
-        .def("init_nodes", &Tree::initNodes)
-        .def("get_root", &Tree::getRoot,
-            return_internal_reference<1>()) // the first argument should be `this` ?
-        .def("get_root_word", &Tree::getRootWord,
-            return_internal_reference<1>())
-        .def("__str__", &Tree::toString)
         ;
 
     class_<ConllReader>("ConllReader")
