@@ -72,5 +72,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     ext_modules=[core_module, algorithms_module],
-    python_requires='>=3.6'
+    python_requires='>=3.6',
+    install_requires=["langdetect", "six"]
 )

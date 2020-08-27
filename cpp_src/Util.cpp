@@ -24,4 +24,16 @@ namespace Util {
         }
         return ss.str();
     }
+
+    string stringJoin(string v[], char joinStr) {
+        stringstream ss;
+        size_t i = 0;
+        while (!v[i].empty()) {
+            if(i != 0)
+                ss << joinStr;
+            ss << v[i];
+            i++;
+        }
+        return ss.str();
+    }
 }

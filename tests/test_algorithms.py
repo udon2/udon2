@@ -4,7 +4,7 @@ import unittest
 from .common import data_from_file
 
 import udon2
-from udon2.algorithms import conv_tree_kernel
+from udon2.algorithms import ConvPartialTreeKernel
 
 
 class TestAlgorithms(unittest.TestCase):

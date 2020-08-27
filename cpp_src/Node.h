@@ -1,6 +1,8 @@
 #ifndef UD_NODE_H
 #define UD_NODE_H
 
+#include <algorithm>
+#include <queue>
 #include <string>
 #include <vector>
 #include <map>
@@ -21,9 +23,19 @@ public:
 
     void push_sorted(Node* node);
 
+    template <class Compare>
+    void push_sorted(Node* node, Compare cmp) {
+        nodes.insert(
+            upper_bound(nodes.begin(), nodes.end(), node, cmp),
+            node
+        );
+    }
+
     void push_back(Node* node) {
         nodes.push_back(node);
     }
+
+    std::vector<Node*>::iterator findById(Node* n);
 
     int size() {
         return nodes.size();
@@ -49,6 +61,8 @@ public:
     std::vector<Node*> getNodes() const {
         return nodes;
     }
+
+    std::string toString();
 };
 
 
@@ -59,7 +73,7 @@ class Node {
     std::string text;
     std::string pos;
     std::string rel;
-    int id;
+    float id;
     std::string lemma;
     bool mIgnore = false;
 
@@ -68,24 +82,26 @@ class Node {
     FeatMap ufeats; //m
 
     NodeList selectBy(std::string prop, std::string value, bool negate);
-    NodeList immediateBy(std::string prop, std::string value);
+    NodeList getBy(std::string prop, std::string value);
     getterptr getterByProp(std::string prop);
     bool propExists(std::string prop, std::string value);
     bool childHasProp(std::string prop, std::string value);
     FeatMap parseMorphFeatures(std::string morph);
     NodeList selectHaving(std::string value, bool negate);
     void accumulateByRelChain(std::string value, NodeList* res, int depth);
+
+    std::string _subtreeToString(int);
 public:
     Node();
-    Node(int id, std::string text, std::string lemma, std::string pos, std::string morph, 
+    Node(float id, std::string text, std::string lemma, std::string pos, std::string morph, 
         std::string rel, Node* parent);
     Node(Node* n);
-    void init(int id, std::string text, std::string lemma, std::string pos, std::string morph,
+    void init(float id, std::string text, std::string lemma, std::string pos, std::string morph,
         std::string rel, Node* parent);
 
     std::string getText();
     std::string getSubtreeText();
-    int getId();
+    float getId();
     std::string getLemma();
     std::string getPos();
     FeatMap getUfeats();
@@ -94,9 +110,13 @@ public:
     Node* getParent();
     NodeList getChildren();
 
-    Node* getByRelChain(std::string value);
+    bool hasUfeat(std::string, std::string);
+
+    NodeList getByRelChain(std::string value);
 
     NodeList getSubtreeNodes();
+
+    bool isRoot();
 
     bool isIgnored();
     void ignore();
@@ -111,6 +131,9 @@ public:
 
     NodeList linear();
     NodeList linearSorted();
+    
+    template <class Compare>
+    NodeList linearBy(Compare cmp);
 
     bool hasChildren();
     void copyChildren(Node* node);
@@ -143,9 +166,9 @@ public:
     NodeList selectExceptRel(std::string value);
     NodeList selectExceptText(std::string value);
     
-    NodeList immediateByPos(std::string value);
-    NodeList immediateByLemma(std::string value);
-    NodeList immediateByRel(std::string value);
+    NodeList getByPos(std::string value);
+    NodeList getByLemma(std::string value);
+    NodeList getByRel(std::string value);
 
     Node* textualIntersect(std::string text);
 
@@ -160,13 +183,65 @@ public:
     bool childHasText(std::string value);
 
     std::string toString();
+    std::string subtreeToString();
+
+    Node* toPCT();
+    Node* toGRCT();
+    Node* toLCT();
 };
 
 
-struct NodeComparator {
+struct compare_node_by_id : public std::unary_function<Node*, bool> {
+    Node* baseline;
+    
+    explicit compare_node_by_id (Node* baseline) : baseline(baseline) {}
+    
+    bool operator() (Node* arg) {
+        return baseline->getId() == arg->getId();
+    }
+};
+
+struct compare_node_by_subtree_size {
+    bool operator()(Node* left, Node* right) {
+        return left->subtreeSize() < right->subtreeSize();
+    }
+};
+
+struct compare_node_by_string {
     bool operator()(Node* left, Node* right) {
         return left->toString() < right->toString();
     }
 };
+
+struct compare_node_by_text {
+    bool operator()(Node* left, Node* right) {
+        return left->getText() < right->getText();
+    }
+};
+
+// Don't move - should be here to avoid errors at linking time
+template <class Compare>
+NodeList Node::linearBy(Compare cmp) {
+    std::queue<Node*> nodes;
+    for (int i = 0, len = children.size(); i < len; i++) {
+        nodes.push(children[i]);
+    }
+
+    NodeList linear;
+    linear.push_back(this);
+
+    while (!nodes.empty()) {        
+        linear.push_sorted(nodes.front(), cmp);
+
+        // add children of the head node to the stack
+        NodeList ch = nodes.front()->getChildren();
+        for (int i = 0, len = ch.size(); i < len; i++) {
+            nodes.push(ch[i]);
+        } 
+        nodes.pop();
+    }
+
+    return linear;
+}
 
 #endif

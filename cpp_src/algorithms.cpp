@@ -1,87 +1,145 @@
 #include <vector>
+#include <map>
 #include <iostream>
 #include "algorithms.h"
+
 #include <boost/python.hpp>
 
 using namespace std;
 
 namespace algorithms {
-    int convTreeKernel(Node* root1, Node* root2) {
-        int value = 0;
+    ConvPartialTreeKernel::ConvPartialTreeKernel(string repr, float mu, float lambda) : treeRepresentation(repr), mu(mu), lambda(lambda) {
+        lambda2 = lambda * lambda;
+    }
 
-        // TODO: change to groupBy('rel') because we're interested in the same dep. structures
-        //       although maybe applied to different pos tags???
-        //       or maybe not really, since we want parallel structures?
-        GroupedNodes gnodes1 = root1->groupBy("rel");
-        GroupedNodes gnodes2 = root2->groupBy("rel");
+    float ConvPartialTreeKernel::ptkSumDeltaP(NodeList ch1, NodeList ch2) {
+        float S = 0;
+        int ch1_size = ch1.size();
+        int ch2_size = ch2.size();
 
-        auto gn1 = gnodes1.begin();
-        auto gn2 = gnodes2.begin();
+        int lmin = ch1_size < ch2_size ? ch1_size : ch2_size;
 
-        auto gn1_end = gnodes1.end();
-        auto gn2_end = gnodes2.end();
+        map<int, map<int,float>> DPS;
+        map<int, map<int,float>> DP;
+        float* kernel_mat = new float[lmin];
 
-        while (gn1 != gn1_end && gn2 != gn2_end) {
-            if (gn1->first < gn2->first) {
-                gn1++;
-            } else if (gn1->first > gn2->first) {
-                gn2++;
-            } else if (!gn1->first.empty()) {
-                // means the dependency relations are equal, time to check if the nodes on both ends have the same pos-tags
-                NodeList nodes1 = gn1->second;
-                NodeList nodes2 = gn2->second;
-
-                auto n1 = nodes1.begin();
-                auto n2 = nodes2.begin();
-
-                auto n1_end = nodes1.end();
-                auto n2_end = nodes2.end();
-
-                while (n1 != n1_end && n2 != n2_end) {
-                    if ((*n1)->getPos() < (*n2)->getPos()) {
-                        n1++;
-                    } else if ((*n1)->getPos() > (*n2)->getPos()) {
-                        n2++;
-                    } else {
-                        // means the POS-tags of dependents are the same, check pos-tags of heads
-                        Node* p1 = (*n1)->getParent();
-                        Node* p2 = (*n2)->getParent();
-                        if (p1->getPos() == p2->getPos()) {
-                            if (!(*n1)->getChildren().size() && !(*n2)->getChildren().size()) {
-                                // means p1 and p2 are pre-terminals since n1 and n2 are terminals
-                                value++;
-                            } else {
-                                int temp = 1;
-
-                                NodeList n1_children = (*n1)->getChildren();
-                                NodeList n2_children = (*n2)->getChildren();
-
-                                auto n1_ch = n1_children.begin();
-                                auto n2_ch = n2_children.begin();
-
-                                auto n1_ch_end = n1_children.end();
-                                auto n2_ch_end = n2_children.end();
-
-                                while (n1_ch != n1_ch_end) {
-                                    while (n2_ch != n2_ch_end) {
-                                        temp *= (1 + convTreeKernel(*n1_ch, *n2_ch));
-                                        n2_ch++;
-                                    }
-                                    n1_ch++;
-                                }
-
-                                value += temp;
-                            }
-                        }
-                        n1++;
-                        n2++;
-                    }
+        kernel_mat[0] = 0;
+        for (int i = 1; i < ch1_size; i++) {
+            for (int j = 1; j < ch2_size; j++) {
+                if (ch1[i]->getText() == ch2[j]->getText()) {
+                    DPS[i][j] = ptkDelta(ch1[i], ch2[j]);
+                    kernel_mat[0] += DPS[i][j];
+                } else {
+                    DPS[i][j] = 0;
                 }
-                
-                gn1++;
-                gn2++;
             }
         }
+
+        for (int j = 0; j < ch2_size; j++)
+            DP[0][j] = 0;
+
+        for (int i = 0; i < ch1_size; i++)
+            DP[i][0] = 0;
+
+        for (int l = 1; l < lmin; l++) {
+            kernel_mat[l] = 0;
+
+            for (int i = l; i < ch1_size; i++) {
+                for (int j = l; j < ch2_size; j++) {
+                    DP[i][j] = DPS[i][j] + lambda * DP[i][j-1] + lambda * DP[i-1][j] - lambda2 * DP[i-1][j-1];
+
+                    if (ch1[i]->getText() == ch2[j]->getText()) {
+                        DPS[i][j] = ptkDelta(ch1[i], ch2[j]) * DP[i-1][j-1];
+                        kernel_mat[l] += DPS[i][j];
+                    }
+                }
+            }
+
+        }
+
+        for (int i = 0; i < lmin; i++) {
+            S += kernel_mat[i];
+        }
+
+        return S;
+    }
+
+    float ConvPartialTreeKernel::ptkDelta(Node* n1, Node* n2) {
+        if (deltas.count(n1->getId()) > 0 && deltas[n1->getId()].count(n2->getId()) > 0) {
+            return deltas[n1->getId()][n2->getId()];
+        }
+
+        if (n1->getText() != n2->getText()) {
+            deltas[n1->getId()][n2->getId()] = 0;
+        } else if (!n1->hasChildren() || !n2->hasChildren()) {
+            deltas[n1->getId()][n2->getId()] = mu * lambda2;
+        } else {
+            deltas[n1->getId()][n2->getId()] = mu * (lambda2 + ptkSumDeltaP(n1->getChildren(), n2->getChildren()));
+        }
+        return deltas[n1->getId()][n2->getId()];
+    }
+
+    float ConvPartialTreeKernel::eval(Node* root1, Node* root2) {
+        /*
+         * Implementation of Fast PTK presented in
+         * Moschitti, A. (2006, September). Efficient convolution kernels for dependency and constituent syntactic trees.
+         * Available at: https://link.springer.com/content/pdf/10.1007/11871842_32.pdf
+         * 
+         * Needs one of the proposed representations for dependency trees, i.e.:
+         * - POS-tag centered tree (PCT)
+         * - Grammatical relation centered tree (GRCT)
+         * - Lexical centered tree (LCT)
+         * 
+         * For now we set \mu and \lambda to 1
+         */
+
+        deltas.clear();
+        float value = 0;
+
+        Node* r1;
+        Node* r2;
+        if (treeRepresentation == "PCT") {
+            r1 = root1->isRoot() ? root1->getChildren()[0]->toPCT() : root1->toPCT();
+            r2 = root2->isRoot() ? root2->getChildren()[0]->toPCT() : root2->toPCT();
+        } else if (treeRepresentation == "GRCT") {
+            r1 = root1->isRoot() ? root1->getChildren()[0]->toGRCT() : root1->toGRCT();
+            r2 = root2->isRoot() ? root2->getChildren()[0]->toGRCT() : root2->toGRCT();
+        } else if (treeRepresentation == "LCT") {
+            r1 = root1->isRoot() ? root1->getChildren()[0]->toLCT() : root1->toLCT();
+            r2 = root2->isRoot() ? root2->getChildren()[0]->toLCT() : root2->toLCT();
+        } else {
+            return -1;
+        }
+
+        // The labels are stored in the text field
+        NodeList L1 = r1->linearBy(compare_node_by_text());
+        NodeList L2 = r2->linearBy(compare_node_by_text());
+
+        auto l1 = L1.begin();
+        auto l2 = L2.begin();
+
+        auto l1_end = L1.end();
+        auto l2_end = L2.end();
+
+
+        while (l1 != l1_end && l2 != l2_end) {
+            if ((*l1)->getText() > (*l2)->getText()) {
+                l2++;
+            } else if ((*l1)->getText() < (*l2)->getText()) {
+                l1++;
+            } else {
+                auto l2_old = l2;
+                while (l1 != l1_end && (*l1)->getText() == (*l2)->getText()) {
+                    while (l2 != l2_end && (*l1)->getText() == (*l2)->getText()) {
+                        value += ptkDelta(*l1, *l2);
+                        l2++;
+                    }
+                    l1++;
+                    l2 = l2_old;
+                }
+            }
+        }
+
         // cout << "v -> " << value << endl;
         return value;
     }
@@ -92,5 +150,7 @@ BOOST_PYTHON_MODULE(algorithms)
 {
     using namespace boost::python;
 
-    def("conv_tree_kernel", algorithms::convTreeKernel);
+    class_<algorithms::ConvPartialTreeKernel>("ConvPartialTreeKernel", init<std::string, float, float>())
+        .def("__call__", &algorithms::ConvPartialTreeKernel::eval)
+        ;
 }

@@ -1,4 +1,3 @@
-#include <queue>
 #include <map>
 #include <sstream>
 #include <iostream>
@@ -22,9 +21,24 @@ NodeList::NodeList(const NodeList& list) {
 void NodeList::push_sorted(Node* node) {
     // inserts in a lexicographical order
     nodes.insert(
-        upper_bound(nodes.begin(), nodes.end(), node, NodeComparator()),
+        upper_bound(nodes.begin(), nodes.end(), node, compare_node_by_string()),
         node
     );
+}
+
+vector<Node*>::iterator NodeList::findById(Node* n) {
+    return find_if(nodes.begin(), nodes.end(), compare_node_by_id(n));
+}
+
+string NodeList::toString() {
+    string res = "";
+    for (int i = 0, len = nodes.size(); i < len; i++) {
+        res += nodes[i]->toString();
+        if (i < len - 1) {
+            res += " ";
+        }
+    }
+    return res;
 }
 
 
@@ -32,15 +46,17 @@ void NodeList::push_sorted(Node* node) {
  * Node methods
  */
 Node::Node()
-    : text("root"), pos("ROOT"), rel(""), id(-1), lemma(""), parent(NULL) {
+    : text("root"), pos("ROOT"), rel(""), id(0), lemma(""), parent(NULL) {
     this->mIgnore = false;
 }
 
-Node::Node(int id, string text, string lemma, string pos, string morph, string rel, Node* parent)
+Node::Node(float id, string text, string lemma, string pos, string morph, string rel, Node* parent)
     : text(text), pos(pos), rel(rel), id(id), lemma(lemma), parent(parent)
 {
     this->ufeats = parseMorphFeatures(morph);
     this->mIgnore = false;
+    if (parent != NULL)
+        parent->addChild(this);
 }
 
 Node::Node(Node* n) {
@@ -55,7 +71,7 @@ Node::Node(Node* n) {
     this->mIgnore = n->isIgnored();
 }
 
-void Node::init(int id, string text, string lemma, string pos, string morph, string rel, Node* parent)
+void Node::init(float id, string text, string lemma, string pos, string morph, string rel, Node* parent)
 {
     this->id = id;
     this->text = text;
@@ -63,15 +79,21 @@ void Node::init(int id, string text, string lemma, string pos, string morph, str
     this->pos = pos;
     this->rel = rel;
     this->parent = parent;
+    if (parent != NULL)
+        parent->addChild(this);
     this->ufeats = parseMorphFeatures(morph);
     this->mIgnore = false;
+}
+
+bool Node::isRoot() {
+    return parent == NULL;
 }
 
 string Node::getText() {
     return text;
 }
 
-int Node::getId() {
+float Node::getId() {
     return id;
 }
 
@@ -118,6 +140,14 @@ string Node::getMorph() {
     return Util::stringJoin(feats, '|');
 }
 
+bool Node::hasUfeat(string key, string value) {
+    if (ufeats.count(key) > 0) {
+        return ufeats[key] == value;
+    } else {
+        return false;
+    }
+}
+
 string Node::getRel() {
     return rel;
 }
@@ -154,32 +184,6 @@ NodeList Node::getSubtreeNodes() {
     }
 
     return all;
-}
-
-Node* Node::getByRelChain(string value) {
-    // just follow a rel chain from the current node and return whatever node is in the end if exists
-    // otherwise return NULL
-    // can input chains like .conj.obl
-    if (value.empty()) return NULL;
-
-    vector<string> chain = Util::stringSplit(value, '.');
-
-    vector<Node*>::iterator node = children.begin();
-    while (node != children.end()) {
-        if ((*node)->getRel() == chain[0]) {
-            if (chain.size() == 1) {
-                // TODO: do not erase directly, but mark it instead
-                //       should be able to reset it later
-                return *node;
-            } else {
-                vector<string> subChain(chain.begin() + 1, chain.end());
-                return (*node)->getByRelChain(Util::stringJoin(subChain, '.'));
-            }
-        } else {
-            ++node;
-        }
-    }
-    return NULL;
 }
 
 bool Node::isIgnored() {
@@ -270,8 +274,8 @@ string Node::getSubtreeText() {
         nodes.push(children[i]);
     }
 
-    map<int, string> words;
-    map<int, bool> isPunct;
+    map<float, string> words;
+    map<float, bool> isPunct;
     int wordsNum;
     if (!isIgnored()) {
         words[id] = text;
@@ -298,7 +302,7 @@ string Node::getSubtreeText() {
 
     ostringstream os;
     int j = 0;
-    for (std::map<int, string>::iterator it = words.begin(); it != words.end(); it++) {
+    for (std::map<float, string>::iterator it = words.begin(); it != words.end(); it++) {
         if (j > 0 && j < wordsNum && !isPunct[it->first]) os << " ";
         j++;
         os << it->second;
@@ -313,7 +317,7 @@ NodeList Node::linear() {
         nodes.push(children[i]);
     }
 
-    map<int, Node*> words;
+    map<float, Node*> words;
     words[id] = this;
 
     while (!nodes.empty()) {
@@ -330,7 +334,7 @@ NodeList Node::linear() {
     }
 
     NodeList linear;
-    for (std::map<int, Node*>::iterator it = words.begin(); it != words.end(); it++) {
+    for (std::map<float, Node*>::iterator it = words.begin(); it != words.end(); it++) {
         linear.push_back(it->second);
     }
     return linear;
@@ -463,7 +467,7 @@ void Node::accumulateByRelChain(string value, NodeList* res, int depth) {
 
     vector<Node*>::iterator node = list.begin();
     while (node != list.end()) {
-        if ((*node)->getRel() == chain[0]) {
+        if (!(*node)->isIgnored() && (*node)->getRel() == chain[0]) {
             if (chain.size() == 1) {
                 // TODO: do not erase directly, but mark it instead
                 //       should be able to reset it later
@@ -482,6 +486,13 @@ NodeList Node::selectByRelChain(string value) {
     // return all possible nodes satisfying the relchain
     NodeList res;
     accumulateByRelChain(value, &res, 0);
+    return res;
+}
+
+NodeList Node::getByRelChain(string value) {
+    NodeList res;
+    // kinda dirty hack: the depth will be positive, meaning we'll take children all the time
+    accumulateByRelChain(value, &res, 1);
     return res;
 }
 
@@ -659,30 +670,30 @@ NodeList Node::select(string query) {
 /*
  *  Select an immediate child of the node with the property `prop` equal to `value`
  */
-NodeList Node::immediateBy(string prop, string value) {
+NodeList Node::getBy(string prop, string value) {
     getterptr getterFn = getterByProp(prop);
     if (getterFn == NULL) return NodeList();
 
     NodeList result;
 
     for (int i = 0, len = children.size(); i < len; i++) {
-        if ((children[i]->*getterFn)() == value) {
+        if ((children[i]->*getterFn)() == value && !children[i]->isIgnored()) {
             result.push_back(children[i]);
         }
     }
     return result;
 }
 
-NodeList Node::immediateByPos(string value) {
-    return immediateBy("pos", value);
+NodeList Node::getByPos(string value) {
+    return getBy("pos", value);
 }
 
-NodeList Node::immediateByLemma(string value) {
-    return immediateBy("lemma", value);
+NodeList Node::getByLemma(string value) {
+    return getBy("lemma", value);
 }
 
-NodeList Node::immediateByRel(string value) {
-    return immediateBy("rel", value);
+NodeList Node::getByRel(string value) {
+    return getBy("rel", value);
 }
 
 
@@ -808,11 +819,32 @@ string Node::toString() {
     return pos + "|" + rel + "|" + text;
 }
 
+
+string Node::_subtreeToString(int depth) {
+    int N = children.size();
+    if (N > 0) {
+        string parts[N];
+        for (int i = 0; i < N; i++) {
+            parts[i] = children[i]->_subtreeToString(depth + 1);
+        }
+        return toString().insert(0, depth, ' ') + '\n' + Util::stringJoin(parts, '\n');
+    } else {
+        return toString().insert(0, depth, ' ');
+    }
+}
+
+
+string Node::subtreeToString() {
+    return _subtreeToString(0);
+}
+
+
+// TODO: rename method - not really an intersect
 Node* Node::textualIntersect(string text) {
     // TODO: maybe return a NodeList instead?
     vector<string> words = Util::stringSplit(text, ' ');
     
-    Node* root = NULL;
+    NodeList res;
 
     for (string word : words) {
         NodeList nodes = selectByText(word);
@@ -820,16 +852,121 @@ Node* Node::textualIntersect(string text) {
             while (n->getParent() != NULL) {
                 // NOTE: this finds only contiguous pieces of text
                 if (n->getSubtreeText().find(text) != string::npos) {
-                    root = n;
+                    if (res.findById(n) == res.end())
+                        res.push_back(n);
                     break;
                 } else {
                     n = n->getParent();
                 }
             }
-
-            if (root != NULL) break;
         }
-        if (root != NULL) break;
     }
-    return root;
+
+    int N = res.size();
+    if (N > 0) {
+        if (N == 1) {
+            return res[0];
+        } else {
+            vector<Node*>::iterator m = min_element(res.begin(), res.end(), compare_node_by_subtree_size());
+            return *m;
+        }
+    } else {
+        return NULL;
+    }
+}
+
+Node* Node::toPCT() {
+    queue<Node*> nodes;
+    for (int i = 0, len = children.size(); i < len; i++) {
+        nodes.push(children[i]);
+    }
+
+    Node* rootRelNode = new Node(id, rel, "", "", "", "", NULL);
+    Node* posNode = new Node(id + 0.1, pos, "", "", "", "", rootRelNode);
+    Node* textNode = new Node(id + 0.2, text, "", "", "", "", posNode);
+
+    map<float, Node*> nodesMap;
+    nodesMap[id] = posNode;
+
+    while (!nodes.empty()) {
+        float frontId = nodes.front()->getId();
+
+        Node* relNode = new Node(frontId, nodes.front()->getRel(), "", "", "", "", nodesMap[nodes.front()->getParent()->getId()]);
+        Node* posNode = new Node(frontId + 0.1, nodes.front()->getPos(), "", "", "", "", relNode);
+        Node* textNode = new Node(frontId + 0.2, nodes.front()->getText(), "", "", "", "", posNode);
+
+        nodesMap[frontId] = posNode;
+
+        // add children of the head node to the stack
+        NodeList ch = nodes.front()->getChildren();
+        for (int i = 0, len = ch.size(); i < len; i++) {
+            nodes.push(ch[i]);
+        } 
+        nodes.pop();
+    }
+    return rootRelNode;
+}
+
+Node* Node::toGRCT() {
+    queue<Node*> nodes;
+    for (int i = 0, len = children.size(); i < len; i++) {
+        nodes.push(children[i]);
+    }
+
+    Node* relNode = new Node(id, rel, "", "", "", "", NULL);
+    Node* posNode = new Node(id + 0.1, pos, "", "", "", "", relNode);
+    Node* textNode = new Node(id + 0.2, text, "", "", "", "", posNode);
+
+    map<float, Node*> nodesMap;
+    nodesMap[id] = relNode;
+
+    while (!nodes.empty()) {
+        float frontId = nodes.front()->getId();
+
+        Node* relNode = new Node(frontId, nodes.front()->getRel(), "", "", "", "", nodesMap[nodes.front()->getParent()->getId()]);
+        Node* posNode = new Node(frontId + 0.1, nodes.front()->getPos(), "", "", "", "", relNode);
+        Node* textNode = new Node(frontId + 0.2, nodes.front()->getText(), "", "", "", "", posNode);
+
+        nodesMap[frontId] = relNode;
+
+        // add children of the head node to the stack
+        NodeList ch = nodes.front()->getChildren();
+        for (int i = 0, len = ch.size(); i < len; i++) {
+            nodes.push(ch[i]);
+        } 
+        nodes.pop();
+    }
+    return nodesMap[id];
+}
+
+Node* Node::toLCT() {
+    queue<Node*> nodes;
+    for (int i = 0, len = children.size(); i < len; i++) {
+        nodes.push(children[i]);
+    }
+
+    Node* textNode = new Node(id + 0.2, text, "", "", "", "", NULL);
+    Node* relNode = new Node(id, rel, "", "", "", "", textNode);
+    Node* posNode = new Node(id + 0.1, pos, "", "", "", "", textNode);
+
+    map<float, Node*> nodesMap;
+    nodesMap[id] = textNode;
+
+    while (!nodes.empty()) {
+        float frontId = nodes.front()->getId();
+
+        Node* textNode = new Node(frontId + 0.2, nodes.front()->getText(), "", "", "", "", nodesMap[nodes.front()->getParent()->getId()]);
+        Node* posNode = new Node(frontId + 0.1, nodes.front()->getPos(), "", "", "", "", textNode);
+        Node* relNode = new Node(frontId, nodes.front()->getRel(), "", "", "", "", textNode);
+
+        nodesMap[frontId] = textNode;
+
+        // add children of the head node to the stack
+        NodeList ch = nodes.front()->getChildren();
+        for (int i = 0, len = ch.size(); i < len; i++) {
+            nodes.push(ch[i]);
+        } 
+        nodes.pop();
+    }
+    return nodesMap[id];
 }

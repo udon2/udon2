@@ -175,7 +175,7 @@ class TestNode(unittest.TestCase):
     def test_ignore_subtree(self, trees):
         tree = trees[0]
         rw = tree.get_children()[0] # get the root word
-        rw.immediate_by_rel('acl:relcl')[0].ignore_subtree()
+        rw.get_by_rel('acl:relcl')[0].ignore_subtree()
         text = rw.get_subtree_text()
         correct = "Uppsala universitet är ett fullskaligt, internationellt orienterat forskningsuniversitet."
         self.assertEqual(text, correct, f"Should be '{correct}' after ignoring the subtree, got '{text}' instead.")
@@ -195,7 +195,7 @@ class TestNode(unittest.TestCase):
         tree = trees[0]
         rw = tree.get_children()[0] # get the root word
         correct = rw.get_subtree_text()
-        node = rw.immediate_by_rel('acl:relcl')[0]
+        node = rw.get_by_rel('acl:relcl')[0]
         node.ignore_subtree()
         node.reset_subtree()
         text = rw.get_subtree_text()
@@ -205,7 +205,7 @@ class TestNode(unittest.TestCase):
     def test_ignore_subtree_and_search_by_pos(self, trees):
         tree = trees[0]
         rw = tree.get_children()[0] # get the root word
-        rw.immediate_by_rel('acl:relcl')[0].ignore_subtree()
+        rw.get_by_rel('acl:relcl')[0].ignore_subtree()
         res = sorted([x.get_id() for x in rw.select_by_pos('NOUN')])
         correct = [2, 9]
         self.assertEqual(res, correct, f"A search should return '{correct}', got '{res}' instead.")

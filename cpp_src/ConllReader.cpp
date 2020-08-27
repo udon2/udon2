@@ -25,9 +25,9 @@ Node* ConllReader::initNodes(vector<string> words) {
         }
         // -1 here because words are started indexing with 0 being the dummy root word
         int dephead = stoi(word[6].c_str());
-        int id = stoi(word[0].c_str());
+        float id = stof(word[0].c_str());
         nodes[i]->init(id, word[1], word[2], word[3], word[5], word[7], nodes[dephead]);
-        nodes[dephead]->addChild(nodes[i]);
+        // nodes[dephead]->addChild(nodes[i]);
     }
     return nodes[0]; // root pseudonode
 }

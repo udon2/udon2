@@ -7,6 +7,7 @@
 namespace Util {
     std::vector<std::string> stringSplit(std::string strToSplit, char delimeter);
     std::string stringJoin(std::vector<std::string> v, char joinStr);
+    std::string stringJoin(std::string v[], char joinStr);
 };
 
 #endif
