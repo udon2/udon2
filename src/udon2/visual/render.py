@@ -3,8 +3,8 @@ from __future__ import unicode_literals
 
 import uuid
 
-from .templates import TPL_DEP_SVG, TPL_DEP_WORDS, TPL_DEP_ARCS, TPL_ENTS, TPL_DEP_MORPH
-from .templates import TPL_ENT, TPL_ENT_RTL, TPL_FIGURE, TPL_TITLE, TPL_PAGE
+from .templates import TPL_DEP_SVG, TPL_DEP_WORDS, TPL_DEP_ARCS, TPL_DEP_MORPH
+from .templates import TPL_FIGURE, TPL_TITLE, TPL_PAGE
 from .utils import escape_html, minify_html
 
 DEFAULT_LANG = "en"
@@ -13,8 +13,6 @@ DEFAULT_DIR = "ltr"
 
 class DependencyRenderer(object):
     """Render dependency parses as SVGs."""
-
-    style = "dep"
 
     def __init__(self, options={}):
         """Initialise dependency renderer.
@@ -213,111 +211,3 @@ class DependencyRenderer(object):
         """
         levels = set(map(lambda arc: arc["end"] - arc["start"], arcs))
         return sorted(list(levels))
-
-
-class EntityRenderer(object):
-    """Render named entities as HTML."""
-
-    style = "ent"
-
-    def __init__(self, options={}):
-        """Initialise dependency renderer.
-
-        options (dict): Visualiser-specific options (colors, ents)
-        """
-        colors = {
-            "ORG": "#7aecec",
-            "PRODUCT": "#bfeeb7",
-            "GPE": "#feca74",
-            "LOC": "#ff9561",
-            "PERSON": "#aa9cfc",
-            "NORP": "#c887fb",
-            "FACILITY": "#9cc9cc",
-            "EVENT": "#ffeb80",
-            "LAW": "#ff8197",
-            "LANGUAGE": "#ff8197",
-            "WORK_OF_ART": "#f0d0ff",
-            "DATE": "#bfe1d9",
-            "TIME": "#bfe1d9",
-            "MONEY": "#e4e7d2",
-            "QUANTITY": "#e4e7d2",
-            "ORDINAL": "#e4e7d2",
-            "CARDINAL": "#e4e7d2",
-            "PERCENT": "#e4e7d2",
-        }
-        # user_colors = registry.displacy_colors.get_all()
-        # for user_color in user_colors.values():
-        #     colors.update(user_color)
-        colors.update(options.get("colors", {}))
-        self.default_color = "#ddd"
-        self.colors = colors
-        self.ents = options.get("ents", None)
-        self.direction = DEFAULT_DIR
-        self.lang = DEFAULT_LANG
-
-        template = options.get("template")
-        if template:
-            self.ent_template = template
-        else:
-            if self.direction == "rtl":
-                self.ent_template = TPL_ENT_RTL
-            else:
-                self.ent_template = TPL_ENT
-
-    def render(self, parsed, page=False, minify=False):
-        """Render complete markup.
-
-        parsed (list): Dependency parses to render.
-        page (bool): Render parses wrapped as full HTML page.
-        minify (bool): Minify HTML markup.
-        RETURNS (unicode): Rendered HTML markup.
-        """
-        rendered = []
-        for i, p in enumerate(parsed):
-            if i == 0:
-                settings = p.get("settings", {})
-                self.direction = settings.get("direction", DEFAULT_DIR)
-                self.lang = settings.get("lang", DEFAULT_LANG)
-            rendered.append(self.render_ents(p["text"], p["ents"], p.get("title")))
-        if page:
-            docs = "".join([TPL_FIGURE.format(content=doc) for doc in rendered])
-            markup = TPL_PAGE.format(content=docs, lang=self.lang, dir=self.direction)
-        else:
-            markup = "".join(rendered)
-        if minify:
-            return minify_html(markup)
-        return markup
-
-    def render_ents(self, text, spans, title):
-        """Render entities in text.
-
-        text (unicode): Original text.
-        spans (list): Individual entity spans and their start, end and label.
-        title (unicode or None): Document title set in Doc.user_data['title'].
-        """
-        markup = ""
-        offset = 0
-        for span in spans:
-            label = span["label"]
-            start = span["start"]
-            end = span["end"]
-            additional_params = span.get("params", {})
-            entity = escape_html(text[start:end])
-            fragments = text[offset:start].split("\n")
-            for i, fragment in enumerate(fragments):
-                markup += escape_html(fragment)
-                if len(fragments) > 1 and i != len(fragments) - 1:
-                    markup += "</br>"
-            if self.ents is None or label.upper() in self.ents:
-                color = self.colors.get(label.upper(), self.default_color)
-                ent_settings = {"label": label, "text": entity, "bg": color}
-                ent_settings.update(additional_params)
-                markup += self.ent_template.format(**ent_settings)
-            else:
-                markup += entity
-            offset = end
-        markup += escape_html(text[offset:])
-        markup = TPL_ENTS.format(content=markup, dir=self.direction)
-        if title:
-            markup = TPL_TITLE.format(title=title) + markup
-        return markup

@@ -42,27 +42,6 @@ TPL_TITLE = """
 <h2 style="margin: 0">{title}</h2>
 """
 
-
-TPL_ENTS = """
-<div class="entities" style="line-height: 2.5; direction: {dir}">{content}</div>
-"""
-
-
-TPL_ENT = """
-<mark class="entity" style="background: {bg}; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
-    {text}
-    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; text-transform: uppercase; vertical-align: middle; margin-left: 0.5rem">{label}</span>
-</mark>
-"""
-
-TPL_ENT_RTL = """
-<mark class="entity" style="background: {bg}; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em">
-    {text}
-    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; text-transform: uppercase; vertical-align: middle; margin-right: 0.5rem">{label}</span>
-</mark>
-"""
-
-
 TPL_PAGE = """
 <!DOCTYPE html>
 <html lang="{lang}">
