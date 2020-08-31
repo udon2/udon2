@@ -6,3 +6,4 @@ TODO
 src/udon2.egg-info/
 build/
 dist
+cpp_src/main.cpp

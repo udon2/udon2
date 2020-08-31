@@ -110,7 +110,7 @@ public:
     Node* getParent();
     NodeList getChildren();
 
-    bool hasUfeat(std::string, std::string);
+    bool hasMorph(std::string, std::string);
 
     NodeList getByRelChain(std::string value);
 

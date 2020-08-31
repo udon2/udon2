@@ -140,7 +140,7 @@ string Node::getMorph() {
     return Util::stringJoin(feats, '|');
 }
 
-bool Node::hasUfeat(string key, string value) {
+bool Node::hasMorph(string key, string value) {
     if (ufeats.count(key) > 0) {
         return ufeats[key] == value;
     } else {
@@ -816,7 +816,17 @@ void Node::makeRoot() {
 }
 
 string Node::toString() {
-    return pos + "|" + rel + "|" + text;
+    string res;
+    if (!pos.empty()) res += pos;
+    if (!rel.empty()) {
+        if (!res.empty()) res += "|";
+        res += rel;
+    }
+    if (!text.empty()) {
+        if (!res.empty()) res += "|";
+        res += text;   
+    }
+    return res;
 }
 
 

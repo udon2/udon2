@@ -24,10 +24,10 @@ namespace algorithms {
         float* kernel_mat = new float[lmin];
 
         kernel_mat[0] = 0;
-        for (int i = 1; i < ch1_size; i++) {
-            for (int j = 1; j < ch2_size; j++) {
-                if (ch1[i]->getText() == ch2[j]->getText()) {
-                    DPS[i][j] = ptkDelta(ch1[i], ch2[j]);
+        for (int i = 1; i <= ch1_size; i++) {
+            for (int j = 1; j <= ch2_size; j++) {
+                if (ch1[i-1]->getText() == ch2[j-1]->getText()) {
+                    DPS[i][j] = ptkDelta(ch1[i-1], ch2[j-1]);
                     kernel_mat[0] += DPS[i][j];
                 } else {
                     DPS[i][j] = 0;
@@ -35,21 +35,27 @@ namespace algorithms {
             }
         }
 
-        for (int j = 0; j < ch2_size; j++)
+        for (int j = 0; j <= ch2_size; j++)
             DP[0][j] = 0;
 
-        for (int i = 0; i < ch1_size; i++)
+        for (int i = 0; i <= ch1_size; i++)
             DP[i][0] = 0;
 
         for (int l = 1; l < lmin; l++) {
             kernel_mat[l] = 0;
 
-            for (int i = l; i < ch1_size; i++) {
-                for (int j = l; j < ch2_size; j++) {
+            // for (int j = 0; j <= ch2_size; j++)
+            //     DP[l-1][j] = 0;
+
+            // for (int i = 0; i <= ch1_size; i++)
+            //     DP[i][l-1] = 0;
+
+            for (int i = l; i <= ch1_size; i++) {
+                for (int j = l; j <= ch2_size; j++) {
                     DP[i][j] = DPS[i][j] + lambda * DP[i][j-1] + lambda * DP[i-1][j] - lambda2 * DP[i-1][j-1];
 
-                    if (ch1[i]->getText() == ch2[j]->getText()) {
-                        DPS[i][j] = ptkDelta(ch1[i], ch2[j]) * DP[i-1][j-1];
+                    if (ch1[i-1]->getText() == ch2[j-1]->getText()) {
+                        DPS[i][j] = ptkDelta(ch1[i-1], ch2[j-1]) * DP[i-1][j-1];
                         kernel_mat[l] += DPS[i][j];
                     }
                 }
@@ -114,6 +120,9 @@ namespace algorithms {
         // The labels are stored in the text field
         NodeList L1 = r1->linearBy(compare_node_by_text());
         NodeList L2 = r2->linearBy(compare_node_by_text());
+
+        cout << L1.toString() << endl;
+        cout << L2.toString() << endl;
 
         auto l1 = L1.begin();
         auto l2 = L2.begin();

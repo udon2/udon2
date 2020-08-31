@@ -39,7 +39,7 @@ BOOST_PYTHON_MODULE(core)
         .def("get_morph", &Node::getMorph)
         .def("get_parent", &Node::getParent,
             return_internal_reference<1>())
-        .def("has_ufeat", &Node::hasUfeat)
+        .def("has_morph", &Node::hasMorph)
         .def("get_children", &Node::getChildren)
         .def("get_subtree_nodes", &Node::getSubtreeNodes)
         .def("is_root", &Node::isRoot)
@@ -90,6 +90,12 @@ BOOST_PYTHON_MODULE(core)
         .def("reset_subtree", &Node::resetSubtree)
         .def("get_by_rel_chain", &Node::getByRelChain)
         .def("group_by", &Node::groupBy)
+        .def("to_grct", &Node::toGRCT,
+            return_internal_reference<1>())
+        .def("to_pct", &Node::toPCT,
+            return_internal_reference<1>())
+        .def("to_lct", &Node::toLCT,
+            return_internal_reference<1>())
         ;
 
     class_<ConllReader>("ConllReader")
