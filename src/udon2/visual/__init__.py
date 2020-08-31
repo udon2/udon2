@@ -1,10 +1,8 @@
 # coding: utf8
-"""
-Adapted from spaCy's built in visualization suite for dependencies and named entities.
 
-DOCS: https://spacy.io/api/top-level#displacy
-USAGE: https://spacy.io/usage/visualizers
-"""
+# Adapted from spaCy's built in visualization suite for dependencies and named entities.
+# https://github.com/explosion/spaCy/tree/master/spacy/displacy
+
 from __future__ import unicode_literals
 
 from udon2 import Node

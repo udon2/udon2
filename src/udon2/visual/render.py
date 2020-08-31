@@ -1,4 +1,8 @@
 # coding: utf8
+
+# Adapted from spaCy's built in visualization suite for dependencies and named entities.
+# https://github.com/explosion/spaCy/tree/master/spacy/displacy
+
 from __future__ import unicode_literals
 
 import uuid

@@ -21,4 +21,3 @@
 5   han han PRON    PN|UTR|SIN|DEF|SUB  Case=Nom|Definite=Def|Gender=Com|Number=Sing|PronType=Prs   7   nsubj   _   _
 6   är  vara    AUX VB|PRS|AKT  Mood=Ind|Tense=Pres|VerbForm=Fin|Voice=Act  7   cop _   _
 7   hungrig hungrig ADJ JJ|POS|UTR|SIN|IND|NOM  Case=Nom|Definite=Ind|Degree=Pos|Gender=Com|Number=Sing 3   advcl   _   _
-

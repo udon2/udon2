@@ -1,3 +1,6 @@
+# Adapted from spaCy's built in visualization suite for dependencies and named entities.
+# https://github.com/explosion/spaCy/tree/master/spacy/displacy
+
 def is_in_jupyter():
     """Check if user is running spaCy from a Jupyter notebook by detecting the
     IPython kernel. Mainly used for the displaCy visualizer.
@@ -34,4 +37,3 @@ def escape_html(text):
     text = text.replace(">", "&gt;")
     text = text.replace('"', "&quot;")
     return text
-

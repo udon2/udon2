@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 HOME_DIR = str(Path.home())
-C_SRC = 'cpp_src'
+C_SRC = 'udon2_cpp_src'
 README = "README.md"
 
 
@@ -44,10 +44,10 @@ def compiled_obj_files_iter():
         except:
             continue
 
-algorithms_module = setuptools.Extension(
-    'udon2.algorithms',
+kernels_module = setuptools.Extension(
+    'udon2.kernels',
     sources=[
-        os.path.join(C_SRC, 'algorithms.cpp')
+        os.path.join(C_SRC, 'kernels.cpp')
     ],
     extra_objects=compiled_obj_files_iter(), # sort of lazy eval here to reuse the already compiled files
     include_dirs=[path_info['include'], os.path.join(HOME_DIR, '.local', 'include')],
@@ -71,7 +71,7 @@ setuptools.setup(
         "License :: OSI Approved :: GPLv3 License",
         "Operating System :: OS Independent",
     ],
-    ext_modules=[core_module, algorithms_module],
+    ext_modules=[core_module, kernels_module],
     python_requires='>=3.6',
     install_requires=["langdetect", "six"]
 )

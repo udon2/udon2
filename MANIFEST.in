@@ -1,2 +1,2 @@
-include cpp_src/*.h
-include cpp_src/*.hpp
+include udon2_cpp_src/*.h
+include udon2_cpp_src/*.hpp
