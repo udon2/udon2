@@ -13,14 +13,14 @@
 #include <string>
 
 #include <boost/python/suite/indexing/indexing_suite.hpp>
-#include <boost/iterator/transform_iterator.hpp>
+#include <boost/python/iterator.hpp>
 #include <boost/python/call_method.hpp>
 #include <boost/python/data_members.hpp>
-#include <boost/python/dict.hpp>
-#include <boost/python/iterator.hpp>
-#include <boost/python/list.hpp>
-#include <boost/python/overloads.hpp>
 #include <boost/python/tuple.hpp>
+#include <boost/python/list.hpp>
+#include <boost/python/dict.hpp>
+#include <boost/python/overloads.hpp>
+#include <boost/iterator/transform_iterator.hpp>
 
 namespace bp = boost::python;
 
@@ -72,7 +72,7 @@ class map_indexing_suite_v2
   typedef typename Container::const_iterator const_iterator;
 
   // __getitem__ for std::pair
-  static object pair_getitem(value_type const &x, int i) {
+  static object pair_getitem(value_type const& x, int i) {
     if (i == 0 || i == -2) {
       return object(x.first);
     } else if (i == 1 || i == -1) {
@@ -84,24 +84,24 @@ class map_indexing_suite_v2
     }
   }
   // __len__ std::pair = 2
-  static int pair_len(value_type const &x) { return 2; }
+  static int pair_len(value_type const& x) { return 2; }
 
   // return a list of keys
-  static bp::list keys(Container const &x) {
+  static bp::list keys(Container const& x) {
     bp::list t;
     for (typename Container::const_iterator it = x.begin(); it != x.end(); it++)
       t.append(it->first);
     return t;
   }
   // return a list of values
-  static bp::list values(Container const &x) {
+  static bp::list values(Container const& x) {
     bp::list t;
     for (typename Container::const_iterator it = x.begin(); it != x.end(); it++)
       t.append(it->second);
     return t;
   }
   // return a list of (key,value) tuples
-  static bp::list items(Container const &x) {
+  static bp::list items(Container const& x) {
     bp::list t;
     for (typename Container::const_iterator it = x.begin(); it != x.end(); it++)
       t.append(make_tuple(it->first, it->second));
@@ -110,15 +110,15 @@ class map_indexing_suite_v2
 
   // return a shallow copy of the map
   // FIXME: is this actually a shallow copy, or did i duplicate the pairs?
-  static Container copy(Container const &x) {
+  static Container copy(Container const& x) {
     Container newmap = Container();
     for (const_iterator it = x.begin(); it != x.end(); it++) newmap.insert(*it);
     return newmap;
   }
 
   // get with default value
-  static object dict_get(Container const &x, index_type const &k,
-                         object const &default_val = object()) {
+  static object dict_get(Container const& x, index_type const& k,
+                         object const& default_val = object()) {
     const_iterator it = x.find(k);
     if (it != x.end())
       return object(it->second);
@@ -129,12 +129,12 @@ class map_indexing_suite_v2
   BOOST_PYTHON_FUNCTION_OVERLOADS(dict_get_overloads, dict_get, 2, 3);
 
   // pop map[key], or throw an error if it doesn't exist
-  static object dict_pop(const Container &x, index_type const &k) {
-    const_iterator it = x.find(k);
+  static object dict_pop(Container* x, index_type const& k) {
+    const_iterator it = x->find(k);
     object result;
-    if (it != x.end()) {
+    if (it != x->end()) {
       result = object(it->second);
-      x.erase(it->first);
+      x->erase(it->first);
       return result;
     } else {
       PyErr_SetString(PyExc_KeyError, "Key not found.");
@@ -144,13 +144,13 @@ class map_indexing_suite_v2
   }
 
   // pop map[key], or return default_val if it doesn't exist
-  static object dict_pop_default(const Container &x, index_type const &k,
-                                 object const &default_val) {
-    const_iterator it = x.find(k);
+  static object dict_pop_default(Container* x, index_type const& k,
+                                 object const& default_val) {
+    const_iterator it = x->find(k);
     object result;
-    if (it != x.end()) {
+    if (it != x->end()) {
       result = object(it->second);
-      x.erase(it->first);
+      x->erase(it->first);
       return result;
     } else {
       return default_val;
@@ -158,12 +158,12 @@ class map_indexing_suite_v2
   }
 
   // pop a tuple, or throw an error if empty
-  static object dict_pop_item(const Container &x) {
-    const_iterator it = x.begin();
+  static object dict_pop_item(Container* x) {
+    const_iterator it = x->begin();
     object result;
-    if (it != x.end()) {
+    if (it != x->end()) {
       result = make_tuple(it->first, it->second);
-      x.erase(it->first);
+      x->erase(it->first);
       return result;
     } else {
       PyErr_SetString(PyExc_KeyError, "No more items to pop");
@@ -173,7 +173,7 @@ class map_indexing_suite_v2
   }
 
   // create a new map with given keys, initialialized to value
-  static object dict_fromkeys(object const &keys, object const &value) {
+  static object dict_fromkeys(object const& keys, object const& value) {
     object newmap = object(Container());
     int numkeys = extract<int>(keys.attr("__len__")());
     for (int i = 0; i < numkeys; i++) {  // 'cuz python is more fun in C++...
@@ -190,8 +190,8 @@ class map_indexing_suite_v2
 
     // connect the PyObject to a wrapped C++ instance
     // borrowed from boost/python/object/make_holder.hpp
-    static void make_holder(PyObject *p) {
-      void *memory =
+    static void make_holder(PyObject* p) {
+      void* memory =
           Holder::allocate(p, offsetof(instance_t, storage), sizeof(Holder));
 
       try {
@@ -203,13 +203,13 @@ class map_indexing_suite_v2
       }
     }
 
-    static void from_dict(PyObject *p, bp::dict const &dict) {
+    static void from_dict(PyObject* p, bp::dict const& dict) {
       make_holder(p);
       object newmap = object(bp::handle<>(borrowed(p)));
       newmap.attr("update")(dict);
     }
 
-    static void from_list(PyObject *p, bp::list const &list) {
+    static void from_list(PyObject* p, bp::list const& list) {
       make_holder(p);
       object newmap = object(bp::handle<>(borrowed(p)));
       newmap.attr("update")(bp::dict(list));
@@ -217,13 +217,13 @@ class map_indexing_suite_v2
   };
 
   // copy keys and values from dictlike object (anything with keys())
-  static void dict_update(const object &x, object const &dictlike) {
+  static void dict_update(object* x, object const& dictlike) {
     object key;
     object keys = dictlike.attr("keys")();
     int numkeys = extract<int>(keys.attr("__len__")());
     for (int i = 0; i < numkeys; i++) {
       key = keys.attr("__getitem__")(i);
-      x.attr("__setitem__")(key, dictlike.attr("__getitem__")(key));
+      x->attr("__setitem__")(key, dictlike.attr("__getitem__")(key));
     }
   }
 
@@ -231,19 +231,19 @@ class map_indexing_suite_v2
   struct iterkeys {
     typedef key_type result_type;
 
-    result_type operator()(value_type const &x) const { return x.first; }
+    result_type operator()(value_type const& x) const { return x.first; }
   };
 
   struct itervalues {
     typedef data_type result_type;
 
-    result_type operator()(value_type const &x) const { return x.second; }
+    result_type operator()(value_type const& x) const { return x.second; }
   };
 
   struct iteritems {
     typedef tuple result_type;
 
-    result_type operator()(value_type const &x) const {
+    result_type operator()(value_type const& x) const {
       return make_tuple(x.first, x.second);
     }
   };
@@ -252,11 +252,11 @@ class map_indexing_suite_v2
   struct make_transform_impl {
     typedef boost::transform_iterator<Transform, const_iterator> iterator;
 
-    static iterator begin(const Container &m) {
+    static iterator begin(const Container& m) {
       return boost::make_transform_iterator(m.begin(), Transform());
     }
 
-    static iterator end(const Container &m) {
+    static iterator end(const Container& m) {
       return boost::make_transform_iterator(m.end(), Transform());
     }
 
@@ -268,21 +268,21 @@ class map_indexing_suite_v2
     return make_transform_impl<Transform>::range();
   }
 
-  static object print_elem(typename Container::value_type const &e) {
+  static object print_elem(typename Container::value_type const& e) {
     return "(%s, %s)" % python::make_tuple(e.first, e.second);
   }
 
-  static typename mpl::if_<is_class<data_type>, data_type &, data_type>::type
-  get_data(typename const Container::value_type &e) {
-    return e.second;
+  static typename mpl::if_<is_class<data_type>, data_type&, data_type>::type
+  get_data(typename Container::value_type* e) {
+    return e->second;
   }
 
   static typename Container::key_type get_key(
-      typename const Container::value_type &e) {
-    return e.first;
+      typename Container::value_type* e) {
+    return e->first;
   }
 
-  static data_type &get_item(const Container &container, index_type i_) {
+  static data_type& get_item(Container& container, index_type i_) {
     typename Container::iterator i = container.find(i_);
     if (i == container.end()) {
       PyErr_SetString(PyExc_KeyError, "Invalid key");
@@ -291,28 +291,26 @@ class map_indexing_suite_v2
     return i->second;
   }
 
-  static void set_item(const Container &container, index_type i,
-                       data_type const &v) {
+  static void set_item(Container& container, index_type i, data_type const& v) {
     container[i] = v;
   }
 
-  static void delete_item(const Container &container, index_type i) {
+  static void delete_item(Container& container, index_type i) {
     container.erase(i);
   }
 
-  static size_t size(const Container &container) { return container.size(); }
+  static size_t size(Container& container) { return container.size(); }
 
-  static bool contains(const Container &container, key_type const &key) {
+  static bool contains(Container& container, key_type const& key) {
     return container.find(key) != container.end();
   }
 
-  static bool compare_index(const Container &container, index_type a,
-                            index_type b) {
+  static bool compare_index(Container& container, index_type a, index_type b) {
     return container.key_comp()(a, b);
   }
 
-  static index_type convert_index(const Container &container, PyObject *i_) {
-    extract<key_type const &> i(i_);
+  static index_type convert_index(Container& container, PyObject* i_) {
+    extract<key_type const&> i(i_);
     if (i.check()) {
       return i();
     } else {
@@ -326,7 +324,7 @@ class map_indexing_suite_v2
   }
 
   template <class Class>
-  static void extension_def(const Class &cl) {
+  static void extension_def(Class& cl) {
     //  Wrap the map's element (value_type)
     std::string elem_name = "map_indexing_suite_v2_";
     std::string cl_name;
@@ -337,7 +335,7 @@ class map_indexing_suite_v2
     elem_name += "_entry";
 
     typedef typename mpl::if_<
-        mpl::and_<mpl::or_<is_class<data_type>, is_class<data_type &> >,
+        mpl::and_<mpl::or_<is_class<data_type>, is_class<data_type&> >,
                   mpl::bool_<!NoProxy> >,
         return_internal_reference<>, default_call_policies>::type
         get_data_return_policy;

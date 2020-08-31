@@ -19,7 +19,7 @@ repos:
         args: [--style=Google, --sort-includes=false]
         log_file: pre-commit-cpp.log
     -   id: cpplint
-        args: [--filter=-build/include_subdir]
+        args: [--filter=-build/include_subdir, --exclude=udon2_cpp_src/map_indexing_suite_v2.hpp]
         log_file: pre-commit-cpp.log
     -   id: cppcheck
         args: [--std=c++11, --language=c++]
