@@ -25,6 +25,7 @@ core_module = setuptools.Extension(
     sources=[
         os.path.join(C_SRC, 'Util.cpp'),
         os.path.join(C_SRC, 'Node.cpp'),
+        os.path.join(C_SRC, 'MultiWordNode.cpp'),
         os.path.join(C_SRC, 'ConllReader.cpp'),
         os.path.join(C_SRC, 'core.cpp')
     ],

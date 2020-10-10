@@ -15,21 +15,21 @@ TPL_DEP_SVG = """
 
 TPL_DEP_WORDS = """
 <text class="token" fill="currentColor" text-anchor="middle" y="{y}">
-    <tspan class="word" fill="currentColor" x="{x}">{text}</tspan>
-    <tspan class="tag" dy="2em" fill="currentColor" x="{x}">{tag}</tspan>
+    <tspan class="word" fill="currentColor" x="{x}" font-size="2em">{text}</tspan>
+    <tspan class="tag" dy="2em" fill="currentColor" x="{x}" font-size="2em">{tag}</tspan>
     {morph}
 </text>
 """
 
 TPL_DEP_MORPH = """
-<tspan class="tag" dy="{dy}" fill="currentColor" x="{x}">{morph}</tspan>
+<tspan class="tag" dy="{dy}" fill="currentColor" x="{x}" font-size="1.75em">{morph}</tspan>
 """
 
 
 TPL_DEP_ARCS = """
 <g class="arrow">
     <path class="arc" id="arrow-{id}-{i}" stroke-width="{stroke}px" d="{arc}" fill="none" stroke="currentColor"/>
-    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+    <text dy="1.25em" style="font-size: 1.75em; letter-spacing: 1px">
         <textPath xlink:href="#arrow-{id}-{i}" class="label" startOffset="50%" side="{label_side}" fill="currentColor" text-anchor="middle">{label}</textPath>
     </text>
     <path class="arrowhead" d="{head}" fill="currentColor"/>
