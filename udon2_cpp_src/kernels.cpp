@@ -31,7 +31,7 @@ float ConvPartialTreeKernel::ptkSumDeltaP(NodeList ch1, NodeList ch2) {
   kernel_mat[0] = 0;
   for (int i = 1; i <= ch1_size; i++) {
     for (int j = 1; j <= ch2_size; j++) {
-      if (ch1[i - 1]->getText() == ch2[j - 1]->getText()) {
+      if (ch1[i - 1]->getForm() == ch2[j - 1]->getForm()) {
         DPS[i][j] = ptkDelta(ch1[i - 1], ch2[j - 1]);
         kernel_mat[0] += DPS[i][j];
       } else {
@@ -58,7 +58,7 @@ float ConvPartialTreeKernel::ptkSumDeltaP(NodeList ch1, NodeList ch2) {
         DP[i][j] = DPS[i][j] + lambda * DP[i][j - 1] + lambda * DP[i - 1][j] -
                    lambda2 * DP[i - 1][j - 1];
 
-        if (ch1[i - 1]->getText() == ch2[j - 1]->getText()) {
+        if (ch1[i - 1]->getForm() == ch2[j - 1]->getForm()) {
           DPS[i][j] = ptkDelta(ch1[i - 1], ch2[j - 1]) * DP[i - 1][j - 1];
           kernel_mat[l] += DPS[i][j];
         }
@@ -79,7 +79,7 @@ float ConvPartialTreeKernel::ptkDelta(Node *n1, Node *n2) {
     return deltas[n1->getId()][n2->getId()];
   }
 
-  if (n1->getText() != n2->getText()) {
+  if (n1->getForm() != n2->getForm()) {
     deltas[n1->getId()][n2->getId()] = 0;
   } else if (!n1->hasChildren() || !n2->hasChildren()) {
     deltas[n1->getId()][n2->getId()] = mu * lambda2;
@@ -123,9 +123,9 @@ float ConvPartialTreeKernel::eval(Node *root1, Node *root2) {
     return -1;
   }
 
-  // The labels are stored in the text field
-  NodeList L1 = r1->linearBy(compare_node_by_text());
-  NodeList L2 = r2->linearBy(compare_node_by_text());
+  // The labels are stored in the form field
+  NodeList L1 = r1->linearBy(compare_node_by_form());
+  NodeList L2 = r2->linearBy(compare_node_by_form());
 
   auto l1 = L1.begin();
   auto l2 = L2.begin();
@@ -134,14 +134,14 @@ float ConvPartialTreeKernel::eval(Node *root1, Node *root2) {
   auto l2_end = L2.end();
 
   while (l1 != l1_end && l2 != l2_end) {
-    if ((*l1)->getText() > (*l2)->getText()) {
+    if ((*l1)->getForm() > (*l2)->getForm()) {
       l2++;
-    } else if ((*l1)->getText() < (*l2)->getText()) {
+    } else if ((*l1)->getForm() < (*l2)->getForm()) {
       l1++;
     } else {
       auto l2_old = l2;
-      while (l1 != l1_end && (*l1)->getText() == (*l2)->getText()) {
-        while (l2 != l2_end && (*l1)->getText() == (*l2)->getText()) {
+      while (l1 != l1_end && (*l1)->getForm() == (*l2)->getForm()) {
+        while (l2 != l2_end && (*l1)->getForm() == (*l2)->getForm()) {
           value += ptkDelta(*l1, *l2);
           l2++;
         }

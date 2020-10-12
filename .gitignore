@@ -7,4 +7,6 @@ src/udon2.egg-info/
 build/
 dist
 udon2_cpp_src/main.cpp
+udon2_cpp_src/main
+benchmarks/
 *.log

@@ -12,10 +12,13 @@
 #include <string>
 #include <vector>
 
+#include "MultiWordNode.h"
+
+#include "Util.h"
+
 class Node;
 struct NodeComparator;
 
-typedef std::map<std::string, std::string> FeatMap;
 typedef std::string (Node::*getterptr)();
 
 class NodeList {
@@ -60,50 +63,56 @@ typedef std::map<std::string, NodeList> GroupedNodes;
 
 // represents token
 class Node {
-  std::string text;
-  std::string pos;
-  std::string rel;
+  std::string form;
+  std::string xpos;
+  std::string upos;
+  std::string deprel;
   float id;
   std::string lemma;
   bool mIgnore = false;
 
   Node *parent;
   NodeList children;
-  FeatMap ufeats;  // m
+  Util::FeatMap feats;  // m
+  Util::FeatMap misc;
 
-  NodeList selectBy(std::string prop, std::string value, bool negate);
-  NodeList getBy(std::string prop, std::string value);
   getterptr getterByProp(std::string prop);
-  bool propExists(std::string prop, std::string value);
-  bool childHasProp(std::string prop, std::string value);
-  FeatMap parseMorphFeatures(std::string morph);
   NodeList selectHaving(std::string value, bool negate);
-  void accumulateByRelChain(std::string value, NodeList *res, int depth);
+  void accumulateByDeprelChain(std::string value, NodeList *res, int depth);
 
   std::string _subtreeToString(int);
 
+  MultiWordNode *mwNode = NULL;
+
  public:
   Node();
-  Node(float id, std::string text, std::string lemma, std::string pos,
-       std::string morph, std::string rel, Node *parent);
+  Node(float id, std::string form, std::string lemma, std::string upos,
+       std::string xpos, std::string feats, std::string deprel,
+       std::string misc, Node *parent);
   explicit Node(Node *n);
-  void init(float id, std::string text, std::string lemma, std::string pos,
-            std::string morph, std::string rel, Node *parent);
+  void init(float id, std::string form, std::string lemma, std::string upos,
+            std::string xpos, std::string feats, std::string deprel,
+            std::string misc, Node *parent);
 
-  std::string getText();
+  std::string getForm() { return form; }
+  float getId() { return id; }
+  std::string getLemma() { return lemma; }
+  std::string getXpos() { return xpos; }
+  std::string getUpos() { return upos; }
+  Util::FeatMap getFeats() { return feats; }
+  std::string getDeprel() { return deprel; }
+  Util::FeatMap getMisc() { return misc; }
+  Node *getParent() { return parent; }
+  NodeList getChildren() {
+    return children;
+  }  // children are sorted by means of NodeComparator
+  MultiWordNode *getMultiWord() { return mwNode; }
+  std::string getFeatsAsString();
   std::string getSubtreeText();
-  float getId();
-  std::string getLemma();
-  std::string getPos();
-  FeatMap getUfeats();
-  std::string getRel();
-  std::string getMorph();
-  Node *getParent();
-  NodeList getChildren();
 
-  bool hasMorph(std::string, std::string);
+  void setMultiWord(MultiWordNode *n) { mwNode = n; }
 
-  NodeList getByRelChain(std::string value);
+  bool hasFeat(std::string, std::string);
 
   NodeList getSubtreeNodes();
 
@@ -130,48 +139,32 @@ class Node {
   void copyChildren(Node *node);
   void addChild(Node *node);
 
-  bool hasAllMorph(std::string value);
+  bool hasAllFeats(std::string value);
 
-  NodeList selectByPos(std::string value);
-  NodeList selectByLemma(std::string value);
-  NodeList selectByRel(std::string value);
-  NodeList selectByMorph(std::string value);
-  NodeList selectByText(std::string value);
-  NodeList selectByRelChain(std::string value);
+  NodeList selectBy(std::string prop, std::string value, bool negate);
+  NodeList selectByDeprelChain(std::string value);
+
+  NodeList getBy(std::string prop, std::string value);
+  NodeList getByDeprelChain(std::string value);
 
   GroupedNodes groupBy(std::string prop);
 
-  NodeList selectHavingMorph(std::string value);
-  NodeList selectMissingMorph(std::string value);
+  NodeList selectHavingFeats(std::string value);
+  NodeList selectMissingFeats(std::string value);
 
   bool isIdentical(Node *node, std::string excludeProps);
   NodeList selectIdentical(Node *node);
   NodeList selectIdenticalExcept(Node *node, std::string excludeProps);
-  NodeList select(std::string query);
+  NodeList select(
+      std::string query);  // TODO(dmytro): implement a query language
 
   void prune(std::string rel);
   void removeChild(Node *node);
 
-  NodeList selectExceptPos(std::string value);
-  NodeList selectExceptLemma(std::string value);
-  NodeList selectExceptRel(std::string value);
-  NodeList selectExceptText(std::string value);
-
-  NodeList getByPos(std::string value);
-  NodeList getByLemma(std::string value);
-  NodeList getByRel(std::string value);
-
   Node *textualIntersect(std::string text);
 
-  bool posExists(std::string value);
-  bool lemmaExists(std::string value);
-  bool relExists(std::string value);
-  bool textExists(std::string value);
-
-  bool childHasPos(std::string value);
-  bool childHasLemma(std::string value);
-  bool childHasRel(std::string value);
-  bool childHasText(std::string value);
+  bool propExists(std::string prop, std::string value);
+  bool childHasProp(std::string prop, std::string value);
 
   std::string toString();
   std::string subtreeToString();
@@ -201,9 +194,9 @@ struct compare_node_by_string {
   }
 };
 
-struct compare_node_by_text {
+struct compare_node_by_form {
   bool operator()(Node *left, Node *right) {
-    return left->getText() < right->getText();
+    return left->getForm() < right->getForm();
   }
 };
 

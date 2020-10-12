@@ -7,11 +7,17 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 namespace Util {
+typedef std::map<std::string, std::string> FeatMap;
+
 std::vector<std::string> stringSplit(std::string strToSplit, char delimeter);
 std::string stringJoin(std::vector<std::string> v, char joinStr);
-std::string stringJoin(std::string v[], char joinStr);
+std::string stringJoin(std::string v[], int size, char joinStr);
+
+FeatMap parseUniversalFormat(std::string feats);
+std::string stringifyFeatMap(FeatMap feats);
 };  // namespace Util
 
 #endif  // UDON2_CPP_SRC_UTIL_H_

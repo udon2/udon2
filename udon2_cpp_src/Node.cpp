@@ -11,8 +11,6 @@
 #include <map>
 #include <sstream>
 
-#include "Util.h"
-
 /*
  * NodeList methods
  */
@@ -47,104 +45,92 @@ std::string NodeList::toString() {
  * Node methods
  */
 Node::Node()
-    : text("root"), pos("ROOT"), rel(""), id(0), lemma(""), parent(NULL) {
+    : form("root"),
+      upos("_"),
+      xpos("_"),
+      deprel("_"),
+      id(0),
+      lemma("_"),
+      parent(NULL) {
   this->mIgnore = false;
 }
 
-Node::Node(float id, std::string text, std::string lemma, std::string pos,
-           std::string morph, std::string rel, Node *parent)
-    : text(text), pos(pos), rel(rel), id(id), lemma(lemma), parent(parent) {
-  this->ufeats = parseMorphFeatures(morph);
+Node::Node(float id, std::string form, std::string lemma, std::string upos,
+           std::string xpos, std::string feats, std::string deprel,
+           std::string misc, Node *parent)
+    : form(form),
+      upos(upos),
+      xpos(xpos),
+      deprel(deprel),
+      id(id),
+      lemma(lemma),
+      parent(parent) {
+  this->feats = Util::parseUniversalFormat(feats);
+  this->misc = Util::parseUniversalFormat(misc);
   this->mIgnore = false;
   if (parent != NULL) parent->addChild(this);
 }
 
 Node::Node(Node *n) {
   this->id = n->getId();
-  this->text = n->getText();
+  this->form = n->getForm();
   this->lemma = n->getLemma();
-  this->pos = n->getPos();
-  this->rel = n->getRel();
+  this->upos = n->getUpos();
+  this->xpos = n->getXpos();
+  this->deprel = n->getDeprel();
   this->parent = n->getParent();
-  this->ufeats = n->getUfeats();
+  this->feats = n->getFeats();
+  this->misc = n->getMisc();
   this->copyChildren(n);
   this->mIgnore = n->isIgnored();
 }
 
-void Node::init(float id, std::string text, std::string lemma, std::string pos,
-                std::string morph, std::string rel, Node *parent) {
+void Node::init(float id, std::string form, std::string lemma, std::string upos,
+                std::string xpos, std::string feats, std::string deprel,
+                std::string misc, Node *parent) {
   this->id = id;
-  this->text = text;
+  this->form = form;
   this->lemma = lemma;
-  this->pos = pos;
-  this->rel = rel;
+  this->upos = upos;
+  this->xpos = xpos;
+  this->deprel = deprel;
   this->parent = parent;
+  this->misc = Util::parseUniversalFormat(misc);
   if (parent != NULL) parent->addChild(this);
-  this->ufeats = parseMorphFeatures(morph);
+  this->feats = Util::parseUniversalFormat(feats);
   this->mIgnore = false;
 }
 
 bool Node::isRoot() { return parent == NULL; }
 
-std::string Node::getText() { return text; }
-
-float Node::getId() { return id; }
-
-std::string Node::getLemma() { return lemma; }
-
-std::string Node::getPos() { return pos; }
-
-FeatMap Node::parseMorphFeatures(std::string morph) {
-  FeatMap ufeats = FeatMap();
-  std::vector<std::string> feats = Util::stringSplit(morph, '|');
-  for (std::string f : feats) {
-    std::vector<std::string> kv = Util::stringSplit(f, '=');
-    if (kv.size() == 2) {
-      ufeats[kv[0]] = kv[1];
-    }
-  }
-  return ufeats;
-}
-
-FeatMap Node::getUfeats() { return ufeats; }
-
-std::string Node::getMorph() {
+std::string Node::getFeatsAsString() {
   // Create a map iterator and point to beginning of map
-  std::map<std::string, std::string>::iterator it = ufeats.begin();
+  std::map<std::string, std::string>::iterator it = feats.begin();
 
-  std::vector<std::string> feats;
+  std::vector<std::string> featsVec;
 
   // Iterate over the map using Iterator till end.
-  while (it != ufeats.end()) {
-    feats.push_back(it->first + "=" + it->second);
+  while (it != feats.end()) {
+    featsVec.push_back(it->first + "=" + it->second);
 
     // Increment the Iterator to point to next entry
     it++;
   }
 
-  std::sort(feats.begin(), feats.end());
+  std::sort(featsVec.begin(), featsVec.end());
 
-  return Util::stringJoin(feats, '|');
+  return Util::stringJoin(featsVec, '|');
 }
 
-bool Node::hasMorph(std::string key, std::string value) {
-  if (ufeats.count(key) > 0) {
-    return ufeats[key] == value;
+bool Node::hasFeat(std::string key, std::string value) {
+  if (feats.count(key) > 0) {
+    return feats[key] == value;
   } else {
     return false;
   }
 }
 
-std::string Node::getRel() { return rel; }
-
-Node *Node::getParent() { return parent; }
-
 bool Node::hasChildren() { return children.size() > 0; }
-
-NodeList Node::getChildren() {
-  // children are sorted by means of NodeComparator
-  return children;
-}
 
 NodeList Node::getSubtreeNodes() {
   NodeList all;
@@ -253,7 +239,7 @@ std::string Node::getSubtreeText() {
   std::map<float, bool> isPunct;
   int wordsNum;
   if (!isIgnored()) {
-    words[id] = text;
+    words[id] = form;
     wordsNum = 1;
   } else {
     wordsNum = 0;
@@ -262,8 +248,8 @@ std::string Node::getSubtreeText() {
   while (!nodes.empty()) {
     if (!nodes.front()->isIgnored() &&
         words.find(nodes.front()->getId()) == words.end()) {
-      words[nodes.front()->getId()] = nodes.front()->getText();
-      isPunct[nodes.front()->getId()] = nodes.front()->getPos() == "PUNCT";
+      words[nodes.front()->getId()] = nodes.front()->getForm();
+      isPunct[nodes.front()->getId()] = nodes.front()->getUpos() == "PUNCT";
       wordsNum++;
     }
 
@@ -342,16 +328,16 @@ NodeList Node::linearSorted() {
 
 getterptr Node::getterByProp(std::string prop) {
   getterptr getterFn = NULL;
-  if (prop == "pos")
-    getterFn = &Node::getPos;
+  if (prop == "upos")
+    getterFn = &Node::getUpos;
   else if (prop == "lemma")
     getterFn = &Node::getLemma;
-  else if (prop == "rel")
-    getterFn = &Node::getRel;
-  else if (prop == "morph")
-    getterFn = &Node::getMorph;
-  else if (prop == "text")
-    getterFn = &Node::getText;
+  else if (prop == "deprel")
+    getterFn = &Node::getDeprel;
+  else if (prop == "feats")
+    getterFn = &Node::getFeatsAsString;
+  else if (prop == "form")
+    getterFn = &Node::getForm;
   return getterFn;
 }
 
@@ -395,62 +381,25 @@ NodeList Node::selectBy(std::string prop, std::string value, bool negate) {
   return result;
 }
 
-NodeList Node::selectByPos(std::string value) {
-  return selectBy("pos", value, false);
-}
-
-NodeList Node::selectByLemma(std::string value) {
-  return selectBy("lemma", value, false);
-}
-
-NodeList Node::selectByRel(std::string value) {
-  return selectBy("rel", value, false);
-}
-
-NodeList Node::selectByMorph(std::string value) {
-  std::vector<std::string> v = Util::stringSplit(value, '|');
-  sort(v.begin(), v.end());
-  return selectBy("morph", Util::stringJoin(v, '|'), false);
-}
-
-NodeList Node::selectByText(std::string value) {
-  return selectBy("text", value, false);
-}
-
-NodeList Node::selectExceptPos(std::string value) {
-  return selectBy("pos", value, true);
-}
-
-NodeList Node::selectExceptLemma(std::string value) {
-  return selectBy("lemma", value, true);
-}
-
-NodeList Node::selectExceptRel(std::string value) {
-  return selectBy("rel", value, true);
-}
-
-NodeList Node::selectExceptText(std::string value) {
-  return selectBy("text", value, true);
-}
-
-void Node::accumulateByRelChain(std::string value, NodeList *res, int depth) {
+void Node::accumulateByDeprelChain(std::string value, NodeList *res,
+                                   int depth) {
   if (value.empty()) return;
 
   std::vector<std::string> chain = Util::stringSplit(value, '.');
 
-  NodeList list = depth > 0 ? children : selectByRel(chain[0]);
+  NodeList list = depth > 0 ? children : selectBy("deprel", chain[0], false);
 
   std::vector<Node *>::iterator node = list.begin();
   while (node != list.end()) {
-    if (!(*node)->isIgnored() && (*node)->getRel() == chain[0]) {
+    if (!(*node)->isIgnored() && (*node)->getDeprel() == chain[0]) {
       if (chain.size() == 1) {
         // TODO(dmytro): do not erase directly, but mark it instead
         //                should be able to reset it later
         res->push_back(*node);
       } else {
         std::vector<std::string> subChain(chain.begin() + 1, chain.end());
-        (*node)->accumulateByRelChain(Util::stringJoin(subChain, '.'), res,
-                                      depth + 1);
+        (*node)->accumulateByDeprelChain(Util::stringJoin(subChain, '.'), res,
+                                         depth + 1);
       }
     }
     ++node;
@@ -458,18 +407,18 @@ void Node::accumulateByRelChain(std::string value, NodeList *res, int depth) {
   return;
 }
 
-NodeList Node::selectByRelChain(std::string value) {
+NodeList Node::selectByDeprelChain(std::string value) {
   // return all possible nodes satisfying the relchain
   NodeList res;
-  accumulateByRelChain(value, &res, 0);
+  accumulateByDeprelChain(value, &res, 0);
   return res;
 }
 
-NodeList Node::getByRelChain(std::string value) {
+NodeList Node::getByDeprelChain(std::string value) {
   NodeList res;
   // kinda dirty hack: the depth will be positive, meaning we'll take children
   // all the time
-  accumulateByRelChain(value, &res, 1);
+  accumulateByDeprelChain(value, &res, 1);
   return res;
 }
 
@@ -491,11 +440,11 @@ GroupedNodes Node::groupBy(std::string prop) {
   return gn;
 }
 
-bool Node::hasAllMorph(std::string value) {
-  FeatMap feats = parseMorphFeatures(value);
-  for (auto it = feats.begin(); it != feats.end(); it++) {
-    if (ufeats.find(it->first) == ufeats.end() ||
-        ufeats[it->first] != it->second) {
+bool Node::hasAllFeats(std::string value) {
+  Util::FeatMap givenFeats = Util::parseUniversalFormat(value);
+  for (auto it = givenFeats.begin(); it != givenFeats.end(); it++) {
+    if (feats.find(it->first) == feats.end() ||
+        feats[it->first] != it->second) {
       return false;
     }
   }
@@ -510,11 +459,11 @@ NodeList Node::selectHaving(std::string value, bool negate) {
     nodes.push(children[i]);
   }
 
-  FeatMap feats = parseMorphFeatures(value);
+  Util::FeatMap feats = Util::parseUniversalFormat(value);
 
   while (!nodes.empty()) {
     // check the POS-tag and if matches add to the result
-    FeatMap nodeFeats = nodes.front()->getUfeats();
+    Util::FeatMap nodeFeats = nodes.front()->getFeats();
 
     bool match = true;
     for (auto it = feats.begin(); it != feats.end(); it++) {
@@ -539,39 +488,39 @@ NodeList Node::selectHaving(std::string value, bool negate) {
   return result;
 }
 
-NodeList Node::selectHavingMorph(std::string value) {
+NodeList Node::selectHavingFeats(std::string value) {
   return selectHaving(value, false);
 }
 
-NodeList Node::selectMissingMorph(std::string value) {
+NodeList Node::selectMissingFeats(std::string value) {
   return selectHaving(value, true);
 }
 
 bool Node::isIdentical(Node *node, std::string excludeProps) {
-  bool posIncluded = true;
-  bool relIncluded = true;
-  bool textIncluded = true;
+  bool uposIncluded = true;
+  bool deprelIncluded = true;
+  bool formIncluded = true;
   bool lemmaIncluded = true;
 
   if (!excludeProps.empty()) {
     std::vector<std::string> banned = Util::stringSplit(excludeProps, ',');
 
     for (std::vector<std::string>::size_type i = 0; i < banned.size(); i++) {
-      if (banned[i] == "pos") {
-        posIncluded = false;
-      } else if (banned[i] == "rel") {
-        relIncluded = false;
+      if (banned[i] == "upos") {
+        uposIncluded = false;
+      } else if (banned[i] == "deprel") {
+        deprelIncluded = false;
       } else if (banned[i] == "lemma") {
         lemmaIncluded = false;
-      } else if (banned[i] == "text") {
-        textIncluded = false;
+      } else if (banned[i] == "form") {
+        formIncluded = false;
       }
     }
   }
-  return (!posIncluded || pos == node->getPos()) &&
-         (!relIncluded || rel == node->getRel()) &&
+  return (!uposIncluded || upos == node->getUpos()) &&
+         (!deprelIncluded || deprel == node->getDeprel()) &&
          (!lemmaIncluded || lemma == node->getLemma()) &&
-         (!textIncluded || text == node->getText());
+         (!formIncluded || form == node->getForm());
 }
 
 /*
@@ -582,23 +531,23 @@ NodeList Node::selectIdenticalExcept(Node *node, std::string excludeProps) {
   std::queue<Node *> nodes;
   NodeList result;
 
-  bool posIncluded = true;
-  bool relIncluded = true;
-  bool textIncluded = true;
+  bool uposIncluded = true;
+  bool deprelIncluded = true;
+  bool formIncluded = true;
   bool lemmaIncluded = true;
 
   if (!excludeProps.empty()) {
     std::vector<std::string> banned = Util::stringSplit(excludeProps, ',');
 
     for (std::vector<std::string>::size_type i = 0; i < banned.size(); i++) {
-      if (banned[i] == "pos") {
-        posIncluded = false;
-      } else if (banned[i] == "rel") {
-        relIncluded = false;
+      if (banned[i] == "upos") {
+        uposIncluded = false;
+      } else if (banned[i] == "deprel") {
+        deprelIncluded = false;
       } else if (banned[i] == "lemma") {
         lemmaIncluded = false;
-      } else if (banned[i] == "text") {
-        textIncluded = false;
+      } else if (banned[i] == "form") {
+        formIncluded = false;
       }
     }
   }
@@ -611,10 +560,10 @@ NodeList Node::selectIdenticalExcept(Node *node, std::string excludeProps) {
     // check the POS-tag and if matches add to the result
     Node *front = nodes.front();
 
-    if ((!posIncluded || front->getPos() == node->getPos()) &&
-        (!relIncluded || front->getRel() == node->getRel()) &&
+    if ((!uposIncluded || front->getUpos() == node->getUpos()) &&
+        (!deprelIncluded || front->getDeprel() == node->getDeprel()) &&
         (!lemmaIncluded || front->getLemma() == node->getLemma()) &&
-        (!textIncluded || front->getText() == node->getText())) {
+        (!formIncluded || front->getForm() == node->getForm())) {
       result.push_back(front);
     }
 
@@ -660,12 +609,6 @@ NodeList Node::getBy(std::string prop, std::string value) {
   return result;
 }
 
-NodeList Node::getByPos(std::string value) { return getBy("pos", value); }
-
-NodeList Node::getByLemma(std::string value) { return getBy("lemma", value); }
-
-NodeList Node::getByRel(std::string value) { return getBy("rel", value); }
-
 void Node::prune(std::string rel) {
   // can input chains like .conj.obl
   if (rel.empty()) return;
@@ -674,7 +617,7 @@ void Node::prune(std::string rel) {
 
   std::vector<Node *>::iterator node = children.begin();
   while (node != children.end()) {
-    if ((*node)->getRel() == chain[0]) {
+    if ((*node)->getDeprel() == chain[0]) {
       if (chain.size() == 1) {
         // TODO(dmytro): do not erase directly, but mark it instead
         //                should be able to reset it later?
@@ -725,14 +668,6 @@ bool Node::propExists(std::string prop, std::string value) {
   return false;
 }
 
-bool Node::posExists(std::string value) { return propExists("pos", value); }
-
-bool Node::relExists(std::string value) { return propExists("rel", value); }
-
-bool Node::lemmaExists(std::string value) { return propExists("lemma", value); }
-
-bool Node::textExists(std::string value) { return propExists("text", value); }
-
 /*
  * Check if the subtree induced by the node has a node with the prop
  * NOTE: excluding the node itself
@@ -749,36 +684,24 @@ bool Node::childHasProp(std::string prop, std::string value) {
   return false;
 }
 
-bool Node::childHasPos(std::string value) { return childHasProp("pos", value); }
-
-bool Node::childHasRel(std::string value) { return childHasProp("rel", value); }
-
-bool Node::childHasLemma(std::string value) {
-  return childHasProp("lemma", value);
-}
-
-bool Node::childHasText(std::string value) {
-  return childHasProp("text", value);
-}
-
 Node *Node::copy() { return new Node(this); }
 
 void Node::makeRoot() {
   Node *newRoot = new Node();
-  this->rel = "root";
+  this->deprel = "root";
   this->parent = newRoot;
 }
 
 std::string Node::toString() {
   std::string res;
-  if (!pos.empty()) res += pos;
-  if (!rel.empty()) {
+  if (!upos.empty()) res += upos;
+  if (!deprel.empty()) {
     if (!res.empty()) res += "|";
-    res += rel;
+    res += deprel;
   }
-  if (!text.empty()) {
+  if (!form.empty()) {
     if (!res.empty()) res += "|";
-    res += text;
+    res += form;
   }
   return res;
 }
@@ -791,7 +714,7 @@ std::string Node::_subtreeToString(int depth) {
       parts[i] = children[i]->_subtreeToString(depth + 1);
     }
     return toString().insert(0, depth, ' ') + '\n' +
-           Util::stringJoin(parts, '\n');
+           Util::stringJoin(parts, N, '\n');
   } else {
     return toString().insert(0, depth, ' ');
   }
@@ -807,7 +730,7 @@ Node *Node::textualIntersect(std::string text) {
   NodeList res;
 
   for (std::string word : words) {
-    NodeList nodes = selectByText(word);
+    NodeList nodes = selectBy("form", word, false);
     for (auto n : nodes) {
       while (n->getParent() != NULL) {
         // NOTE: this finds only contiguous pieces of text
@@ -841,9 +764,9 @@ Node *Node::toPCT() {
     nodes.push(children[i]);
   }
 
-  Node *rootRelNode = new Node(id, rel, "", "", "", "", NULL);
-  Node *posNode = new Node(id + 0.1, pos, "", "", "", "", rootRelNode);
-  Node *textNode = new Node(id + 0.2, text, "", "", "", "", posNode);
+  Node *rootRelNode = new Node(id, deprel, "", "", "", "", "", "", NULL);
+  Node *posNode = new Node(id + 0.1, upos, "", "", "", "", "", "", rootRelNode);
+  Node *formNode = new Node(id + 0.2, form, "", "", "", "", "", "", posNode);
 
   std::map<float, Node *> nodesMap;
   nodesMap[id] = posNode;
@@ -851,12 +774,13 @@ Node *Node::toPCT() {
   while (!nodes.empty()) {
     float frontId = nodes.front()->getId();
 
-    Node *relNode = new Node(frontId, nodes.front()->getRel(), "", "", "", "",
-                             nodesMap[nodes.front()->getParent()->getId()]);
-    Node *posNode = new Node(frontId + 0.1, nodes.front()->getPos(), "", "", "",
-                             "", relNode);
-    Node *textNode = new Node(frontId + 0.2, nodes.front()->getText(), "", "",
-                              "", "", posNode);
+    Node *relNode =
+        new Node(frontId, nodes.front()->getDeprel(), "", "", "", "", "", "",
+                 nodesMap[nodes.front()->getParent()->getId()]);
+    Node *posNode = new Node(frontId + 0.1, nodes.front()->getUpos(), "", "",
+                             "", "", "", "", relNode);
+    Node *formNode = new Node(frontId + 0.2, nodes.front()->getForm(), "", "",
+                              "", "", "", "", posNode);
 
     nodesMap[frontId] = posNode;
 
@@ -876,9 +800,9 @@ Node *Node::toGRCT() {
     nodes.push(children[i]);
   }
 
-  Node *relNode = new Node(id, rel, "", "", "", "", NULL);
-  Node *posNode = new Node(id + 0.1, pos, "", "", "", "", relNode);
-  Node *textNode = new Node(id + 0.2, text, "", "", "", "", posNode);
+  Node *relNode = new Node(id, deprel, "", "", "", "", "", "", NULL);
+  Node *posNode = new Node(id + 0.1, upos, "", "", "", "", "", "", relNode);
+  Node *formNode = new Node(id + 0.2, form, "", "", "", "", "", "", posNode);
 
   std::map<float, Node *> nodesMap;
   nodesMap[id] = relNode;
@@ -886,12 +810,13 @@ Node *Node::toGRCT() {
   while (!nodes.empty()) {
     float frontId = nodes.front()->getId();
 
-    Node *relNode = new Node(frontId, nodes.front()->getRel(), "", "", "", "",
-                             nodesMap[nodes.front()->getParent()->getId()]);
-    Node *posNode = new Node(frontId + 0.1, nodes.front()->getPos(), "", "", "",
-                             "", relNode);
-    Node *textNode = new Node(frontId + 0.2, nodes.front()->getText(), "", "",
-                              "", "", posNode);
+    Node *relNode =
+        new Node(frontId, nodes.front()->getDeprel(), "", "", "", "", "", "",
+                 nodesMap[nodes.front()->getParent()->getId()]);
+    Node *posNode = new Node(frontId + 0.1, nodes.front()->getUpos(), "", "",
+                             "", "", "", "", relNode);
+    Node *formNode = new Node(frontId + 0.2, nodes.front()->getForm(), "", "",
+                              "", "", "", "", posNode);
 
     nodesMap[frontId] = relNode;
 
@@ -911,25 +836,25 @@ Node *Node::toLCT() {
     nodes.push(children[i]);
   }
 
-  Node *textNode = new Node(id + 0.2, text, "", "", "", "", NULL);
-  Node *relNode = new Node(id, rel, "", "", "", "", textNode);
-  Node *posNode = new Node(id + 0.1, pos, "", "", "", "", textNode);
+  Node *formNode = new Node(id + 0.2, form, "", "", "", "", "", "", NULL);
+  Node *relNode = new Node(id, deprel, "", "", "", "", "", "", formNode);
+  Node *posNode = new Node(id + 0.1, upos, "", "", "", "", "", "", formNode);
 
   std::map<float, Node *> nodesMap;
-  nodesMap[id] = textNode;
+  nodesMap[id] = formNode;
 
   while (!nodes.empty()) {
     float frontId = nodes.front()->getId();
 
-    Node *textNode =
-        new Node(frontId + 0.2, nodes.front()->getText(), "", "", "", "",
-                 nodesMap[nodes.front()->getParent()->getId()]);
-    Node *posNode = new Node(frontId + 0.1, nodes.front()->getPos(), "", "", "",
-                             "", textNode);
-    Node *relNode =
-        new Node(frontId, nodes.front()->getRel(), "", "", "", "", textNode);
+    Node *formNode =
+        new Node(frontId + 0.2, nodes.front()->getForm(), "", "", "", "", "",
+                 "", nodesMap[nodes.front()->getParent()->getId()]);
+    Node *posNode = new Node(frontId + 0.1, nodes.front()->getUpos(), "", "",
+                             "", "", "", "", formNode);
+    Node *relNode = new Node(frontId, nodes.front()->getDeprel(), "", "", "",
+                             "", "", "", formNode);
 
-    nodesMap[frontId] = textNode;
+    nodesMap[frontId] = formNode;
 
     // add children of the head node to the stack
     NodeList ch = nodes.front()->getChildren();

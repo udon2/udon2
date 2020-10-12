@@ -19,7 +19,7 @@ Node* ConllReader::initNodes(std::vector<std::string> words) {
     nodes[i] = new Node();
   }
 
-  int j = 0;
+  int j = 1;  // root pseudonode is accounted for already
   for (int i = 1; i < N + 1; i++) {
     std::vector<std::string> word = Util::stringSplit(words[i - 1], '\t');
     if (word.size() != 10) {
@@ -34,14 +34,27 @@ Node* ConllReader::initNodes(std::vector<std::string> words) {
     if (idx == std::string::npos) {
       float id = std::__cxx11::stof(word[0].c_str());
       int dephead = std::__cxx11::stoi(word[6].c_str());
-      nodes[j]->init(id, word[1], word[2], word[3], word[5], word[7],
-                     nodes[dephead]);
+      nodes[j]->init(id,               // id
+                     word[1],          // form
+                     word[2],          // lemma
+                     word[3],          // upos
+                     word[4],          // xpos
+                     word[5],          // feats
+                     word[7],          // deprel
+                     word[9],          // misc
+                     nodes[dephead]);  // dephead
       j++;
     } else {
       // a multi-word expression
       int minId = std::__cxx11::stoi(word[0].substr(0, idx));
       int maxId = std::__cxx11::stoi(word[0].substr(idx + 1));
       mwNodes.push_back(new MultiWordNode(minId, maxId, word[1]));
+    }
+  }
+
+  for (MultiWordNode* mwNode : mwNodes) {
+    for (int i = mwNode->getMinId(); i < mwNode->getMaxId(); i++) {
+      nodes[i]->setMultiWord(mwNode);
     }
   }
 
