@@ -42,8 +42,16 @@ class NodeList {
   int size() { return nodes.size(); }
 
   Node *operator[](int i) const {
-    // TODO(dmytro): add negative indices
-    return nodes[i];
+    int N = nodes.size();
+    if (i >= 0 && i < N) {
+      return nodes[i];
+    } else if (i < 0 && N + i >= 0) {
+      // negative indices
+      return nodes[N + i];
+    } else {
+      // TODO(dmytro) Should raise IndexError as Python does?
+      return NULL;
+    }
   }
 
   std::vector<Node *>::iterator begin() { return nodes.begin(); }
@@ -69,7 +77,9 @@ class Node {
   std::string deprel;
   float id;
   std::string lemma;
+
   bool mIgnore = false;
+  int mIgnoreLabel = -1;
 
   Node *parent;
   NodeList children;
@@ -94,8 +104,8 @@ class Node {
             std::string xpos, std::string feats, std::string deprel,
             std::string misc, Node *parent);
 
-  std::string getForm() { return form; }
   float getId() { return id; }
+  std::string getForm() { return form; }
   std::string getLemma() { return lemma; }
   std::string getXpos() { return xpos; }
   std::string getUpos() { return upos; }
@@ -110,19 +120,35 @@ class Node {
   std::string getFeatsAsString();
   std::string getSubtreeText();
 
+  void setId(float idx) { id = idx; }
+  void setForm(std::string newForm) { form = newForm; }
+  void setLemma(std::string l) { lemma = l; }
+  void setXpos(std::string x) { xpos = x; }
+  void setUpos(std::string u) { upos = u; }
+  void setDeprel(std::string rel) { deprel = rel; }
+  void setMisc(std::string miscstr) {
+    misc = Util::parseUniversalFormat(miscstr);
+  }
   void setMultiWord(MultiWordNode *n) { mwNode = n; }
+  void setParent(Node *n);
 
-  bool hasFeat(std::string, std::string);
+  void setFeats(std::string fstr) { feats = Util::parseUniversalFormat(fstr); }
+  void alterFeat(std::string key, std::string val) { feats[key] = val; }
+  bool hasFeat(std::string key, std::string val);
+  bool hasAllFeats(std::string value);
 
   NodeList getSubtreeNodes();
 
   bool isRoot();
 
   bool isIgnored();
-  void ignore();
-  void ignoreSubtree();
-  void reset();
-  void resetSubtree();
+  int getIgnoredLabel() { return mIgnoreLabel; }
+  void ignore(int label = 0);
+  void ignoreSubtree(int label = 0);
+  void reset(int label = 0);
+  void resetSubtree(int label = 0);
+  void hardReset();
+  void hardResetSubtree();
 
   Node *copy();
   void makeRoot();
@@ -135,11 +161,9 @@ class Node {
   template <class Compare>
   NodeList linearBy(Compare cmp);
 
-  bool hasChildren();
+  bool hasChildren() { return children.size() > 0; }
   void copyChildren(Node *node);
   void addChild(Node *node);
-
-  bool hasAllFeats(std::string value);
 
   NodeList selectBy(std::string prop, std::string value, bool negate);
   NodeList selectByDeprelChain(std::string value);

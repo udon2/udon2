@@ -101,6 +101,22 @@ void Node::init(float id, std::string form, std::string lemma, std::string upos,
   this->mIgnore = false;
 }
 
+void Node::setParent(Node *n) {
+  if (this->parent == NULL) {
+    // a pseudoroot node
+  } else if (this->parent->isRoot()) {
+    // a dependent of a pseudoroot node
+    // TODO(dmytro) maybe exchange the root relation with others,
+    // since we know for sure that only root relation can be used
+    // for arcs from root pseudonode
+    Node *root = this->parent;
+    this->parent = n;
+    n->setParent(root);
+  } else {
+    this->parent = n;
+  }
+}
+
 bool Node::isRoot() { return parent == NULL; }
 
 std::string Node::getFeatsAsString() {
@@ -130,7 +146,16 @@ bool Node::hasFeat(std::string key, std::string value) {
   }
 }
 
-bool Node::hasChildren() { return children.size() > 0; }
+bool Node::hasAllFeats(std::string value) {
+  Util::FeatMap givenFeats = Util::parseUniversalFormat(value);
+  for (auto it = givenFeats.begin(); it != givenFeats.end(); it++) {
+    if (feats.find(it->first) == feats.end() ||
+        feats[it->first] != it->second) {
+      return false;
+    }
+  }
+  return true;
+}
 
 NodeList Node::getSubtreeNodes() {
   NodeList all;
@@ -155,15 +180,24 @@ NodeList Node::getSubtreeNodes() {
 
 bool Node::isIgnored() { return mIgnore; }
 
-void Node::ignore() { this->mIgnore = true; }
-
-void Node::reset() {
-  // TODO(dmytro): a more generic reset from pruning?
-  this->mIgnore = false;
+void Node::ignore(int label) {
+  if (!this->mIgnore) {
+    this->mIgnore = true;
+    this->mIgnoreLabel = label >= 0 ? label : 0;
+  }
 }
 
-void Node::ignoreSubtree() {
-  this->ignore();
+void Node::reset(int label) {
+  if (this->mIgnoreLabel == label || label < 0) {
+    this->mIgnore = false;
+    this->mIgnoreLabel = -1;
+  }
+}
+
+void Node::hardReset() { reset(-1); }
+
+void Node::ignoreSubtree(int label) {
+  this->ignore(label);
   std::queue<Node *> nodes;
   for (int i = 0, len = children.size(); i < len; i++) {
     nodes.push(children[i]);
@@ -171,7 +205,7 @@ void Node::ignoreSubtree() {
 
   while (!nodes.empty()) {
     // add children of the head node to the stack
-    nodes.front()->ignore();
+    nodes.front()->ignore(label);
 
     NodeList ch = nodes.front()->getChildren();
     for (int i = 0, len = ch.size(); i < len; i++) {
@@ -181,8 +215,8 @@ void Node::ignoreSubtree() {
   }
 }
 
-void Node::resetSubtree() {
-  this->reset();
+void Node::resetSubtree(int label) {
+  this->reset(label);
   std::queue<Node *> nodes;
   for (int i = 0, len = children.size(); i < len; i++) {
     nodes.push(children[i]);
@@ -190,7 +224,7 @@ void Node::resetSubtree() {
 
   while (!nodes.empty()) {
     // add children of the head node to the stack
-    nodes.front()->reset();
+    nodes.front()->reset(label);
 
     NodeList ch = nodes.front()->getChildren();
     for (int i = 0, len = ch.size(); i < len; i++) {
@@ -199,6 +233,8 @@ void Node::resetSubtree() {
     nodes.pop();
   }
 }
+
+void Node::hardResetSubtree() { resetSubtree(-1); }
 
 int Node::subtreeSize() {
   int sz = 0;
@@ -438,17 +474,6 @@ GroupedNodes Node::groupBy(std::string prop) {
     gn[val].push_sorted(n);
   }
   return gn;
-}
-
-bool Node::hasAllFeats(std::string value) {
-  Util::FeatMap givenFeats = Util::parseUniversalFormat(value);
-  for (auto it = givenFeats.begin(); it != givenFeats.end(); it++) {
-    if (feats.find(it->first) == feats.end() ||
-        feats[it->first] != it->second) {
-      return false;
-    }
-  }
-  return true;
 }
 
 NodeList Node::selectHaving(std::string value, bool negate) {

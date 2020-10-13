@@ -27,6 +27,7 @@ core_module = setuptools.Extension(
         os.path.join(C_SRC, 'Node.cpp'),
         os.path.join(C_SRC, 'MultiWordNode.cpp'),
         os.path.join(C_SRC, 'ConllReader.cpp'),
+        os.path.join(C_SRC, 'ConllWriter.cpp'),
         os.path.join(C_SRC, 'core.cpp')
     ],
     include_dirs=[path_info['include'], os.path.join(HOME_DIR, '.local', 'include')],
@@ -58,7 +59,7 @@ kernels_module = setuptools.Extension(
 
 setuptools.setup(
     name="udon2", # Replace with your own username
-    version="0.1",
+    version="0.2",
     author="Dmytro Kalpakchi",
     author_email="dmytroka@kth.se",
     description="Prepare your UD trees to be served!",

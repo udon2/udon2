@@ -63,7 +63,7 @@ def parse_deps(orig_doc, options={}):
     RETURNS (dict): Generated dependency parse keyed by words and arcs.
     """
     doc = orig_doc # might reparse it later
-    words = [{"text": w.get_text(), "tag": w.get_pos(), "morph": w.get_morph().split("|")} for w in doc.linear()]
+    words = [{"text": w.get_form(), "tag": w.get_upos(), "morph": w.get_feats_as_string().split("|")} for w in doc.linear()]
     id2index = {w.get_id() : i for i, w in enumerate(doc.linear())}
     arcs = []
     for word in doc.linear():
@@ -73,14 +73,14 @@ def parse_deps(orig_doc, options={}):
                 arcs.append({
                     "start": i,
                     "end": governor,
-                    "label": word.get_rel(),
+                    "label": word.get_deprel(),
                     "dir": "left"
                 })
             elif i > governor:
                 arcs.append({
                     "start": governor,
                     "end": i,
-                    "label": word.get_rel(),
+                    "label": word.get_deprel(),
                     "dir": "right",
                 })
     return {"words": words, "arcs": arcs, "settings": get_doc_settings(orig_doc)}
