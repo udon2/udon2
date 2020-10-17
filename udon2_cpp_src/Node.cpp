@@ -4,8 +4,6 @@
 
 #include "Node.h"
 
-#include <bits/stdc++.h>
-
 #include <algorithm>
 #include <iostream>
 #include <map>
@@ -45,29 +43,26 @@ std::string NodeList::toString() {
  * Node methods
  */
 Node::Node()
-    : form("root"),
+    : id(0),
+      form("root"),
+      lemma("_"),
       upos("_"),
       xpos("_"),
       deprel("_"),
-      id(0),
-      lemma("_"),
-      parent(NULL) {
-  this->mIgnore = false;
-}
+      parent(NULL) {}
 
 Node::Node(float id, std::string form, std::string lemma, std::string upos,
            std::string xpos, std::string feats, std::string deprel,
            std::string misc, Node *parent)
-    : form(form),
+    : id(id),
+      form(form),
+      lemma(lemma),
       upos(upos),
       xpos(xpos),
       deprel(deprel),
-      id(id),
-      lemma(lemma),
       parent(parent) {
   this->feats = Util::parseUniversalFormat(feats);
   this->misc = Util::parseUniversalFormat(misc);
-  this->mIgnore = false;
   if (parent != NULL) parent->addChild(this);
 }
 
@@ -82,7 +77,7 @@ Node::Node(Node *n) {
   this->feats = n->getFeats();
   this->misc = n->getMisc();
   this->copyChildren(n);
-  this->mIgnore = n->isIgnored();
+  this->mIgnoreLabel = n->getIgnoreLabel();
 }
 
 void Node::init(float id, std::string form, std::string lemma, std::string upos,
@@ -98,10 +93,16 @@ void Node::init(float id, std::string form, std::string lemma, std::string upos,
   this->misc = Util::parseUniversalFormat(misc);
   if (parent != NULL) parent->addChild(this);
   this->feats = Util::parseUniversalFormat(feats);
-  this->mIgnore = false;
 }
 
 void Node::setParent(Node *n) {
+  /**
+   * Set a parent of a Node to be the Node `n`, allowing to change the
+   * dependency structure of a tree. If the function called for the dependent of
+   * the root pseudonode, the root is reassigned to be the parent of the node
+   * `n`.
+   */
+
   if (this->parent == NULL) {
     // a pseudoroot node
   } else if (this->parent->isRoot()) {
@@ -117,9 +118,17 @@ void Node::setParent(Node *n) {
   }
 }
 
-bool Node::isRoot() { return parent == NULL; }
+bool Node::isRoot() {
+  /**
+   * Check if the Node is a root pseudonode by checking if its parent is NULL.
+   */
+  return parent == NULL;
+}
 
 std::string Node::getFeatsAsString() {
+  /**
+   * Get FEATS of a Node as a UD string, e.g. Case=Nom|Person=2|PronType=Prs
+   */
   // Create a map iterator and point to beginning of map
   std::map<std::string, std::string>::iterator it = feats.begin();
 
@@ -139,6 +148,9 @@ std::string Node::getFeatsAsString() {
 }
 
 bool Node::hasFeat(std::string key, std::string value) {
+  /**
+   * Check if the Node's FEATS contain a morphological feature `key`=`value`.
+   */
   if (feats.count(key) > 0) {
     return feats[key] == value;
   } else {
@@ -147,6 +159,19 @@ bool Node::hasFeat(std::string key, std::string value) {
 }
 
 bool Node::hasAllFeats(std::string value) {
+  /**
+   * Check if the Node's FEATS has all morphological features specified in the
+   * string `value`, e.g. \code{.cpp}
+   * node->hasAllFeatures("Case=Nom|PronType=Prs")
+   * \endcode
+   *
+   * Note that the check is not exclusive, e.g. consider the node with
+   * morphological properties Case=Nom|Person=2|PronType=Prs, then the following
+   * holds. \code{.cpp} node->hasAllFeatures("Case=Nom|Person=2") // returns
+   * true node->hasAllFeatures("Case=Nom")          // returns true
+   * node->hasAllFeatures("Case=Nom|Person=3") // returns false
+   * \endcode
+   */
   Util::FeatMap givenFeats = Util::parseUniversalFormat(value);
   for (auto it = givenFeats.begin(); it != givenFeats.end(); it++) {
     if (feats.find(it->first) == feats.end() ||
@@ -158,6 +183,9 @@ bool Node::hasAllFeats(std::string value) {
 }
 
 NodeList Node::getSubtreeNodes() {
+  /**
+   * Get a list of all nodes in the subtree in the BFS order.
+   */
   NodeList all;
   std::queue<Node *> nodes;
   for (int i = 0, len = children.size(); i < len; i++) {
@@ -178,25 +206,48 @@ NodeList Node::getSubtreeNodes() {
   return all;
 }
 
-bool Node::isIgnored() { return mIgnore; }
+bool Node::isIgnored() {
+  /**
+   * Check if the node is ignored with any label
+   */
+  return mIgnoreLabel >= 0;
+}
 
 void Node::ignore(int label) {
-  if (!this->mIgnore) {
-    this->mIgnore = true;
+  /**
+   * Ignore the node during queries and subtree text generation and label it
+   * with `label` (0 by default). The label can be used for hierarchical
+   * ignoring in subprograms.
+   */
+  if (this->mIgnoreLabel < 0) {
     this->mIgnoreLabel = label >= 0 ? label : 0;
   }
 }
 
 void Node::reset(int label) {
+  /**
+   * Reset an ignored node labeled with `label` (0 by default) to be available
+   * again for queries and subtree text generation. Resetting only a specific
+   * label can be used for hierarchical ignoring in subprograms.
+   */
   if (this->mIgnoreLabel == label || label < 0) {
-    this->mIgnore = false;
     this->mIgnoreLabel = -1;
   }
 }
 
-void Node::hardReset() { reset(-1); }
+void Node::hardReset() {
+  /**
+   * Reset an ignored node no matter which label it has.
+   */
+  reset(-1);
+}
 
 void Node::ignoreSubtree(int label) {
+  /**
+   * Ignore all nodes in the subtree induced by the current node during queries
+   * and subtree text generation. All ignored nodes will be labeled with `label`
+   * (0 by default).
+   */
   this->ignore(label);
   std::queue<Node *> nodes;
   for (int i = 0, len = children.size(); i < len; i++) {
@@ -216,6 +267,11 @@ void Node::ignoreSubtree(int label) {
 }
 
 void Node::resetSubtree(int label) {
+  /**
+   * Reset all ignored nodes in the subtree induced by the current node to be
+   * available again during queries and subtree text generation. Only nodes
+   * labeled with `label` (0 by default) will be reset.
+   */
   this->reset(label);
   std::queue<Node *> nodes;
   for (int i = 0, len = children.size(); i < len; i++) {
@@ -234,9 +290,19 @@ void Node::resetSubtree(int label) {
   }
 }
 
-void Node::hardResetSubtree() { resetSubtree(-1); }
+void Node::hardResetSubtree() {
+  /**
+   * Reset all ignored nodes (no matter the label) in the subtree induced by the
+   * current node to be available again during queries and subtree text
+   * generation.
+   */
+  resetSubtree(-1);
+}
 
 int Node::subtreeSize() {
+  /**
+   * Get the number of nodes in the subtree induced by the current node.
+   */
   int sz = 0;
   std::queue<Node *> nodes;
   for (int i = 0, len = children.size(); i < len; i++) {
@@ -257,15 +323,30 @@ int Node::subtreeSize() {
 }
 
 void Node::copyChildren(Node *node) {
+  /**
+   * Copy children of Node `node` to the current Node.
+   */
   children = NodeList();
   for (Node *n : node->getChildren()) {
     children.push_sorted(new Node(n));
   }
 }
 
-void Node::addChild(Node *node) { children.push_sorted(node); }
+void Node::addChild(Node *node) {
+  /**
+   * Add `node` as a child of the current Node. Note that all children are
+   * stored in a lexicographical order of Node's string representations, i.e.
+   * UPOS|DEPREL|FORM
+   */
+  children.push_sorted(node);
+}
 
 std::string Node::getSubtreeText() {
+  /**
+   * Generate a text of the subtree induced by its node using the current FORM
+   * values of all nodes in the subtree except the ignored nodes.
+   */
+  // TODO(dmytro): Fix SpaceAfter=No thing
   std::queue<Node *> nodes;
   for (int i = 0, len = children.size(); i < len; i++) {
     nodes.push(children[i]);
@@ -308,8 +389,11 @@ std::string Node::getSubtreeText() {
   return os.str();
 }
 
-// turn a subtree into a linear structure
 NodeList Node::linear() {
+  /**
+   * Represent a subtree induced by the current node in a linear order, as they
+   * appear in the original sentence.
+   */
   std::queue<Node *> nodes;
   for (int i = 0, len = children.size(); i < len; i++) {
     nodes.push(children[i]);
@@ -340,6 +424,10 @@ NodeList Node::linear() {
 }
 
 NodeList Node::linearSorted() {
+  /**
+   * Represent a subtree induced by the current node in a linear order, sorted
+   * lexicographically based on their string representation.
+   */
   std::queue<Node *> nodes;
   for (int i = 0, len = children.size(); i < len; i++) {
     nodes.push(children[i]);
@@ -377,11 +465,13 @@ getterptr Node::getterByProp(std::string prop) {
   return getterFn;
 }
 
-/*
- * Select by a node by a property from the subtree induced by the node
- * NOTE: including the node itself
- */
 NodeList Node::selectBy(std::string prop, std::string value, bool negate) {
+  /**
+   * Select all nodes from the subtree induced by the current node (including,
+   * possibley, the node itself) having a property `prop` being equal to
+   * `value`. If `negate` is true, then the exact opposite happens, i.e. only
+   * nodes with a property `prop` being NOT equal to `value` will be selected.
+   */
   getterptr getterFn = getterByProp(prop);
   if (getterFn == NULL) return NodeList();
 
@@ -734,7 +824,8 @@ std::string Node::toString() {
 std::string Node::_subtreeToString(int depth) {
   int N = children.size();
   if (N > 0) {
-    std::string parts[N];
+    // to avoid Error C2131 on Windows
+    std::string *parts = new std::string[N];
     for (int i = 0; i < N; i++) {
       parts[i] = children[i]->_subtreeToString(depth + 1);
     }
@@ -790,8 +881,9 @@ Node *Node::toPCT() {
   }
 
   Node *rootRelNode = new Node(id, deprel, "", "", "", "", "", "", NULL);
-  Node *posNode = new Node(id + 0.1, upos, "", "", "", "", "", "", rootRelNode);
-  Node *formNode = new Node(id + 0.2, form, "", "", "", "", "", "", posNode);
+  Node *posNode =
+      new Node(id + 0.1f, upos, "", "", "", "", "", "", rootRelNode);
+  new Node(id + 0.2f, form, "", "", "", "", "", "", posNode);
 
   std::map<float, Node *> nodesMap;
   nodesMap[id] = posNode;
@@ -802,10 +894,10 @@ Node *Node::toPCT() {
     Node *relNode =
         new Node(frontId, nodes.front()->getDeprel(), "", "", "", "", "", "",
                  nodesMap[nodes.front()->getParent()->getId()]);
-    Node *posNode = new Node(frontId + 0.1, nodes.front()->getUpos(), "", "",
+    Node *posNode = new Node(frontId + 0.1f, nodes.front()->getUpos(), "", "",
                              "", "", "", "", relNode);
-    Node *formNode = new Node(frontId + 0.2, nodes.front()->getForm(), "", "",
-                              "", "", "", "", posNode);
+    new Node(frontId + 0.2f, nodes.front()->getForm(), "", "", "", "", "", "",
+             posNode);
 
     nodesMap[frontId] = posNode;
 
@@ -826,8 +918,8 @@ Node *Node::toGRCT() {
   }
 
   Node *relNode = new Node(id, deprel, "", "", "", "", "", "", NULL);
-  Node *posNode = new Node(id + 0.1, upos, "", "", "", "", "", "", relNode);
-  Node *formNode = new Node(id + 0.2, form, "", "", "", "", "", "", posNode);
+  Node *posNode = new Node(id + 0.1f, upos, "", "", "", "", "", "", relNode);
+  new Node(id + 0.2f, form, "", "", "", "", "", "", posNode);
 
   std::map<float, Node *> nodesMap;
   nodesMap[id] = relNode;
@@ -838,10 +930,10 @@ Node *Node::toGRCT() {
     Node *relNode =
         new Node(frontId, nodes.front()->getDeprel(), "", "", "", "", "", "",
                  nodesMap[nodes.front()->getParent()->getId()]);
-    Node *posNode = new Node(frontId + 0.1, nodes.front()->getUpos(), "", "",
+    Node *posNode = new Node(frontId + 0.1f, nodes.front()->getUpos(), "", "",
                              "", "", "", "", relNode);
-    Node *formNode = new Node(frontId + 0.2, nodes.front()->getForm(), "", "",
-                              "", "", "", "", posNode);
+    new Node(frontId + 0.2f, nodes.front()->getForm(), "", "", "", "", "", "",
+             posNode);
 
     nodesMap[frontId] = relNode;
 
@@ -861,9 +953,9 @@ Node *Node::toLCT() {
     nodes.push(children[i]);
   }
 
-  Node *formNode = new Node(id + 0.2, form, "", "", "", "", "", "", NULL);
-  Node *relNode = new Node(id, deprel, "", "", "", "", "", "", formNode);
-  Node *posNode = new Node(id + 0.1, upos, "", "", "", "", "", "", formNode);
+  Node *formNode = new Node(id + 0.2f, form, "", "", "", "", "", "", NULL);
+  new Node(id, deprel, "", "", "", "", "", "", formNode);
+  new Node(id + 0.1f, upos, "", "", "", "", "", "", formNode);
 
   std::map<float, Node *> nodesMap;
   nodesMap[id] = formNode;
@@ -872,12 +964,12 @@ Node *Node::toLCT() {
     float frontId = nodes.front()->getId();
 
     Node *formNode =
-        new Node(frontId + 0.2, nodes.front()->getForm(), "", "", "", "", "",
+        new Node(frontId + 0.2f, nodes.front()->getForm(), "", "", "", "", "",
                  "", nodesMap[nodes.front()->getParent()->getId()]);
-    Node *posNode = new Node(frontId + 0.1, nodes.front()->getUpos(), "", "",
-                             "", "", "", "", formNode);
-    Node *relNode = new Node(frontId, nodes.front()->getDeprel(), "", "", "",
-                             "", "", "", formNode);
+    new Node(frontId + 0.1f, nodes.front()->getUpos(), "", "", "", "", "", "",
+             formNode);
+    new Node(frontId, nodes.front()->getDeprel(), "", "", "", "", "", "",
+             formNode);
 
     nodesMap[frontId] = formNode;
 

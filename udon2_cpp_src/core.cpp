@@ -2,6 +2,19 @@
  * Copyright 2020 Dmytro Kalpakchi
  */
 
+/**
+ * \mainpage My Personal Index Page
+ *
+ * \section intro_sec Introduction
+ *
+ * This is the introduction.
+ *
+ * \section install_sec Installation
+ *
+ * \subsection step1 Step 1: Opening the box
+ *
+ * etc...
+ */
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
@@ -107,7 +120,7 @@ BOOST_PYTHON_MODULE(core) {
       .def("hard_reset", &Node::hardReset)
       .def("hard_reset_subtree", &Node::hardResetSubtree)
       .def("is_ignored", &Node::isIgnored)
-      .def("get_ignored_label", &Node::getIgnoredLabel)
+      .def("get_ignore_label", &Node::getIgnoreLabel)
       .def("group_by", &Node::groupBy)
       .def("to_grct", &Node::toGRCT, bp::return_internal_reference<1>())
       .def("to_pct", &Node::toPCT, bp::return_internal_reference<1>())

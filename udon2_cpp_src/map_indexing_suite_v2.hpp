@@ -2,15 +2,18 @@
 //  Distributed under the Boost Software License, Version 1.0. (See
 //  accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
+//
 //  Modified by Troy D. Straszheim and Jakob van Santen, 2009-03-26
 //  (http://boost.2283326.n4.nabble.com/map-indexing-suite-interface-td2702276.html)
+//
 //  Modified by Dmytro Kalpakchi, 2020-07-28
+//    - changed references to pointers in dict_pop, dict_pop_default,
+//    dict_pop_item
+//      dict_update, get_data, get_key
+//    - changed add_property of "first" and "second" to the regular def fn
 
 #ifndef UDON2_CPP_SRC_MAP_INDEXING_SUITE_V2_HPP_
 #define UDON2_CPP_SRC_MAP_INDEXING_SUITE_V2_HPP_
-
-#include <algorithm>
-#include <string>
 
 #include <boost/python/suite/indexing/indexing_suite.hpp>
 #include <boost/python/iterator.hpp>
@@ -48,7 +51,7 @@ class final_map_v2_derived_policies
 //  ...
 //
 //      class_<std::map<std::string, X> >("XMap")
-//          .def(map_indexing_suite<std::map<std::string, X> >())
+//          .def(map_indexing_suite_v2<std::map<std::string, X> >())
 //      ;
 //
 // By default indexed elements are returned by proxy. This can be

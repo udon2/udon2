@@ -1,12 +1,13 @@
+import os
 import sys
 import glob
-import os
-from sysconfig import get_paths
+import platform
 import setuptools
-from pprint import pprint
+
+from sysconfig import get_paths
 from pathlib import Path
 
-
+IS_WINDOWS = platform.system().lower() == 'windows'
 HOME_DIR = str(Path.home())
 C_SRC = 'udon2_cpp_src'
 README = "README.md"
@@ -19,6 +20,20 @@ path_info = get_paths()
 with open(README, "r") as fh:
     long_description = fh.read()
 
+if IS_WINDOWS:
+    boost_library = f'boost_python{vinfo.major}{vinfo.minor}*'
+    boost_include = [os.path.join(HOME_DIR, 'boost')]
+    boost_lib = glob.glob(os.path.join(HOME_DIR, 'boost', 'lib*-msvc-*'))
+    include_extras = glob.glob(os.path.join(boost_lib[0], f"{boost_library}.lib")) + \
+        glob.glob(os.path.join(boost_lib[0], f"{boost_library}.dll"))
+else:
+    boost_library = f'boost_python{vinfo.major}{vinfo.minor}'
+    boost_include = [os.path.join(HOME_DIR, '.local', 'include')]
+    boost_lib = [os.path.join(HOME_DIR, '.local', 'lib')]
+    include_extras = glob.glob(os.path.join(boost_lib[0], f"{boost_library}.so"))
+include_dirs = [path_info['include']] + boost_include
+library_dirs = [path_info['stdlib']] + boost_lib
+libraries = [boost_library]
 
 core_module = setuptools.Extension(
     'udon2.core',
@@ -30,31 +45,30 @@ core_module = setuptools.Extension(
         os.path.join(C_SRC, 'ConllWriter.cpp'),
         os.path.join(C_SRC, 'core.cpp')
     ],
-    include_dirs=[path_info['include'], os.path.join(HOME_DIR, '.local', 'include')],
-    library_dirs=[path_info['stdlib'], os.path.join(HOME_DIR, '.local', 'lib')],
-    libraries=[f'boost_python{vinfo.major}{vinfo.minor}']
+    include_dirs=include_dirs,
+    library_dirs=library_dirs,
+    libraries=libraries
 )
 
-def compiled_obj_files_iter():
-    for x in [
-        glob.glob(os.path.join('build', 'temp*', C_SRC, 'Util.o')),
-        glob.glob(os.path.join('build', 'temp*', C_SRC, 'Node.o'))
-    ]:
-        try:
-            # we know for sure that each of these globs will contain only one such file
-            yield x[0]
-        except:
-            continue
+def compiled_shared_obj_files_iter():
+    if IS_WINDOWS:
+        compiled_obj = glob.glob(os.path.join('build', 'temp*', 'Release', C_SRC, 'Util.obj')) +\
+                       glob.glob(os.path.join('build', 'temp*', 'Release', C_SRC, 'Node.obj'))
+    else:
+        compiled_obj = glob.glob(os.path.join('build', 'temp*', C_SRC, 'Util.o')) +\
+                       glob.glob(os.path.join('build', 'temp*', C_SRC, 'Node.o'))
+    for x in compiled_obj:
+        yield x
 
 kernels_module = setuptools.Extension(
     'udon2.kernels',
     sources=[
         os.path.join(C_SRC, 'kernels.cpp')
     ],
-    extra_objects=compiled_obj_files_iter(), # sort of lazy eval here to reuse the already compiled files
-    include_dirs=[path_info['include'], os.path.join(HOME_DIR, '.local', 'include')],
-    library_dirs=[path_info['stdlib'], os.path.join(HOME_DIR, '.local', 'lib')],
-    libraries=[f'boost_python{vinfo.major}{vinfo.minor}']
+    extra_objects=compiled_shared_obj_files_iter(), # sort of lazy eval here to reuse the already compiled files
+    include_dirs=include_dirs,
+    library_dirs=library_dirs,
+    libraries=libraries
 )
 
 setuptools.setup(

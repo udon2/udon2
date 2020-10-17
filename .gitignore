@@ -10,3 +10,8 @@ udon2_cpp_src/main.cpp
 udon2_cpp_src/main
 benchmarks/
 *.log
+udon2_cpp_src/html/
+udon2_cpp_src/latex/
+wheelhouse/
+boost_1_74_0/
+boost_1_74_0.tar.bz2

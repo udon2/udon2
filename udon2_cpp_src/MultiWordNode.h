@@ -8,9 +8,9 @@
 #define UDON2_CPP_SRC_MULTIWORDNODE_H_
 
 class MultiWordNode {
-  std::string token;
   int minId;
   int maxId;
+  std::string token;
 
  public:
   MultiWordNode(int minId, int maxId, std::string token);

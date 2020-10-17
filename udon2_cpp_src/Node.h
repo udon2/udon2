@@ -71,14 +71,13 @@ typedef std::map<std::string, NodeList> GroupedNodes;
 
 // represents token
 class Node {
-  std::string form;
-  std::string xpos;
-  std::string upos;
-  std::string deprel;
   float id;
+  std::string form;
   std::string lemma;
+  std::string upos;  // 5 chars at most
+  std::string xpos;
+  std::string deprel;
 
-  bool mIgnore = false;
   int mIgnoreLabel = -1;
 
   Node *parent;
@@ -142,7 +141,7 @@ class Node {
   bool isRoot();
 
   bool isIgnored();
-  int getIgnoredLabel() { return mIgnoreLabel; }
+  int getIgnoreLabel() { return mIgnoreLabel; }
   void ignore(int label = 0);
   void ignoreSubtree(int label = 0);
   void reset(int label = 0);
