@@ -11,6 +11,7 @@
 #include <queue>
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include "MultiWordNode.h"
 
@@ -19,52 +20,32 @@
 class Node;
 struct NodeComparator;
 
+// if going back to: const std::string &getForm() { return form; }
+// then: typedef const std::string &(Node::*getterptr)();
 typedef std::string (Node::*getterptr)();
 
-class NodeList {
-  std::vector<Node *> nodes;
-
+class NodeList : public std::vector<Node *> {
  public:
-  NodeList();
-  NodeList(const NodeList &list);
+  NodeList() : std::vector<Node *>() {}
+  NodeList(iterator a, iterator b) : std::vector<Node *>(a, b) {}
 
   void push_sorted(Node *node);
 
   template <class Compare>
   void push_sorted(Node *node, Compare cmp) {
-    nodes.insert(upper_bound(nodes.begin(), nodes.end(), node, cmp), node);
+    insert(upper_bound(begin(), end(), node, cmp), node);
   }
 
-  void push_back(Node *node) { nodes.push_back(node); }
-
-  std::vector<Node *>::iterator findById(Node *n);
-
-  int size() { return nodes.size(); }
-
-  Node *operator[](int i) const {
-    int N = nodes.size();
-    if (i >= 0 && i < N) {
-      return nodes[i];
-    } else if (i < 0 && N + i >= 0) {
-      // negative indices
-      return nodes[N + i];
-    } else {
-      // TODO(dmytro) Should raise IndexError as Python does?
-      return NULL;
-    }
-  }
-
-  std::vector<Node *>::iterator begin() { return nodes.begin(); }
-
-  std::vector<Node *>::iterator end() { return nodes.end(); }
-
-  std::vector<Node *>::iterator erase(std::vector<Node *>::iterator it) {
-    return nodes.erase(it);
-  }
-
-  std::vector<Node *> getNodes() const { return nodes; }
+  iterator findById(Node *n);
 
   std::string toString();
+};
+
+class TreeList : public std::vector<Node *> {
+ public:
+  TreeList() : std::vector<Node *>() {}
+  TreeList(iterator a, iterator b) : std::vector<Node *>(a, b) {}
+  void freeMemory();
 };
 
 typedef std::map<std::string, NodeList> GroupedNodes;
@@ -90,8 +71,11 @@ class Node {
   void accumulateByDeprelChain(std::string value, NodeList *res, int depth);
 
   std::string _subtreeToString(int);
+  int _subtreeSize(Node *n);
 
   MultiWordNode *mwNode = NULL;
+
+  void _getSubtreeNodes(Node *node, NodeList *nodes);
 
  public:
   Node();
@@ -102,17 +86,20 @@ class Node {
   void init(float id, std::string form, std::string lemma, std::string upos,
             std::string xpos, std::string feats, std::string deprel,
             std::string misc, Node *parent);
+  void freeMemory();
 
   float getId() { return id; }
+  // tried: const std::string &getForm() { return form; }
+  // don't think it makes any difference performance-wise
   std::string getForm() { return form; }
   std::string getLemma() { return lemma; }
   std::string getXpos() { return xpos; }
   std::string getUpos() { return upos; }
-  Util::FeatMap getFeats() { return feats; }
   std::string getDeprel() { return deprel; }
+  Util::FeatMap getFeats() { return feats; }
   Util::FeatMap getMisc() { return misc; }
   Node *getParent() { return parent; }
-  NodeList getChildren() {
+  NodeList &getChildren() {
     return children;
   }  // children are sorted by means of NodeComparator
   MultiWordNode *getMultiWord() { return mwNode; }
@@ -191,10 +178,6 @@ class Node {
 
   std::string toString();
   std::string subtreeToString();
-
-  Node *toPCT();
-  Node *toGRCT();
-  Node *toLCT();
 };
 
 struct compare_node_by_id : public std::unary_function<Node *, bool> {

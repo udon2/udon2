@@ -8,10 +8,13 @@ build/
 dist
 udon2_cpp_src/main.cpp
 udon2_cpp_src/main
-benchmarks/
+benchmarks/*.conllu
 *.log
 udon2_cpp_src/html/
 udon2_cpp_src/latex/
+udon2_cpp_src/*.txt
 wheelhouse/
 boost_1_74_0/
 boost_1_74_0.tar.bz2
+test_boost/
+*.txt

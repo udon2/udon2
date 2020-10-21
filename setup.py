@@ -21,9 +21,8 @@ with open(README, "r") as fh:
     long_description = fh.read()
 
 if IS_WINDOWS:
-    boost_library = f'boost_python{vinfo.major}{vinfo.minor}*'
-    boost_include = [os.path.join(HOME_DIR, 'boost')]
-    boost_lib = glob.glob(os.path.join(HOME_DIR, 'boost', 'lib*-msvc-*'))
+    boost_include = [os.path.join(os.getcwd(), 'boost')]
+    boost_lib = glob.glob(os.path.join(os.getcwd(), 'boost', 'lib*-msvc-*'))
     include_extras = glob.glob(os.path.join(boost_lib[0], f"{boost_library}.lib")) + \
         glob.glob(os.path.join(boost_lib[0], f"{boost_library}.dll"))
 else:
@@ -43,29 +42,43 @@ core_module = setuptools.Extension(
         os.path.join(C_SRC, 'MultiWordNode.cpp'),
         os.path.join(C_SRC, 'ConllReader.cpp'),
         os.path.join(C_SRC, 'ConllWriter.cpp'),
-        os.path.join(C_SRC, 'core.cpp')
+        os.path.join(C_SRC, 'udon2_core.cpp')
     ],
     include_dirs=include_dirs,
     library_dirs=library_dirs,
     libraries=libraries
 )
 
-def compiled_shared_obj_files_iter():
+def compiled_shared_obj_files_iter(fnames):
+    compiled_obj = []
     if IS_WINDOWS:
-        compiled_obj = glob.glob(os.path.join('build', 'temp*', 'Release', C_SRC, 'Util.obj')) +\
-                       glob.glob(os.path.join('build', 'temp*', 'Release', C_SRC, 'Node.obj'))
+        for f in fnames:
+            compiled_obj += glob.glob(os.path.join('build', 'temp*', 'Release', C_SRC, '{}.obj'.format(f)))
     else:
-        compiled_obj = glob.glob(os.path.join('build', 'temp*', C_SRC, 'Util.o')) +\
-                       glob.glob(os.path.join('build', 'temp*', C_SRC, 'Node.o'))
+        for f in fnames:
+            compiled_obj += glob.glob(os.path.join('build', 'temp*', C_SRC, '{}.o'.format(f)))
     for x in compiled_obj:
         yield x
+
+transformations_module = setuptools.Extension(
+    'udon2.transform',
+    sources=[
+        os.path.join(C_SRC, 'transformations.cpp'),
+        os.path.join(C_SRC, 'udon2_transform.cpp')
+    ],
+    extra_objects=compiled_shared_obj_files_iter(['Util', 'Node']), # sort of lazy eval here to reuse the already compiled files
+    include_dirs=include_dirs,
+    library_dirs=library_dirs,
+    libraries=libraries
+)
 
 kernels_module = setuptools.Extension(
     'udon2.kernels',
     sources=[
-        os.path.join(C_SRC, 'kernels.cpp')
+        os.path.join(C_SRC, 'kernels.cpp'),
+        os.path.join(C_SRC, 'udon2_kernels.cpp')
     ],
-    extra_objects=compiled_shared_obj_files_iter(), # sort of lazy eval here to reuse the already compiled files
+    extra_objects=compiled_shared_obj_files_iter(['Util', 'Node', 'transformations']), # sort of lazy eval here to reuse the already compiled files
     include_dirs=include_dirs,
     library_dirs=library_dirs,
     libraries=libraries
@@ -87,7 +100,7 @@ setuptools.setup(
         "License :: OSI Approved :: GPLv3 License",
         "Operating System :: OS Independent",
     ],
-    ext_modules=[core_module, kernels_module],
+    ext_modules=[core_module, transformations_module, kernels_module],
     python_requires='>=3.6',
     install_requires=["langdetect", "six"]
 )

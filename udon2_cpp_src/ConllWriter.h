@@ -15,7 +15,7 @@ class ConllWriter {
   static std::string node2conllu(MultiWordNode* node);
 
  public:
-  static void writeToFile(NodeList nodes, std::string fname);
+  static void writeToFile(TreeList nodes, std::string fname);
   static void writeToFile(Node* node, std::string fname);
 };
 

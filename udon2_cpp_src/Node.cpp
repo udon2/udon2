@@ -13,30 +13,39 @@
  * NodeList methods
  */
 
-NodeList::NodeList() {}
-
-NodeList::NodeList(const NodeList &list) { this->nodes = list.getNodes(); }
-
 void NodeList::push_sorted(Node *node) {
   // inserts in a lexicographical order
-  nodes.insert(
-      upper_bound(nodes.begin(), nodes.end(), node, compare_node_by_string()),
-      node);
+  insert(upper_bound(begin(), end(), node, compare_node_by_string()), node);
 }
 
-std::vector<Node *>::iterator NodeList::findById(Node *n) {
-  return find_if(nodes.begin(), nodes.end(), compare_node_by_id(n));
+NodeList::iterator NodeList::findById(Node *n) {
+  return find_if(begin(), end(), compare_node_by_id(n));
 }
 
 std::string NodeList::toString() {
   std::string res = "";
-  for (int i = 0, len = nodes.size(); i < len; i++) {
-    res += nodes[i]->toString();
+  for (int i = 0, len = size(); i < len; i++) {
+    res += at(i)->toString();
     if (i < len - 1) {
       res += " ";
     }
   }
   return res;
+}
+
+/*
+ * TreeList methods
+ */
+
+void TreeList::freeMemory() {
+  for (int i = 0, len = size(); i < len; i++) {
+    for (Node *snode : at(i)->getSubtreeNodes()) {
+      snode->freeMemory();
+      delete snode;
+    }
+    at(i)->freeMemory();
+    delete at(i);
+  }
 }
 
 /*
@@ -78,6 +87,10 @@ Node::Node(Node *n) {
   this->misc = n->getMisc();
   this->copyChildren(n);
   this->mIgnoreLabel = n->getIgnoreLabel();
+}
+
+void Node::freeMemory() {
+  if (mwNode != NULL) delete mwNode;
 }
 
 void Node::init(float id, std::string form, std::string lemma, std::string upos,
@@ -144,7 +157,7 @@ std::string Node::getFeatsAsString() {
 
   std::sort(featsVec.begin(), featsVec.end());
 
-  return Util::stringJoin(featsVec, '|');
+  return Util::stringJoin(featsVec, "|");
 }
 
 bool Node::hasFeat(std::string key, std::string value) {
@@ -182,27 +195,24 @@ bool Node::hasAllFeats(std::string value) {
   return true;
 }
 
+void Node::_getSubtreeNodes(Node *node, NodeList *nodes) {
+  NodeList &ch = node->getChildren();
+  int len = ch.size();
+  if (len > 0) {
+    for (int i = 0; i < len; i++) {
+      nodes->push_back(ch[i]);
+      _getSubtreeNodes(ch[i], nodes);
+    }
+  }
+}
+
 NodeList Node::getSubtreeNodes() {
   /**
    * Get a list of all nodes in the subtree in the BFS order.
    */
   NodeList all;
-  std::queue<Node *> nodes;
-  for (int i = 0, len = children.size(); i < len; i++) {
-    nodes.push(children[i]);
-    all.push_back(children[i]);
-  }
-
-  while (!nodes.empty()) {
-    // add children of the head node to the stack
-    NodeList ch = nodes.front()->getChildren();
-    for (int i = 0, len = ch.size(); i < len; i++) {
-      nodes.push(ch[i]);
-      all.push_back(ch[i]);
-    }
-    nodes.pop();
-  }
-
+  all.reserve(this->subtreeSize());
+  _getSubtreeNodes(this, &all);
   return all;
 }
 
@@ -258,7 +268,7 @@ void Node::ignoreSubtree(int label) {
     // add children of the head node to the stack
     nodes.front()->ignore(label);
 
-    NodeList ch = nodes.front()->getChildren();
+    NodeList &ch = nodes.front()->getChildren();
     for (int i = 0, len = ch.size(); i < len; i++) {
       nodes.push(ch[i]);
     }
@@ -282,7 +292,7 @@ void Node::resetSubtree(int label) {
     // add children of the head node to the stack
     nodes.front()->reset(label);
 
-    NodeList ch = nodes.front()->getChildren();
+    NodeList &ch = nodes.front()->getChildren();
     for (int i = 0, len = ch.size(); i < len; i++) {
       nodes.push(ch[i]);
     }
@@ -299,27 +309,21 @@ void Node::hardResetSubtree() {
   resetSubtree(-1);
 }
 
+int Node::_subtreeSize(Node *n) {
+  NodeList &ch = n->getChildren();
+  int len = ch.size();
+  int sz = len;
+  for (int i = 0; i < len; i++) {
+    sz += _subtreeSize(ch[i]);
+  }
+  return sz;
+}
+
 int Node::subtreeSize() {
   /**
    * Get the number of nodes in the subtree induced by the current node.
    */
-  int sz = 0;
-  std::queue<Node *> nodes;
-  for (int i = 0, len = children.size(); i < len; i++) {
-    nodes.push(children[i]);
-    sz++;
-  }
-
-  while (!nodes.empty()) {
-    // add children of the head node to the stack
-    NodeList ch = nodes.front()->getChildren();
-    for (int i = 0, len = ch.size(); i < len; i++) {
-      nodes.push(ch[i]);
-      sz++;
-    }
-    nodes.pop();
-  }
-  return sz;
+  return _subtreeSize(this);
 }
 
 void Node::copyChildren(Node *node) {
@@ -347,6 +351,7 @@ std::string Node::getSubtreeText() {
    * values of all nodes in the subtree except the ignored nodes.
    */
   // TODO(dmytro): Fix SpaceAfter=No thing
+  // TODO(dmytro): Ignore root
   std::queue<Node *> nodes;
   for (int i = 0, len = children.size(); i < len; i++) {
     nodes.push(children[i]);
@@ -371,7 +376,7 @@ std::string Node::getSubtreeText() {
     }
 
     // add children of the head node to the stack
-    NodeList ch = nodes.front()->getChildren();
+    NodeList &ch = nodes.front()->getChildren();
     for (int i = 0, len = ch.size(); i < len; i++) {
       nodes.push(ch[i]);
     }
@@ -408,7 +413,7 @@ NodeList Node::linear() {
     }
 
     // add children of the head node to the stack
-    NodeList ch = nodes.front()->getChildren();
+    NodeList &ch = nodes.front()->getChildren();
     for (int i = 0, len = ch.size(); i < len; i++) {
       nodes.push(ch[i]);
     }
@@ -440,7 +445,7 @@ NodeList Node::linearSorted() {
     linear.push_sorted(nodes.front());
 
     // add children of the head node to the stack
-    NodeList ch = nodes.front()->getChildren();
+    NodeList &ch = nodes.front()->getChildren();
     for (int i = 0, len = ch.size(); i < len; i++) {
       nodes.push(ch[i]);
     }
@@ -458,8 +463,6 @@ getterptr Node::getterByProp(std::string prop) {
     getterFn = &Node::getLemma;
   else if (prop == "deprel")
     getterFn = &Node::getDeprel;
-  else if (prop == "feats")
-    getterFn = &Node::getFeatsAsString;
   else if (prop == "form")
     getterFn = &Node::getForm;
   return getterFn;
@@ -497,7 +500,7 @@ NodeList Node::selectBy(std::string prop, std::string value, bool negate) {
       }
 
       // add children of the head node to the stack
-      NodeList ch = nodes.front()->getChildren();
+      NodeList &ch = nodes.front()->getChildren();
       for (int i = 0, len = ch.size(); i < len; i++) {
         nodes.push(ch[i]);
       }
@@ -524,7 +527,7 @@ void Node::accumulateByDeprelChain(std::string value, NodeList *res,
         res->push_back(*node);
       } else {
         std::vector<std::string> subChain(chain.begin() + 1, chain.end());
-        (*node)->accumulateByDeprelChain(Util::stringJoin(subChain, '.'), res,
+        (*node)->accumulateByDeprelChain(Util::stringJoin(subChain, "."), res,
                                          depth + 1);
       }
     }
@@ -594,7 +597,7 @@ NodeList Node::selectHaving(std::string value, bool negate) {
     }
 
     // add children of the head node to the stack
-    NodeList ch = nodes.front()->getChildren();
+    NodeList &ch = nodes.front()->getChildren();
     for (int i = 0, len = ch.size(); i < len; i++) {
       nodes.push(ch[i]);
     }
@@ -683,7 +686,7 @@ NodeList Node::selectIdenticalExcept(Node *node, std::string excludeProps) {
     }
 
     // add children of the head node to the stack
-    NodeList ch = front->getChildren();
+    NodeList &ch = front->getChildren();
     for (int i = 0, len = ch.size(); i < len; i++) {
       nodes.push(ch[i]);
     }
@@ -739,7 +742,7 @@ void Node::prune(std::string rel) {
         node = children.erase(node);
       } else {
         std::vector<std::string> subChain(chain.begin() + 1, chain.end());
-        (*node)->prune(Util::stringJoin(subChain, '.'));
+        (*node)->prune(Util::stringJoin(subChain, "."));
         ++node;
       }
     } else {
@@ -774,7 +777,7 @@ bool Node::propExists(std::string prop, std::string value) {
     }
 
     // add children of the head node to the stack
-    NodeList ch = nodes.front()->getChildren();
+    NodeList &ch = nodes.front()->getChildren();
     for (int i = 0, len = ch.size(); i < len; i++) {
       nodes.push(ch[i]);
     }
@@ -841,7 +844,7 @@ std::string Node::subtreeToString() { return _subtreeToString(0); }
 // TODO(dmytro): rename method - not really an intersect
 Node *Node::textualIntersect(std::string text) {
   // TODO(dmytro): maybe return a NodeList instead?
-  std::vector<std::string> words = Util::stringSplit(text, ' ');
+  std::vector<std::string> words = Util::stringSplit(text);
 
   NodeList res;
 
@@ -872,113 +875,4 @@ Node *Node::textualIntersect(std::string text) {
   } else {
     return NULL;
   }
-}
-
-Node *Node::toPCT() {
-  std::queue<Node *> nodes;
-  for (int i = 0, len = children.size(); i < len; i++) {
-    nodes.push(children[i]);
-  }
-
-  Node *rootRelNode = new Node(id, deprel, "", "", "", "", "", "", NULL);
-  Node *posNode =
-      new Node(id + 0.1f, upos, "", "", "", "", "", "", rootRelNode);
-  new Node(id + 0.2f, form, "", "", "", "", "", "", posNode);
-
-  std::map<float, Node *> nodesMap;
-  nodesMap[id] = posNode;
-
-  while (!nodes.empty()) {
-    float frontId = nodes.front()->getId();
-
-    Node *relNode =
-        new Node(frontId, nodes.front()->getDeprel(), "", "", "", "", "", "",
-                 nodesMap[nodes.front()->getParent()->getId()]);
-    Node *posNode = new Node(frontId + 0.1f, nodes.front()->getUpos(), "", "",
-                             "", "", "", "", relNode);
-    new Node(frontId + 0.2f, nodes.front()->getForm(), "", "", "", "", "", "",
-             posNode);
-
-    nodesMap[frontId] = posNode;
-
-    // add children of the head node to the stack
-    NodeList ch = nodes.front()->getChildren();
-    for (int i = 0, len = ch.size(); i < len; i++) {
-      nodes.push(ch[i]);
-    }
-    nodes.pop();
-  }
-  return rootRelNode;
-}
-
-Node *Node::toGRCT() {
-  std::queue<Node *> nodes;
-  for (int i = 0, len = children.size(); i < len; i++) {
-    nodes.push(children[i]);
-  }
-
-  Node *relNode = new Node(id, deprel, "", "", "", "", "", "", NULL);
-  Node *posNode = new Node(id + 0.1f, upos, "", "", "", "", "", "", relNode);
-  new Node(id + 0.2f, form, "", "", "", "", "", "", posNode);
-
-  std::map<float, Node *> nodesMap;
-  nodesMap[id] = relNode;
-
-  while (!nodes.empty()) {
-    float frontId = nodes.front()->getId();
-
-    Node *relNode =
-        new Node(frontId, nodes.front()->getDeprel(), "", "", "", "", "", "",
-                 nodesMap[nodes.front()->getParent()->getId()]);
-    Node *posNode = new Node(frontId + 0.1f, nodes.front()->getUpos(), "", "",
-                             "", "", "", "", relNode);
-    new Node(frontId + 0.2f, nodes.front()->getForm(), "", "", "", "", "", "",
-             posNode);
-
-    nodesMap[frontId] = relNode;
-
-    // add children of the head node to the stack
-    NodeList ch = nodes.front()->getChildren();
-    for (int i = 0, len = ch.size(); i < len; i++) {
-      nodes.push(ch[i]);
-    }
-    nodes.pop();
-  }
-  return nodesMap[id];
-}
-
-Node *Node::toLCT() {
-  std::queue<Node *> nodes;
-  for (int i = 0, len = children.size(); i < len; i++) {
-    nodes.push(children[i]);
-  }
-
-  Node *formNode = new Node(id + 0.2f, form, "", "", "", "", "", "", NULL);
-  new Node(id, deprel, "", "", "", "", "", "", formNode);
-  new Node(id + 0.1f, upos, "", "", "", "", "", "", formNode);
-
-  std::map<float, Node *> nodesMap;
-  nodesMap[id] = formNode;
-
-  while (!nodes.empty()) {
-    float frontId = nodes.front()->getId();
-
-    Node *formNode =
-        new Node(frontId + 0.2f, nodes.front()->getForm(), "", "", "", "", "",
-                 "", nodesMap[nodes.front()->getParent()->getId()]);
-    new Node(frontId + 0.1f, nodes.front()->getUpos(), "", "", "", "", "", "",
-             formNode);
-    new Node(frontId, nodes.front()->getDeprel(), "", "", "", "", "", "",
-             formNode);
-
-    nodesMap[frontId] = formNode;
-
-    // add children of the head node to the stack
-    NodeList ch = nodes.front()->getChildren();
-    for (int i = 0, len = ch.size(); i < len; i++) {
-      nodes.push(ch[i]);
-    }
-    nodes.pop();
-  }
-  return nodesMap[id];
 }

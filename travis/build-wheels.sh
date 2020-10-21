@@ -47,6 +47,9 @@ for whl in wheelhouse/${ARCH}/*.whl; do
     repair_wheel "$whl"
 done
 
+rm -rf boost_1_74_0
+# rm boost_1_74_0.tar.bz2
+
 # Install packages and test
 # for PYBIN in /opt/python/*/bin/; do
 #     "${PYBIN}/pip" install python-manylinux-demo --no-index -f /io/wheelhouse

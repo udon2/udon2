@@ -6,6 +6,7 @@
 
 #include <math.h>
 
+#include <vector>
 #include <fstream>
 #include <iostream>
 
@@ -14,7 +15,8 @@
 std::string ConllWriter::node2conllu(Node* node) {
   int N = 10;
   // To avoid C2131 on Windows
-  std::string* nodeStr = new std::string[N];
+  std::vector<std::string> nodeStr;
+  nodeStr.reserve(N);
   char buffer[10];
   float id = node->getId();
   if (ceil(id) == id) {
@@ -23,16 +25,16 @@ std::string ConllWriter::node2conllu(Node* node) {
     std::snprintf(buffer, sizeof(buffer), "%.1f", id);
   }
   std::string res(buffer);
-  nodeStr[0] = res;
-  nodeStr[1] = node->getForm();
-  nodeStr[2] = node->getLemma();
-  nodeStr[3] = node->getUpos();
-  nodeStr[4] = node->getXpos();
+  nodeStr.push_back(res);
+  nodeStr.push_back(node->getForm());
+  nodeStr.push_back(node->getLemma());
+  nodeStr.push_back(node->getUpos());
+  nodeStr.push_back(node->getXpos());
   Util::FeatMap feats = node->getFeats();
-  nodeStr[5] = feats.empty() ? "_" : Util::stringifyFeatMap(feats);
+  nodeStr.push_back(feats.empty() ? "_" : Util::stringifyFeatMap(feats));
   Node* parent = node->getParent();
   if (parent == NULL) {
-    nodeStr[6] = "_";
+    nodeStr.push_back("_");
   } else {
     id = parent->getId();
     if (ceil(id) == id) {
@@ -41,13 +43,13 @@ std::string ConllWriter::node2conllu(Node* node) {
       std::snprintf(buffer, sizeof(buffer), "%.1f", id);
     }
     std::string resParent(buffer);
-    nodeStr[6] = resParent;
+    nodeStr.push_back(resParent);
   }
-  nodeStr[7] = node->getDeprel();
-  nodeStr[8] = "_";
+  nodeStr.push_back(node->getDeprel());
+  nodeStr.push_back("_");
   Util::FeatMap misc = node->getMisc();
-  nodeStr[9] = misc.empty() ? "_" : Util::stringifyFeatMap(misc);
-  return Util::stringJoin(nodeStr, N, '\t');
+  nodeStr.push_back(misc.empty() ? "_" : Util::stringifyFeatMap(misc));
+  return Util::stringJoin(nodeStr, "\t");
 }
 
 std::string ConllWriter::node2conllu(MultiWordNode* node) {
@@ -58,10 +60,12 @@ std::string ConllWriter::node2conllu(MultiWordNode* node) {
       std::to_string(node->getMinId()) + "-" + std::to_string(node->getMaxId());
   nodeStr[1] = node->getToken();
   for (int i = 2; i < N; i++) nodeStr[i] = "_";
-  return Util::stringJoin(nodeStr, N, '\t');
+  std::string nodeRepr = Util::stringJoin(nodeStr, N, '\t');
+  delete[] nodeStr;
+  return nodeRepr;
 }
 
-void ConllWriter::writeToFile(NodeList nodes, std::string fname) {
+void ConllWriter::writeToFile(TreeList nodes, std::string fname) {
   /**
    * Write the subtree rooted at every Node from the list `nodes` to the file
    * `fname` in a [CoNLL-U
@@ -75,7 +79,8 @@ void ConllWriter::writeToFile(NodeList nodes, std::string fname) {
   outFile.open(fname);
   for (Node* node : nodes) {
     NodeList linear = node->linear();
-    for (int j = 1; j < linear.size(); j++) {
+    int sz = linear.size();
+    for (int j = 1; j < sz; j++) {
       MultiWordNode* mw = linear[j]->getMultiWord();
       if (mw != NULL && j == mw->getMinId()) {
         outFile << ConllWriter::node2conllu(mw) << std::endl;
@@ -99,7 +104,8 @@ void ConllWriter::writeToFile(Node* node, std::string fname) {
   std::ofstream outFile;
   outFile.open(fname);
   NodeList linear = node->linear();
-  for (int j = 1; j < linear.size(); j++) {
+  int sz = linear.size();
+  for (int j = 1; j < sz; j++) {
     MultiWordNode* mw = linear[j]->getMultiWord();
     if (mw != NULL && j == mw->getMinId()) {
       outFile << ConllWriter::node2conllu(mw) << std::endl;

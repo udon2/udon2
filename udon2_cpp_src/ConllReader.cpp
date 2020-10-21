@@ -26,8 +26,9 @@ Node* ConllReader::initNodes(std::vector<std::string> words) {
   for (int i = 1; i < N + 1; i++) {
     std::vector<std::string> word = Util::stringSplit(words[i - 1], '\t');
     if (word.size() != 10) {
-      word = Util::stringSplit(words[i - 1], ' ');
+      word = Util::stringSplit(words[i - 1]);
       if (word.size() != 10) {
+        // TODO(dmytro): better error message
         perror("Failed to split a line of the CONLL-U format");
         exit(1);
       }
@@ -68,10 +69,13 @@ Node* ConllReader::initNodes(std::vector<std::string> words) {
     }
   }
 
-  return nodes[0];  // root pseudonode
+  Node* root = nodes[0];
+  for (int i = j; i < N + 1; i++) delete nodes[i];
+  delete[] nodes;
+  return root;  // root pseudonode
 }
 
-NodeList ConllReader::readFile(std::string fname) {
+TreeList ConllReader::readFile(std::string fname) {
   /**
    * Reads a file `fname` in a [CoNLL-U
    * format](https://universaldependencies.org/format.html).
@@ -87,7 +91,7 @@ NodeList ConllReader::readFile(std::string fname) {
   std::ifstream conllFile(fname);
   std::string line;
 
-  NodeList forest;
+  TreeList forest;
   std::vector<std::string> words;
 
   if (conllFile.is_open()) {
@@ -95,7 +99,9 @@ NodeList ConllReader::readFile(std::string fname) {
       if (line.empty()) {
         // end of sentence
         if (words.size() > 0) {
+          // std::cout << "Hello" << std::endl;
           forest.push_back(initNodes(words));
+          // std::cout << "world" << std::endl;
           words.clear();
         }
       } else if (line[0] == '#') {

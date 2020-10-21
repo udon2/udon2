@@ -8,7 +8,7 @@
 #include <map>
 #include <vector>
 
-#include <boost/python.hpp>
+#include "transformations.h"
 
 namespace kernels {
 ConvPartialTreeKernel::ConvPartialTreeKernel(std::string repr, float mu,
@@ -111,14 +111,20 @@ float ConvPartialTreeKernel::eval(Node *root1, Node *root2) {
   Node *r1;
   Node *r2;
   if (treeRepresentation == "PCT") {
-    r1 = root1->isRoot() ? root1->getChildren()[0]->toPCT() : root1->toPCT();
-    r2 = root2->isRoot() ? root2->getChildren()[0]->toPCT() : root2->toPCT();
+    r1 = root1->isRoot() ? transformations::toPCT(root1->getChildren()[0])
+                         : transformations::toPCT(root1);
+    r2 = root2->isRoot() ? transformations::toPCT(root2->getChildren()[0])
+                         : transformations::toPCT(root2);
   } else if (treeRepresentation == "GRCT") {
-    r1 = root1->isRoot() ? root1->getChildren()[0]->toGRCT() : root1->toGRCT();
-    r2 = root2->isRoot() ? root2->getChildren()[0]->toGRCT() : root2->toGRCT();
+    r1 = root1->isRoot() ? transformations::toGRCT(root1->getChildren()[0])
+                         : transformations::toGRCT(root1);
+    r2 = root2->isRoot() ? transformations::toGRCT(root2->getChildren()[0])
+                         : transformations::toGRCT(root2);
   } else if (treeRepresentation == "LCT") {
-    r1 = root1->isRoot() ? root1->getChildren()[0]->toLCT() : root1->toLCT();
-    r2 = root2->isRoot() ? root2->getChildren()[0]->toLCT() : root2->toLCT();
+    r1 = root1->isRoot() ? transformations::toLCT(root1->getChildren()[0])
+                         : transformations::toLCT(root1);
+    r2 = root2->isRoot() ? transformations::toLCT(root2->getChildren()[0])
+                         : transformations::toLCT(root2);
   } else {
     return -1;
   }
@@ -154,11 +160,3 @@ float ConvPartialTreeKernel::eval(Node *root1, Node *root2) {
   return value;
 }
 }  // namespace kernels
-
-BOOST_PYTHON_MODULE(kernels) {
-  namespace bp = boost::python;
-
-  bp::class_<kernels::ConvPartialTreeKernel>(
-      "ConvPartialTreeKernel", bp::init<std::string, float, float>())
-      .def("__call__", &kernels::ConvPartialTreeKernel::eval);
-}

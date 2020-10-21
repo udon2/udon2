@@ -14,7 +14,7 @@ class ConllReader {
   static Node *initNodes(std::vector<std::string> words);
 
  public:
-  static NodeList readFile(std::string fname);
+  static TreeList readFile(std::string fname);
 };
 
 #endif  // UDON2_CPP_SRC_CONLLREADER_H_

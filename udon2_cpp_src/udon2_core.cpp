@@ -44,11 +44,11 @@ BOOST_PYTHON_MODULE(core) {
   bp::class_<GroupedNodes>("GroupedNodes")
       .def(bp::map_indexing_suite_v2<GroupedNodes>());
 
-  bp::class_<NodeList>("NodeList", bp::init<>())
-      .def("__getitem__", &NodeList::operator[],
-           bp::return_internal_reference<1>())
-      .def("__len__", &NodeList::size)
-      .def("__iter__", bp::range(&NodeList::begin, &NodeList::end));
+  bp::class_<NodeList>("NodeList").def(bp::vector_indexing_suite<NodeList>());
+
+  bp::class_<TreeList>("TreeList")
+      .def(bp::vector_indexing_suite<TreeList>())
+      .def("__del__", &TreeList::freeMemory);
 
   bp::class_<MultiWordNode, MultiWordNode *>("MultiWordNode",
                                              bp::init<int, int, std::string>())
@@ -60,32 +60,50 @@ BOOST_PYTHON_MODULE(core) {
   bp::class_<Node, Node *>("Node")
       .def(bp::init<float, std::string, std::string, std::string, std::string,
                     std::string, std::string, std::string, Node *>())
-      .def("set_id", &Node::setId)
-      .def("set_form", &Node::setForm)
-      .def("set_lemma", &Node::setLemma)
-      .def("set_xpos", &Node::setXpos)
-      .def("set_upos", &Node::setUpos)
-      .def("set_deprel", &Node::setDeprel)
-      .def("set_misc", &Node::setMisc)
-      .def("set_parent", &Node::setParent)
-      .def("get_id", &Node::getId)
-      .def("get_form", &Node::getForm)
-      .def("get_lemma", &Node::getLemma)
-      .def("get_xpos", &Node::getXpos)
-      .def("get_upos", &Node::getUpos)
-      .def("get_deprel", &Node::getDeprel)
-      .def("get_misc", &Node::getMisc)
-      .def("get_parent", &Node::getParent, bp::return_internal_reference<1>())
-      .def("get_multi_word", &Node::getMultiWord,
-           bp::return_internal_reference<1>())
+      .add_property("id", &Node::getId, &Node::setId)
+      // make_getter doesn't seem to work here, why?
+      .add_property("form",
+                    bp::make_function(
+                        &Node::getForm,
+                        bp::return_value_policy<bp::copy_const_reference>()),
+                    &Node::setForm)
+      .add_property("lemma",
+                    bp::make_function(
+                        &Node::getLemma,
+                        bp::return_value_policy<bp::copy_const_reference>()),
+                    &Node::setLemma)
+      .add_property("xpos",
+                    bp::make_function(
+                        &Node::getXpos,
+                        bp::return_value_policy<bp::copy_const_reference>()),
+                    &Node::setXpos)
+      .add_property("upos",
+                    bp::make_function(
+                        &Node::getUpos,
+                        bp::return_value_policy<bp::copy_const_reference>()),
+                    &Node::setUpos)
+      .add_property("deprel",
+                    bp::make_function(
+                        &Node::getDeprel,
+                        bp::return_value_policy<bp::copy_const_reference>()),
+                    &Node::setDeprel)
+      .add_property("misc", &Node::getMisc, &Node::setMisc)
+      .add_property("feats", &Node::getFeats, &Node::setFeats)
+      .add_property("children",
+                    bp::make_function(&Node::getChildren,
+                                      bp::return_internal_reference<1>()))
+      .add_property("parent",
+                    bp::make_function(&Node::getParent,
+                                      bp::return_internal_reference<1>()),
+                    &Node::setParent)
+      .add_property("multi_word",
+                    bp::make_function(&Node::getMultiWord,
+                                      bp::return_internal_reference<1>()))
       .def("get_subtree_text", &Node::getSubtreeText)
-      .def("get_feats", &Node::getFeats)
       .def("get_feats_as_string", &Node::getFeatsAsString)
       .def("has_all_feats", &Node::hasAllFeats)
       .def("has_feat", &Node::hasFeat)
-      .def("set_feats", &Node::setFeats)
       .def("alter_feat", &Node::alterFeat)
-      .def("get_children", &Node::getChildren)
       .def("copy_children", &Node::copyChildren)
       .def("add_child", &Node::addChild)
       .def("has_children", &Node::hasChildren)
@@ -121,16 +139,18 @@ BOOST_PYTHON_MODULE(core) {
       .def("hard_reset_subtree", &Node::hardResetSubtree)
       .def("is_ignored", &Node::isIgnored)
       .def("get_ignore_label", &Node::getIgnoreLabel)
-      .def("group_by", &Node::groupBy)
-      .def("to_grct", &Node::toGRCT, bp::return_internal_reference<1>())
-      .def("to_pct", &Node::toPCT, bp::return_internal_reference<1>())
-      .def("to_lct", &Node::toLCT, bp::return_internal_reference<1>());
+      .def("group_by", &Node::groupBy);
 
   bp::class_<ConllReader>("ConllReader")
       .def("read_file", &ConllReader::readFile)
       .staticmethod("read_file");
 
-  // bp::class_<ConllWriter>("ConllWriter")
-  //     .def("write_to_file", &ConllWriter::writeToFile)
-  //     .staticmethod("write_to_file");
+  void (*writeToFile_TreeList)(TreeList, std::string) =
+      &ConllWriter::writeToFile;
+  void (*writeToFile_Node)(Node *, std::string) = &ConllWriter::writeToFile;
+
+  bp::class_<ConllWriter>("ConllWriter")
+      .def("write_to_file", writeToFile_Node)
+      .def("write_to_file", writeToFile_TreeList)
+      .staticmethod("write_to_file");
 }
