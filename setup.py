@@ -53,10 +53,10 @@ def compiled_shared_obj_files_iter(fnames):
     compiled_obj = []
     if IS_WINDOWS:
         for f in fnames:
-            compiled_obj += glob.glob(os.path.join('build', 'temp*', 'Release', C_SRC, '{}.obj'.format(f)))
+            compiled_obj += glob.glob(os.path.join('build', f'temp*-{vinfo.major}.{vinfo.minor}', 'Release', C_SRC, '{}.obj'.format(f)))
     else:
         for f in fnames:
-            compiled_obj += glob.glob(os.path.join('build', 'temp*', C_SRC, '{}.o'.format(f)))
+            compiled_obj += glob.glob(os.path.join('build', f'temp*-{vinfo.major}.{vinfo.minor}', C_SRC, '{}.o'.format(f)))
     for x in compiled_obj:
         yield x
 
@@ -86,7 +86,7 @@ kernels_module = setuptools.Extension(
 
 setuptools.setup(
     name="udon2", # Replace with your own username
-    version="0.2",
+    version="0.1",
     author="Dmytro Kalpakchi",
     author_email="dmytroka@kth.se",
     description="Prepare your UD trees to be served!",
@@ -96,9 +96,17 @@ setuptools.setup(
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},
     classifiers=[
+        "Intended Audience :: Science/Research",
+        "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: GPLv3 License",
-        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "License :: OSI Approved :: GNU Affero General Public License v3",
+        "Operating System :: POSIX :: Linux",
+        "Operating System :: Microsoft :: Windows",
+        "Topic :: Scientific/Engineering"
     ],
     ext_modules=[core_module, transformations_module, kernels_module],
     python_requires='>=3.6',

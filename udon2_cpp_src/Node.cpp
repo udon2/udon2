@@ -138,61 +138,74 @@ bool Node::isRoot() {
   return parent == NULL;
 }
 
-std::string Node::getFeatsAsString() {
+bool Node::has(std::string prop, std::string key, std::string value) {
   /**
-   * Get FEATS of a Node as a UD string, e.g. Case=Nom|Person=2|PronType=Prs
+   * Check if the Node's key-value property specified by `prop` (either "feats"
+   * or "misc") contains a feature `key`=`value`.
    */
-  // Create a map iterator and point to beginning of map
-  std::map<std::string, std::string>::iterator it = feats.begin();
+  kvgetterptr getterFn = kvgetterByProp(prop);
+  if (getterFn == NULL) return false;
 
-  std::vector<std::string> featsVec;
-
-  // Iterate over the map using Iterator till end.
-  while (it != feats.end()) {
-    featsVec.push_back(it->first + "=" + it->second);
-
-    // Increment the Iterator to point to next entry
-    it++;
-  }
-
-  std::sort(featsVec.begin(), featsVec.end());
-
-  return Util::stringJoin(featsVec, "|");
-}
-
-bool Node::hasFeat(std::string key, std::string value) {
-  /**
-   * Check if the Node's FEATS contain a morphological feature `key`=`value`.
-   */
-  if (feats.count(key) > 0) {
-    return feats[key] == value;
+  Util::FeatMap nodeFeats = (this->*getterFn)();
+  if (nodeFeats.count(key) > 0) {
+    return nodeFeats[key] == value;
   } else {
     return false;
   }
 }
 
-bool Node::hasAllFeats(std::string value) {
+bool Node::hasAll(std::string prop, std::string value) {
   /**
-   * Check if the Node's FEATS has all morphological features specified in the
-   * string `value`, e.g. \code{.cpp}
-   * node->hasAllFeatures("Case=Nom|PronType=Prs")
+   * Check if the Node's key-value property specified by `prop` (either "feats"
+   * or "misc") contains all features specified in `value`, e.g. \code{.cpp}
+   * node->hasAll("feats", "Case=Nom|PronType=Prs")
    * \endcode
    *
    * Note that the check is not exclusive, e.g. consider the node with
-   * morphological properties Case=Nom|Person=2|PronType=Prs, then the following
-   * holds. \code{.cpp} node->hasAllFeatures("Case=Nom|Person=2") // returns
-   * true node->hasAllFeatures("Case=Nom")          // returns true
-   * node->hasAllFeatures("Case=Nom|Person=3") // returns false
+   * FEATS equal to Case=Nom|Person=2|PronType=Prs, then the following
+   * holds.
+   * \code{.cpp}
+   * node->hasAll("feats", "Case=Nom|Person=2") // returns true
+   * node->hasAll("feats", "Case=Nom")          // returns true
+   * node->hasAll("feats", "Case=Nom|Person=3") // returns false
    * \endcode
    */
   Util::FeatMap givenFeats = Util::parseUniversalFormat(value);
+
+  kvgetterptr getterFn = kvgetterByProp(prop);
+  if (getterFn == NULL) return false;
+
+  Util::FeatMap nodeFeats = (this->*getterFn)();
+
   for (auto it = givenFeats.begin(); it != givenFeats.end(); it++) {
-    if (feats.find(it->first) == feats.end() ||
-        feats[it->first] != it->second) {
+    if (nodeFeats.find(it->first) == nodeFeats.end() ||
+        nodeFeats[it->first] != it->second) {
       return false;
     }
   }
   return true;
+}
+
+bool Node::hasAny(std::string prop, std::string value) {
+  /**
+   * Check if the Node's key-value property specified by `prop` (either "feats"
+   * or "misc") contains any of the features specified in `value`, e.g.
+   * \code{.cpp} node->hasAll("feats", "Case=Nom|PronType=Prs") \endcode
+   */
+  Util::FeatMap givenFeats = Util::parseUniversalFormat(value);
+
+  kvgetterptr getterFn = kvgetterByProp(prop);
+  if (getterFn == NULL) return false;
+
+  Util::FeatMap nodeFeats = (this->*getterFn)();
+
+  for (auto it = givenFeats.begin(); it != givenFeats.end(); it++) {
+    if (nodeFeats.find(it->first) != nodeFeats.end() ||
+        nodeFeats[it->first] == it->second) {
+      return true;
+    }
+  }
+  return false;
 }
 
 void Node::_getSubtreeNodes(Node *node, NodeList *nodes) {
@@ -352,6 +365,7 @@ std::string Node::getSubtreeText() {
    */
   // TODO(dmytro): Fix SpaceAfter=No thing
   // TODO(dmytro): Ignore root
+  // TODO(dmytro): Fix multiword tokens
   std::queue<Node *> nodes;
   for (int i = 0, len = children.size(); i < len; i++) {
     nodes.push(children[i]);
@@ -459,12 +473,23 @@ getterptr Node::getterByProp(std::string prop) {
   getterptr getterFn = NULL;
   if (prop == "upos")
     getterFn = &Node::getUpos;
+  else if (prop == "xpos")
+    getterFn = &Node::getXpos;
   else if (prop == "lemma")
     getterFn = &Node::getLemma;
   else if (prop == "deprel")
     getterFn = &Node::getDeprel;
   else if (prop == "form")
     getterFn = &Node::getForm;
+  return getterFn;
+}
+
+kvgetterptr Node::kvgetterByProp(std::string prop) {
+  kvgetterptr getterFn = NULL;
+  if (prop == "feats")
+    getterFn = &Node::getFeats;
+  else if (prop == "misc")
+    getterFn = &Node::getMisc;
   return getterFn;
 }
 
@@ -569,7 +594,10 @@ GroupedNodes Node::groupBy(std::string prop) {
   return gn;
 }
 
-NodeList Node::selectHaving(std::string value, bool negate) {
+NodeList Node::selectHaving(std::string prop, std::string value, bool negate) {
+  kvgetterptr getterFn = kvgetterByProp(prop);
+  if (getterFn == NULL) return NodeList();
+
   std::queue<Node *> nodes;
   NodeList result;
 
@@ -581,7 +609,7 @@ NodeList Node::selectHaving(std::string value, bool negate) {
 
   while (!nodes.empty()) {
     // check the POS-tag and if matches add to the result
-    Util::FeatMap nodeFeats = nodes.front()->getFeats();
+    Util::FeatMap nodeFeats = (nodes.front()->*getterFn)();
 
     bool match = true;
     for (auto it = feats.begin(); it != feats.end(); it++) {
@@ -604,14 +632,6 @@ NodeList Node::selectHaving(std::string value, bool negate) {
     nodes.pop();
   }
   return result;
-}
-
-NodeList Node::selectHavingFeats(std::string value) {
-  return selectHaving(value, false);
-}
-
-NodeList Node::selectMissingFeats(std::string value) {
-  return selectHaving(value, true);
 }
 
 bool Node::isIdentical(Node *node, std::string excludeProps) {

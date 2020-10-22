@@ -81,7 +81,7 @@ float ConvPartialTreeKernel::ptkDelta(Node *n1, Node *n2) {
 
   if (n1->getForm() != n2->getForm()) {
     deltas[n1->getId()][n2->getId()] = 0;
-  } else if (!n1->hasChildren() || !n2->hasChildren()) {
+  } else if (!n1->isLeaf() || !n2->isLeaf()) {
     deltas[n1->getId()][n2->getId()] = mu * lambda2;
   } else {
     deltas[n1->getId()][n2->getId()] =

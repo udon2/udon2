@@ -33,6 +33,7 @@ CPLUS_INCLUDE_PATH="$CPLUS_INCLUDE_PATH:$PYTHON_LIBS" ./b2 python=3.6,3.7,3.8,3.
 cd ..
 
 # Compile wheels
+mkdir wheelhouse
 mkdir "wheelhouse/${ARCH}/"
 for PYBIN in /opt/python/*/bin; do
     # "${PYBIN}/pip" install -r /io/dev-requirements.txt
@@ -51,7 +52,11 @@ rm -rf boost_1_74_0
 # rm boost_1_74_0.tar.bz2
 
 # Install packages and test
-# for PYBIN in /opt/python/*/bin/; do
-#     "${PYBIN}/pip" install python-manylinux-demo --no-index -f /io/wheelhouse
-#     (cd "$HOME"; "${PYBIN}/nosetests" pymanylinuxdemo)
-# done
+for PYBIN in /opt/python/*/bin/; do
+    if [[ $PYBIN == *"cp27"* ]] || [[ $PYBIN == *"cp35"* ]]; then
+        continue
+    fi
+    "${PYBIN}/pip" install langdetect six
+    "${PYBIN}/pip" install udon2 --no-index -f "/io/wheelhouse/${ARCH}"
+    (cd /io; "${PYBIN}/python" -m unittest)
+done

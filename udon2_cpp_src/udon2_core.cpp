@@ -23,6 +23,10 @@
 #include "Util.h"
 #include "map_indexing_suite_v2.hpp"
 
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(node_select_by_overloads, Node::selectBy,
+                                       2, 3);
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(node_select_having_overloads,
+                                       Node::selectHaving, 2, 3);
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(node_ignore_overloads, Node::ignore, 0,
                                        1);
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(node_reset_overloads, Node::reset, 0, 1);
@@ -38,13 +42,16 @@ BOOST_PYTHON_MODULE(core) {
   bp::object package = bp::scope();
   package.attr("__path__") = "core";
 
-  bp::class_<Util::FeatMap>("FeatMap").def(
-      bp::map_indexing_suite_v2<Util::FeatMap>());
+  bp::class_<Util::FeatMap>("FeatMap")
+      .def(bp::map_indexing_suite_v2<Util::FeatMap>())
+      .def("__str__", &Util::stringifyFeatMap);
 
   bp::class_<GroupedNodes>("GroupedNodes")
       .def(bp::map_indexing_suite_v2<GroupedNodes>());
 
-  bp::class_<NodeList>("NodeList").def(bp::vector_indexing_suite<NodeList>());
+  bp::class_<NodeList>("NodeList")
+      .def(bp::vector_indexing_suite<NodeList>())
+      .def("__str__", &NodeList::toString);
 
   bp::class_<TreeList>("TreeList")
       .def(bp::vector_indexing_suite<TreeList>())
@@ -52,16 +59,15 @@ BOOST_PYTHON_MODULE(core) {
 
   bp::class_<MultiWordNode, MultiWordNode *>("MultiWordNode",
                                              bp::init<int, int, std::string>())
-      .def("get_min_id", &MultiWordNode::getMinId)
-      .def("get_max_id", &MultiWordNode::getMaxId)
-      .def("get_token", &MultiWordNode::getToken)
+      .def_readonly("min_id", &MultiWordNode::getMinId)
+      .def_readonly("max_id", &MultiWordNode::getMaxId)
+      .def_readonly("token", &MultiWordNode::getToken)
       .def("__str__", &MultiWordNode::toString);
 
   bp::class_<Node, Node *>("Node")
       .def(bp::init<float, std::string, std::string, std::string, std::string,
                     std::string, std::string, std::string, Node *>())
       .add_property("id", &Node::getId, &Node::setId)
-      // make_getter doesn't seem to work here, why?
       .add_property("form",
                     bp::make_function(
                         &Node::getForm,
@@ -87,8 +93,15 @@ BOOST_PYTHON_MODULE(core) {
                         &Node::getDeprel,
                         bp::return_value_policy<bp::copy_const_reference>()),
                     &Node::setDeprel)
-      .add_property("misc", &Node::getMisc, &Node::setMisc)
-      .add_property("feats", &Node::getFeats, &Node::setFeats)
+      // make_getter doesn't seem to work here, why?
+      .add_property(
+          "misc",
+          bp::make_function(&Node::getMisc, bp::return_internal_reference<1>()),
+          &Node::setMisc)
+      .add_property("feats",
+                    bp::make_function(&Node::getFeats,
+                                      bp::return_internal_reference<1>()),
+                    &Node::setFeats)
       .add_property("children",
                     bp::make_function(&Node::getChildren,
                                       bp::return_internal_reference<1>()))
@@ -100,46 +113,45 @@ BOOST_PYTHON_MODULE(core) {
                     bp::make_function(&Node::getMultiWord,
                                       bp::return_internal_reference<1>()))
       .def("get_subtree_text", &Node::getSubtreeText)
-      .def("get_feats_as_string", &Node::getFeatsAsString)
-      .def("has_all_feats", &Node::hasAllFeats)
-      .def("has_feat", &Node::hasFeat)
-      .def("alter_feat", &Node::alterFeat)
-      .def("copy_children", &Node::copyChildren)
+      .def("has", &Node::has)
+      .def("has_all", &Node::hasAll)
+      .def("has_any", &Node::hasAny)
+      .def("copy_children", &Node::copyChildren)  // no
       .def("add_child", &Node::addChild)
-      .def("has_children", &Node::hasChildren)
-      .def("get_subtree_nodes", &Node::getSubtreeNodes)
+      .def("get_subtree_nodes", &Node::getSubtreeNodes)  // no
       .def("remove_child", &Node::removeChild)
-      .def("is_root", &Node::isRoot)
-      .def("subtree_size", &Node::subtreeSize)
-      .def("select_by", &Node::selectBy)
+      .def("is_root", &Node::isRoot)            // no
+      .def("is_leaf", &Node::isLeaf)            // no
+      .def("subtree_size", &Node::subtreeSize)  // no
+      .def("select_by", &Node::selectBy, node_select_by_overloads())
       .def("get_by", &Node::getBy)
+      .def("select_having", &Node::selectHaving, node_select_having_overloads())
       .def("select_by_deprel_chain", &Node::selectByDeprelChain)
       .def("get_by_deprel_chain", &Node::getByDeprelChain)
-      .def("select_having_feats", &Node::selectHavingFeats)
-      .def("select_missing_feats", &Node::selectMissingFeats)
-      .def("is_identical", &Node::isIdentical)
-      .def("select_identical", &Node::selectIdentical)
-      .def("select_identical_except", &Node::selectIdenticalExcept)
-      .def("prop_exists", &Node::propExists)
-      .def("child_has_prop", &Node::childHasProp)
+      .def("is_identical", &Node::isIdentical)                       // no
+      .def("select_identical", &Node::selectIdentical)               // no
+      .def("select_identical_except", &Node::selectIdenticalExcept)  // no
+      .def("prop_exists", &Node::propExists)                         // no
+      .def("child_has_prop", &Node::childHasProp)                    // no
       .def("linear", &Node::linear)
       .def("linear_sorted", &Node::linearSorted)
-      .def("prune", &Node::prune)
-      .def("copy", &Node::copy, bp::return_internal_reference<1>())
-      .def("make_root", &Node::makeRoot)
+      .def("prune", &Node::prune)                                    // no
+      .def("copy", &Node::copy, bp::return_internal_reference<1>())  // no
+      .def("make_root", &Node::makeRoot)                             // no
       .def("__str__", &Node::toString)
       .def("textual_intersect", &Node::textualIntersect,
-           bp::return_internal_reference<1>())
-      .def("ignore", &Node::ignore, node_ignore_overloads())
+           bp::return_internal_reference<1>())                // no
+      .def("ignore", &Node::ignore, node_ignore_overloads())  // no
       .def("ignore_subtree", &Node::ignoreSubtree,
-           node_ignore_subtree_overloads())
-      .def("reset", &Node::reset, node_reset_overloads())
-      .def("reset_subtree", &Node::resetSubtree, node_reset_subtree_overloads())
-      .def("hard_reset", &Node::hardReset)
-      .def("hard_reset_subtree", &Node::hardResetSubtree)
-      .def("is_ignored", &Node::isIgnored)
-      .def("get_ignore_label", &Node::getIgnoreLabel)
-      .def("group_by", &Node::groupBy);
+           node_ignore_subtree_overloads())                // no
+      .def("reset", &Node::reset, node_reset_overloads())  // no
+      .def("reset_subtree", &Node::resetSubtree,
+           node_reset_subtree_overloads())                 // no
+      .def("hard_reset", &Node::hardReset)                 // no
+      .def("hard_reset_subtree", &Node::hardResetSubtree)  // no
+      .def("is_ignored", &Node::isIgnored)                 // no
+      .def("get_ignore_label", &Node::getIgnoreLabel)      // no
+      .def("group_by", &Node::groupBy);                    // no
 
   bp::class_<ConllReader>("ConllReader")
       .def("read_file", &ConllReader::readFile)

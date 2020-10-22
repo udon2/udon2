@@ -22,7 +22,8 @@ struct NodeComparator;
 
 // if going back to: const std::string &getForm() { return form; }
 // then: typedef const std::string &(Node::*getterptr)();
-typedef std::string (Node::*getterptr)();
+typedef const std::string &(Node::*getterptr)();  // NOLINT
+typedef Util::FeatMap &(Node::*kvgetterptr)();    // NOLINT
 
 class NodeList : public std::vector<Node *> {
  public:
@@ -67,7 +68,7 @@ class Node {
   Util::FeatMap misc;
 
   getterptr getterByProp(std::string prop);
-  NodeList selectHaving(std::string value, bool negate);
+  kvgetterptr kvgetterByProp(std::string prop);
   void accumulateByDeprelChain(std::string value, NodeList *res, int depth);
 
   std::string _subtreeToString(int);
@@ -91,13 +92,13 @@ class Node {
   float getId() { return id; }
   // tried: const std::string &getForm() { return form; }
   // don't think it makes any difference performance-wise
-  std::string getForm() { return form; }
-  std::string getLemma() { return lemma; }
-  std::string getXpos() { return xpos; }
-  std::string getUpos() { return upos; }
-  std::string getDeprel() { return deprel; }
-  Util::FeatMap getFeats() { return feats; }
-  Util::FeatMap getMisc() { return misc; }
+  const std::string &getForm() { return form; }
+  const std::string &getLemma() { return lemma; }
+  const std::string &getXpos() { return xpos; }
+  const std::string &getUpos() { return upos; }
+  const std::string &getDeprel() { return deprel; }
+  Util::FeatMap &getFeats() { return feats; }
+  Util::FeatMap &getMisc() { return misc; }
   Node *getParent() { return parent; }
   NodeList &getChildren() {
     return children;
@@ -119,13 +120,15 @@ class Node {
   void setParent(Node *n);
 
   void setFeats(std::string fstr) { feats = Util::parseUniversalFormat(fstr); }
-  void alterFeat(std::string key, std::string val) { feats[key] = val; }
-  bool hasFeat(std::string key, std::string val);
-  bool hasAllFeats(std::string value);
+
+  bool has(std::string prop, std::string key, std::string val);
+  bool hasAll(std::string prop, std::string value);
+  bool hasAny(std::string prop, std::string value);
 
   NodeList getSubtreeNodes();
 
   bool isRoot();
+  bool isLeaf() { return children.size() > 0; }
 
   bool isIgnored();
   int getIgnoreLabel() { return mIgnoreLabel; }
@@ -147,20 +150,19 @@ class Node {
   template <class Compare>
   NodeList linearBy(Compare cmp);
 
-  bool hasChildren() { return children.size() > 0; }
   void copyChildren(Node *node);
   void addChild(Node *node);
 
-  NodeList selectBy(std::string prop, std::string value, bool negate);
+  NodeList selectBy(std::string prop, std::string value, bool negate = false);
   NodeList selectByDeprelChain(std::string value);
 
   NodeList getBy(std::string prop, std::string value);
   NodeList getByDeprelChain(std::string value);
 
-  GroupedNodes groupBy(std::string prop);
+  NodeList selectHaving(std::string prop, std::string value,
+                        bool negate = false);
 
-  NodeList selectHavingFeats(std::string value);
-  NodeList selectMissingFeats(std::string value);
+  GroupedNodes groupBy(std::string prop);
 
   bool isIdentical(Node *node, std::string excludeProps);
   NodeList selectIdentical(Node *node);

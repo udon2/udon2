@@ -3,44 +3,46 @@ import numpy as np
 
 
 def load():
-    import udon2
+    import pyconll
     load, read, write, text, relchain, save = [], [], [], [], [], []
     for _ in range(10):
         start = timeit.default_timer()
-        roots = udon2.ConllReader.read_file('cs-ud-train-l.conllu')
+        train = pyconll.load_from_file('cs-ud-train-l.conllu')
         end = timeit.default_timer()
         load.append(end - start)
 
         start = timeit.default_timer()
-        for root in roots:
-            nodes = root.get_subtree_nodes()
-            for j in range(len(nodes)):
-                form_lemma = nodes[j].form + nodes[j].lemma
+        for sentence in train:
+            for token in sentence:
+                if not token.is_multiword():
+                    form_lemma = token.form + token.lemma
         end = timeit.default_timer()
         read.append(end - start)
 
         start = timeit.default_timer()
-        for root in roots:
-            selected = root.select_by_deprel_chain('nmod.case')
+        for sentence in train:
+            chain = []
+            for token in sentence:
+                if not token.is_multiword():
+                    if token.head == '0': continue
+                    parent = sentence[token.head]
+                    if token.deprel == "case" and parent.deprel == "nmod":
+                        chain.append(token)
         end = timeit.default_timer()
         relchain.append(end - start)
 
         start = timeit.default_timer()
-        for root in roots:
-            nodes = root.get_subtree_nodes()
-            for j in range(len(nodes)):
-                nodes[j].deprel = 'dep'
+        for sentence in train:
+            for token in sentence:
+                if not token.is_multiword():
+                    token.deprel = 'dep'
         end = timeit.default_timer()
         write.append(end - start)
 
-        start = timeit.default_timer()
-        for root in roots:
-            root.get_subtree_text()
-        end = timeit.default_timer()
-        text.append(end - start)
+        text.append(-1)
 
         start = timeit.default_timer()
-        udon2.ConllWriter.write_to_file(roots, 'out.conllu')
+        train.write(open('out.conllu', 'w'))
         end = timeit.default_timer()
         save.append(end - start)
 

@@ -10,7 +10,7 @@ class TestConllReader(unittest.TestCase):
     def test_reading(self):
         test_data = {
             't1.conll': 1,
-            't2.conll': 4,
+            't2.conll': 3,
             't3.conll': 11
         }
 

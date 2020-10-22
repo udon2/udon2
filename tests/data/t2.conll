@@ -13,11 +13,3 @@
 5	vi	vi	PRON	PN|UTR|PLU|DEF|SUB	Case=Nom|Definite=Def|Gender=Com|Number=Plur|PronType=Prs	6	nsubj	_	_
 6	bor	bo	VERB	VB|PRS|AKT	Mood=Ind|Tense=Pres|VerbForm=Fin|Voice=Act	3	advcl	_	_
 7	tillsammans	tillsammans	ADV	AB	_	6	advmod	_	_
-
-1   Jag jag PRON    PN|UTR|SIN|DEF|SUB  Case=Nom|Definite=Def|Gender=Com|Number=Sing|PronType=Prs   3   nsubj   _   _
-2   är  vara    AUX VB|PRS|AKT  Mood=Ind|Tense=Pres|VerbForm=Fin|Voice=Act  3   cop _   _
-3   hungrig hungrig ADJ JJ|POS|UTR|SIN|IND|NOM  Case=Nom|Definite=Ind|Degree=Pos|Gender=Com|Number=Sing 0   root    _   _
-4   eftersom    eftersom    SCONJ   SN  _   7   mark    _   _
-5   han han PRON    PN|UTR|SIN|DEF|SUB  Case=Nom|Definite=Def|Gender=Com|Number=Sing|PronType=Prs   7   nsubj   _   _
-6   är  vara    AUX VB|PRS|AKT  Mood=Ind|Tense=Pres|VerbForm=Fin|Voice=Act  7   cop _   _
-7   hungrig hungrig ADJ JJ|POS|UTR|SIN|IND|NOM  Case=Nom|Definite=Ind|Degree=Pos|Gender=Com|Number=Sing 3   advcl   _   _
