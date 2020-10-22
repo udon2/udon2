@@ -1,12 +1,13 @@
 # coding: utf8
 
+# Modified by Dmytro Kalpakchi, 2020
 # Adapted from spaCy's built in visualization suite for dependencies and named entities.
 # https://github.com/explosion/spaCy/tree/master/spacy/displacy
 
 from __future__ import unicode_literals
 
 from udon2 import Node
-import langdetect as lang
+import svgling
 
 from .render import DependencyRenderer
 from .utils import is_in_jupyter
@@ -15,13 +16,31 @@ from .utils import is_in_jupyter
 _html = {}
 RENDER_WRAPPER = None
 
-def render_as_svg(docs, fname, page=False, minify=False):
+def render_dep_tree(node, fname, img_format='svg', page=False, minify=False):
+    if (img_format == 'svg'):
+        with open(fname, 'w') as f:
+            f.write(render(node, page=page, minify=minify))
+
+
+def tree2list(node):
+    if not node.children:
+        return node.form
+    lst = [node.form]
+    for x in node.children:
+        res = tree2list(x)
+        if res:
+            lst.append(res)
+    return lst
+
+
+def render_tree(node, fname, img_format='svg'):
+    options = svgling.core.TreeOptions()
     with open(fname, 'w') as f:
-        f.write(render(docs, page=page, minify=minify))
+        f.write(svgling.core.TreeLayout(tree2list(node), options=options)._repr_svg_())
 
 
 def render(
-    docs, page=False, minify=False, jupyter=None, options={}, manual=False
+    node, page=False, minify=False, jupyter=None, options={}, manual=False
 ):
     """Render displaCy visualisation.
 
@@ -37,8 +56,8 @@ def render(
     DOCS: https://spacy.io/api/top-level#displacy.render
     USAGE: https://spacy.io/usage/visualizers
     """
-    if isinstance(docs, Node):
-        docs = [docs]
+    if isinstance(node, Node):
+        docs = [node]
     if not all(isinstance(obj, Node) for obj in docs):
         raise ValueError("Invalid object passed to displaymaster: can work only with udon2.Node")
     renderer = DependencyRenderer(options=options)
@@ -63,24 +82,24 @@ def parse_deps(orig_doc, options={}):
     RETURNS (dict): Generated dependency parse keyed by words and arcs.
     """
     doc = orig_doc # might reparse it later
-    words = [{"text": w.get_form(), "tag": w.get_upos(), "morph": w.get_feats_as_string().split("|")} for w in doc.linear()]
-    id2index = {w.get_id() : i for i, w in enumerate(doc.linear())}
+    words = [{"text": w.form, "tag": w.upos, "morph": str(w.feats).split("|")} for w in doc.linear()]
+    id2index = {w.id : i for i, w in enumerate(doc.linear())}
     arcs = []
     for word in doc.linear():
-        if word.get_parent():
-            i, governor = id2index[word.get_id()], id2index[word.get_parent().get_id()]
+        if word.parent:
+            i, governor = id2index[word.id], id2index[word.parent.id]
             if i < governor:
                 arcs.append({
                     "start": i,
                     "end": governor,
-                    "label": word.get_deprel(),
+                    "label": word.deprel,
                     "dir": "left"
                 })
             elif i > governor:
                 arcs.append({
                     "start": governor,
                     "end": i,
-                    "label": word.get_deprel(),
+                    "label": word.deprel,
                     "dir": "right",
                 })
     return {"words": words, "arcs": arcs, "settings": get_doc_settings(orig_doc)}
@@ -105,6 +124,5 @@ def set_render_wrapper(func):
 
 def get_doc_settings(doc):
     return {
-        "lang": lang.detect(doc.get_subtree_text()),
         "direction": "ltr" # just set this as the only available option
     }

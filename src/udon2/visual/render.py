@@ -1,5 +1,6 @@
 # coding: utf8
 
+# Modified by Dmytro Kalpakchi, 2020
 # Adapted from spaCy's built in visualization suite for dependencies and named entities.
 # https://github.com/explosion/spaCy/tree/master/spacy/displacy
 
@@ -11,7 +12,6 @@ from .templates import TPL_DEP_SVG, TPL_DEP_WORDS, TPL_DEP_ARCS, TPL_DEP_MORPH
 from .templates import TPL_FIGURE, TPL_TITLE, TPL_PAGE
 from .utils import escape_html, minify_html
 
-DEFAULT_LANG = "en"
 DEFAULT_DIR = "ltr"
 
 
@@ -36,7 +36,6 @@ class DependencyRenderer(object):
         self.bg = options.get("bg", "#ffffff")
         self.font = options.get("font", "Arial")
         self.direction = DEFAULT_DIR
-        self.lang = DEFAULT_LANG
 
     def render(self, parsed, page=False, minify=False):
         """Render complete markup.
@@ -54,14 +53,13 @@ class DependencyRenderer(object):
             if i == 0:
                 settings = p.get("settings", {})
                 self.direction = settings.get("direction", DEFAULT_DIR)
-                self.lang = settings.get("lang", DEFAULT_LANG)
             render_id = "{}-{}".format(id_prefix, i)
             svg = self.render_svg(render_id, p["words"], p["arcs"])
             rendered.append(svg)
         if page:
             content = "".join([TPL_FIGURE.format(content=svg) for svg in rendered])
             markup = TPL_PAGE.format(
-                content=content, lang=self.lang, dir=self.direction
+                content=content, dir=self.direction
             )
         else:
             markup = "".join(rendered)
@@ -99,7 +97,6 @@ class DependencyRenderer(object):
             font=self.font,
             content=content,
             dir=self.direction,
-            lang=self.lang,
         )
 
     def render_word(self, text, tag, morph, i):

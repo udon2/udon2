@@ -9,7 +9,7 @@ from __future__ import unicode_literals
 # Jupyter to render it properly in a cell
 
 TPL_DEP_SVG = """
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:lang="{lang}" id="{id}" width="{width}" height="{height}" direction="{dir}" style="max-width: none; height: {height}px; color: {color}; background: {bg}; font-family: {font}; direction: {dir}">{content}</svg>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="{id}" width="{width}" height="{height}" direction="{dir}" style="max-width: none; height: {height}px; color: {color}; background: {bg}; font-family: {font}; direction: {dir}">{content}</svg>
 """
 
 
@@ -47,7 +47,7 @@ TPL_TITLE = """
 
 TPL_PAGE = """
 <!DOCTYPE html>
-<html lang="{lang}">
+<html>
     <head>
         <title>displaCy</title>
     </head>

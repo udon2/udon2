@@ -110,5 +110,5 @@ setuptools.setup(
     ],
     ext_modules=[core_module, transformations_module, kernels_module],
     python_requires='>=3.6',
-    install_requires=["langdetect", "six"]
+    install_requires=["six", "svgling"]
 )

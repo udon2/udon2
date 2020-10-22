@@ -1,3 +1,4 @@
+# Modified by Dmytro Kalpakchi, 2020
 # Adapted from spaCy's built in visualization suite for dependencies and named entities.
 # https://github.com/explosion/spaCy/tree/master/spacy/displacy
 

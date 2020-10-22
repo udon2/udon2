@@ -4,19 +4,8 @@ UDon2 is a library for manipulating dependency trees in the Universal Dependenci
 
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 
-## Prerequisites
-* Boost.Python (make an installation guide!)
-1. Get a Boost zip file.
-2. Install the necessary versions of Python, for instance, using pyenv
-3. Make sure header files for your Python version are included in `CPLUS_INCLUDE_PATH`. Otherwise run
-`export CPLUS_INCLUDE_PATH="$CPLUS_INCLUDE_PATH:/home/<username>/.pyenv/versions/3.X.Y/include/python3.Xm"`
-4. `cd boost_X_YZ_Q`
-5. `sh bootstrap.sh --with-python-version=3.X`
-6. `./b2 python=3.X install --prefix=/home/<username>/.local/`
-
-## Installing from PyPI (not available yet)
-`pip install udon2`
-
+## Documentation
+Our online documentation is available at https://udon2.github.io/
 
 ## Contributing
 ### Running tests
