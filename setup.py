@@ -87,7 +87,7 @@ kernels_module = setuptools.Extension(
 
 setuptools.setup(
     name="udon2", # Replace with your own username
-    version="0.1",
+    version="0.1a",
     author="Dmytro Kalpakchi",
     author_email="dmytroka@kth.se",
     description="Prepare your UD trees to be served!",
