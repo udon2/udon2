@@ -1,4 +1,4 @@
-for lib in "pyconll conllu udapi udon2"
+for lib in "pyconll" "conllu" "udapi" "udon2"
 do
     echo $lib
     python3 speed_$lib.py

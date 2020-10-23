@@ -6,19 +6,17 @@ def load():
     roots = udon2.ConllReader.read_file('cs-ud-train-l.conllu')
 
     for root in roots:
-        for node in root.get_subtree_nodes():
-            pass
-
-    for root in roots:
-        for node in root.get_subtree_nodes():
-            form_lemma = node.form + node.lemma
+        nodes = root.linear()
+        for j in range(len(nodes)):
+            form_lemma = nodes[j].form + nodes[j].lemma
 
     for root in roots:
         selected = root.select_by_deprel_chain('nmod.case')
 
     for root in roots:
-        for node in root.get_subtree_nodes():
-            node.deprel = 'dep'
+        nodes = root.linear()
+        for j in range(len(nodes)):
+            nodes[j].deprel = 'dep'
 
     for root in roots:
         root.get_subtree_text()

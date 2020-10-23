@@ -5,7 +5,7 @@ import numpy as np
 def load():
     import udon2
     load, read, write, text, relchain, save = [], [], [], [], [], []
-    for _ in range(10):
+    for _ in range(30):
         start = timeit.default_timer()
         roots = udon2.ConllReader.read_file('cs-ud-train-l.conllu')
         end = timeit.default_timer()

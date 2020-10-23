@@ -54,7 +54,6 @@ Node* ConllReader::initNodes(std::vector<std::string> words) {
                      word[7],          // deprel
                      word[9],          // misc
                      nodes[dephead]);  // dephead
-      if (j == 1) nodes[j]->setFirst();
       j++;
     } else {
       // a multi-word expression
@@ -63,7 +62,6 @@ Node* ConllReader::initNodes(std::vector<std::string> words) {
       mwNodes.push_back(new MultiWordNode(minId, maxId, word[1]));
     }
   }
-  nodes[j - 1]->setLast();
 
   for (MultiWordNode* mwNode : mwNodes) {
     for (int i = mwNode->getMinId(); i <= mwNode->getMaxId(); i++) {

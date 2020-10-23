@@ -5,7 +5,7 @@ import numpy as np
 def load():
     import pyconll
     load, read, write, text, relchain, save = [], [], [], [], [], []
-    for _ in range(10):
+    for _ in range(30):
         start = timeit.default_timer()
         train = pyconll.load_from_file('cs-ud-train-l.conllu')
         end = timeit.default_timer()

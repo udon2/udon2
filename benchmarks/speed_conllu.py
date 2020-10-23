@@ -5,7 +5,7 @@ import numpy as np
 def load():
     import conllu
     load, read, write, text, relchain, save = [], [], [], [], [], []
-    for _ in range(10):
+    for _ in range(30):
         start = timeit.default_timer()
         data_file = open("cs-ud-train-l.conllu", "r", encoding="utf-8")
         # parse_incr is recommended for large files (more than 1 MB)

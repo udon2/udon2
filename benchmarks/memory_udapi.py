@@ -9,11 +9,6 @@ def load():
     for bundle in document:
         for root in bundle:
             for node in root.descendants:
-                pass
-
-    for bundle in document:
-        for root in bundle:
-            for node in root.descendants:
                 form_lemma = node.form + node.lemma
 
     for bundle in document:

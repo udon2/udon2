@@ -5,7 +5,7 @@ import numpy as np
 def load():
     from udapi.core.document import Document
     load, read, write, text, relchain, save = [], [], [], [], [], []
-    for _ in range(10):
+    for _ in range(30):
         start = timeit.default_timer()
         document = Document()
         document.load_conllu('cs-ud-train-l.conllu')

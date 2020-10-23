@@ -59,9 +59,6 @@ class Node {
 
   int mIgnoreLabel = -1;
 
-  bool first = false;
-  bool last = false;
-
   Node *parent;
   NodeList children;
   Util::FeatMap feats;  // m
@@ -108,15 +105,6 @@ class Node {
   std::string getFeatsAsString();
   std::string getSubtreeText();
 
-  void setFirst() {
-    first = true;
-    last = false;
-  }
-  void setLast() {
-    first = false;
-    last = true;
-  }
-
   void setId(float idx) { id = idx; }
   void setForm(std::string newForm) { form = newForm; }
   void setLemma(std::string l) { lemma = l; }
@@ -144,8 +132,6 @@ class Node {
     return parent == NULL;
   }
   bool isLeaf() { return children.size() > 0; }
-  bool isFirst() { return first; }
-  bool isLast() { return last; }
 
   bool isIgnored();
   int getIgnoreLabel() { return mIgnoreLabel; }

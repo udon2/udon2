@@ -9,7 +9,7 @@ function repair_wheel {
     if ! auditwheel show "$wheel"; then
         echo "Skipping non-platform wheel $wheel"
     else
-        LD_LIBRARY_PATH="$LD_LIBRARY_PATH:`pwd`/lib" auditwheel repair "$wheel" --plat "$PLAT" -w "/io/wheelhouse/${ARCH}/"
+        LD_LIBRARY_PATH="$LD_LIBRARY_PATH:`pwd`/boost/lib" auditwheel repair "$wheel" --plat "$PLAT" -w "/io/wheelhouse/${ARCH}/"
     fi
 }
 
@@ -21,8 +21,8 @@ if [ ! -f "boost_1_74_0.tar.bz2" ]; then
 fi
 if [ ! -d "boost" ]; then
     tar --bzip2 -xf boost_1_74_0.tar.bz2
+    mv boost_1_74_0 boost
 fi
-mv boost_1_74_0 boost
 cd boost
 sh bootstrap.sh
 echo "using python : 3.6 : /opt/python/cp36-cp36m/ ;" >> project-config.jam
