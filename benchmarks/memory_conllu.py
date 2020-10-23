@@ -25,7 +25,7 @@ def load():
         for token in sentence:
             token['deprel'] = 'dep'
 
-    with open('out.conllu', 'w') as f:
+    with open('out.conllu', 'w', encoding='utf8') as f:
         f.writelines([sentence.serialize() + "\n" for sentence in tokenlist])
 
 

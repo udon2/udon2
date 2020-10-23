@@ -24,7 +24,7 @@ def load():
             if not token.is_multiword():
                 token.deprel = 'dep'
 
-    train.write(open('out.conllu', 'w'))
+    train.write(open('out.conllu', 'w', encoding='utf8'))
 
 if __name__ == '__main__':
     load()

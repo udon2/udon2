@@ -22,6 +22,7 @@ with open(README, "r") as fh:
     long_description = fh.read()
 
 if IS_WINDOWS:
+    boost_library = f'boost_python{vinfo.major}{vinfo.minor}*'
     boost_include = [os.path.join(CUR_DIR, 'boost')]
     boost_lib = glob.glob(os.path.join(CUR_DIR, 'boost', 'lib*-msvc-*'))
     include_extras = glob.glob(os.path.join(boost_lib[0], f"{boost_library}.lib")) + \

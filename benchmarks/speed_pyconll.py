@@ -42,7 +42,7 @@ def load():
         text.append(-1)
 
         start = timeit.default_timer()
-        train.write(open('out.conllu', 'w'))
+        train.write(open('out.conllu', 'w', encoding='utf8'))
         end = timeit.default_timer()
         save.append(end - start)
 

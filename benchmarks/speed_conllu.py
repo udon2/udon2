@@ -42,7 +42,7 @@ def load():
         text.append(-1)
 
         start = timeit.default_timer()
-        with open('out.conllu', 'w') as f:
+        with open('out.conllu', 'w', encoding='utf8') as f:
             f.writelines([sentence.serialize() + "\n" for sentence in tokenlist])
         end = timeit.default_timer()
         save.append(end - start)
