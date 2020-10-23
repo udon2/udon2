@@ -20,8 +20,7 @@
 class Node;
 struct NodeComparator;
 
-// if going back to: const std::string &getForm() { return form; }
-// then: typedef const std::string &(Node::*getterptr)();
+// if linting is enabled, cpplint thinks we try to take the address
 typedef const std::string &(Node::*getterptr)();  // NOLINT
 typedef Util::FeatMap &(Node::*kvgetterptr)();    // NOLINT
 
@@ -29,8 +28,6 @@ class NodeList : public std::vector<Node *> {
  public:
   NodeList() : std::vector<Node *>() {}
   NodeList(iterator a, iterator b) : std::vector<Node *>(a, b) {}
-
-  void push_sorted(Node *node);
 
   template <class Compare>
   void push_sorted(Node *node, Compare cmp) {
@@ -62,6 +59,9 @@ class Node {
 
   int mIgnoreLabel = -1;
 
+  bool first = false;
+  bool last = false;
+
   Node *parent;
   NodeList children;
   Util::FeatMap feats;  // m
@@ -76,7 +76,8 @@ class Node {
 
   MultiWordNode *mwNode = NULL;
 
-  void _getSubtreeNodes(Node *node, NodeList *nodes);
+  template <class Compare>
+  void _linear(Node *node, NodeList *nodes, Compare cmp);
 
  public:
   Node();
@@ -107,6 +108,15 @@ class Node {
   std::string getFeatsAsString();
   std::string getSubtreeText();
 
+  void setFirst() {
+    first = true;
+    last = false;
+  }
+  void setLast() {
+    first = false;
+    last = true;
+  }
+
   void setId(float idx) { id = idx; }
   void setForm(std::string newForm) { form = newForm; }
   void setLemma(std::string l) { lemma = l; }
@@ -127,8 +137,15 @@ class Node {
 
   NodeList getSubtreeNodes();
 
-  bool isRoot();
+  bool isRoot() {
+    /**
+     * Check if the Node is a root pseudonode by checking if its parent is NULL.
+     */
+    return parent == NULL;
+  }
   bool isLeaf() { return children.size() > 0; }
+  bool isFirst() { return first; }
+  bool isLast() { return last; }
 
   bool isIgnored();
   int getIgnoreLabel() { return mIgnoreLabel; }
@@ -182,12 +199,18 @@ class Node {
   std::string subtreeToString();
 };
 
-struct compare_node_by_id : public std::unary_function<Node *, bool> {
+struct compare_to_node_by_id : public std::unary_function<Node *, bool> {
   Node *baseline;
 
-  explicit compare_node_by_id(Node *baseline) : baseline(baseline) {}
+  explicit compare_to_node_by_id(Node *baseline) : baseline(baseline) {}
 
   bool operator()(Node *arg) { return baseline->getId() == arg->getId(); }
+};
+
+struct compare_node_by_id {
+  bool operator()(Node *left, Node *right) {
+    return left->getId() < right->getId();
+  }
 };
 
 struct compare_node_by_subtree_size {

@@ -7,7 +7,7 @@
 from __future__ import unicode_literals
 
 from udon2 import Node
-import svgling
+# import svgling
 
 from .render import DependencyRenderer
 from .utils import is_in_jupyter
@@ -22,21 +22,21 @@ def render_dep_tree(node, fname, img_format='svg', page=False, minify=False):
             f.write(render(node, page=page, minify=minify))
 
 
-def tree2list(node):
-    if not node.children:
-        return node.form
-    lst = [node.form]
-    for x in node.children:
-        res = tree2list(x)
-        if res:
-            lst.append(res)
-    return lst
+# def tree2list(node):
+#     if not node.children:
+#         return node.form
+#     lst = [node.form]
+#     for x in node.children:
+#         res = tree2list(x)
+#         if res:
+#             lst.append(res)
+#     return lst
 
 
-def render_tree(node, fname, img_format='svg'):
-    options = svgling.core.TreeOptions()
-    with open(fname, 'w') as f:
-        f.write(svgling.core.TreeLayout(tree2list(node), options=options)._repr_svg_())
+# def render_tree(node, fname, img_format='svg'):
+#     options = svgling.core.TreeOptions()
+#     with open(fname, 'w') as f:
+#         f.write(svgling.core.TreeLayout(tree2list(node), options=options)._repr_svg_())
 
 
 def render(

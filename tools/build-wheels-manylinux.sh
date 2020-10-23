@@ -9,7 +9,7 @@ function repair_wheel {
     if ! auditwheel show "$wheel"; then
         echo "Skipping non-platform wheel $wheel"
     else
-        LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/root/.local/lib" auditwheel repair "$wheel" --plat "$PLAT" -w "/io/wheelhouse/${ARCH}/"
+        LD_LIBRARY_PATH="$LD_LIBRARY_PATH:`pwd`/lib" auditwheel repair "$wheel" --plat "$PLAT" -w "/io/wheelhouse/${ARCH}/"
     fi
 }
 
@@ -19,17 +19,17 @@ if [ ! -f "boost_1_74_0.tar.bz2" ]; then
     yum install -y wget
     wget https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2
 fi
-if [ ! -d "boost_1_74_0" ]; then
+if [ ! -d "boost" ]; then
     tar --bzip2 -xf boost_1_74_0.tar.bz2
 fi
-cd boost_1_74_0
+mv boost_1_74_0 boost
+cd boost
 sh bootstrap.sh
 echo "using python : 3.6 : /opt/python/cp36-cp36m/ ;" >> project-config.jam
 echo "using python : 3.7 : /opt/python/cp37-cp37m ;" >> project-config.jam
 echo "using python : 3.8 : /opt/python/cp38-cp38 ;" >> project-config.jam
 echo "using python : 3.9 : /opt/python/cp39-cp39 ;" >> project-config.jam
-mkdir ~/.local
-CPLUS_INCLUDE_PATH="$CPLUS_INCLUDE_PATH:$PYTHON_LIBS" ./b2 python=3.6,3.7,3.8,3.9 install --prefix=/root/.local/
+CPLUS_INCLUDE_PATH="$CPLUS_INCLUDE_PATH:$PYTHON_LIBS" ./b2 python=3.6,3.7,3.8,3.9 install --prefix=`pwd`
 cd ..
 
 # Compile wheels
@@ -48,7 +48,7 @@ for whl in wheelhouse/${ARCH}/*.whl; do
     repair_wheel "$whl"
 done
 
-rm -rf boost_1_74_0
+# rm -rf boost_1_74_0
 # rm boost_1_74_0.tar.bz2
 
 # Install packages and test
@@ -56,7 +56,7 @@ for PYBIN in /opt/python/*/bin/; do
     if [[ $PYBIN == *"cp27"* ]] || [[ $PYBIN == *"cp35"* ]]; then
         continue
     fi
-    "${PYBIN}/pip" install langdetect six
+    "${PYBIN}/pip" install six
     "${PYBIN}/pip" install udon2 --no-index -f "/io/wheelhouse/${ARCH}"
     (cd /io; "${PYBIN}/python" -m unittest)
 done

@@ -13,7 +13,7 @@ def load():
 
         start = timeit.default_timer()
         for root in roots:
-            nodes = root.get_subtree_nodes()
+            nodes = root.linear()
             for j in range(len(nodes)):
                 form_lemma = nodes[j].form + nodes[j].lemma
         end = timeit.default_timer()
@@ -27,7 +27,7 @@ def load():
 
         start = timeit.default_timer()
         for root in roots:
-            nodes = root.get_subtree_nodes()
+            nodes = root.linear()
             for j in range(len(nodes)):
                 nodes[j].deprel = 'dep'
         end = timeit.default_timer()

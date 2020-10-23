@@ -11,7 +11,8 @@ class TestConllReader(unittest.TestCase):
         test_data = {
             't1.conll': 1,
             't2.conll': 3,
-            't3.conll': 11
+            't3.conll': 11,
+            't4.conll': 8
         }
 
         current_directory = os.path.dirname(os.path.realpath(__file__))

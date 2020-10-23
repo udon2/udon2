@@ -58,20 +58,17 @@ class TestNode(unittest.TestCase):
             rw = tree.children[0] # get the root word
             self.assertEqual(rw.form, correct, f"Text should be '{correct}', got '{rw.form}' instead.")
 
-    @data_from_file('t3.conll', udon2.ConllReader.read_file)
+    @data_from_file('t4.conll', udon2.ConllReader.read_file)
     def test_subtree_text_getter(self, trees):
         answers = [
-            "Uppsala universitet är ett fullskaligt, internationellt orienterat forskningsuniversitet som bedriver forskning och utbildning inom nio fakulteter organiserade i de tre vetenskapsområdena humaniora och samhällsvetenskap, medicin och farmaci samt teknik och naturvetenskap.",
-            "Under 2018 var i medeltal 7 108 personer anställda vid universitetet.",
-            "Vetenskapsrådet, Knut och Alice Wallenbergs stiftelse samt EU var de största enskilda externa forskningsfinansiärerna för universitetet som helhet och Uppsala universitets andel av Vetenskapsrådets fria projektbidrag var 16 procent.",
-            "Antalet helårsstudenter var 24 534.",
-            "Antalet anslagsfinansierade studenter ligger på samma nivå som föregående år och antalet avgiftsbetalande studenter ökade jämfört med 2017.",
-            "Vidare var antalet utresande studenter inom utbytesprogram det högsta på fem år, men antalet inresande minskade.",
-            "Det pågår ett kontinuerligt arbete med att anpassa utbildningens volym efter tilldelat takbelopp.",
-            "Universitetet hade en underproduktion 2018, men den ackumulerade överproduktionen är 44 mnkr.",
-            "Flera nya utbildningar är under utveckling och planeras att starta under de närmaste åren.",
-            "Inom utbildning på forskarnivå har antalet nyantagna doktorander stabiliserats efter att ha minskat i flera år och antalet doktorsexamina ligger fortsatt på en relativt hög nivå.",
-            "Minskningen av antalet doktorander som skett de senaste åren har fortsatt under 2018."
+            "Tatra: mlčení před bouřkou?",
+            "Poznámka",
+            "Günter Motýl",
+            "Jestliže jeden ze tří amerických manažerů v kopřivnické Tatře, zástupce generálního ředitele David Shelby, pro ČTK vysloví předpověď o letošní výrobě 1200 nákladních vozů a představenstvo takové číslo oficiálně odmítne jako tvrzení regionálního tisku, svědčí to přinejmenším o váhání vyrukovat se špatnou zprávou.",
+            "Pravda - je zde obchodní tajemství.",
+            "Ale také - ekonomy a veřejností široce probírané - účinkování tří amerických manažerů v rozhodujících funkcích v Tatře, kteří přislíbili světoznámého výrobce nákladních vozů zeštíhlit a vyvést z krize.",
+            "Po půlroční informační bariéře ze strany Tatry lze odhadovat, že se to spíše nedaří než daří.",
+            "K tomu, aby zjistil, zda někdo z Američanů, známých pod názvem firmy GSR, na středečním zasedání představenstva byl fyzicky přítomen, spotřebuje novinář dvě hodiny času: aby se nakonec dozvěděl, že ano, ale jmenovitě vám to neřeknu."
         ]
         for tree, correct in zip(trees, answers):
             rw = tree.children[0] # get the root word
@@ -168,7 +165,7 @@ class TestNode(unittest.TestCase):
         rw = tree.children[0] # get the root word
         rw.ignore()
         text = rw.get_subtree_text()
-        correct = "Uppsala universitet är ett fullskaligt, internationellt orienterat som bedriver forskning och utbildning inom nio fakulteter organiserade i de tre vetenskapsområdena humaniora och samhällsvetenskap, medicin och farmaci samt teknik och naturvetenskap."
+        correct = "Uppsala universitet är ett fullskaligt , internationellt orienterat som bedriver forskning och utbildning inom nio fakulteter organiserade i de tre vetenskapsområdena humaniora och samhällsvetenskap , medicin och farmaci samt teknik och naturvetenskap ."
         self.assertEqual(text, correct, f"Should be '{correct}' after ignoring, got '{text}' instead.")
 
     @data_from_file('t3.conll', udon2.ConllReader.read_file)
@@ -177,7 +174,7 @@ class TestNode(unittest.TestCase):
         rw = tree.children[0] # get the root word
         rw.get_by("deprel", 'acl:relcl')[0].ignore_subtree()
         text = rw.get_subtree_text()
-        correct = "Uppsala universitet är ett fullskaligt, internationellt orienterat forskningsuniversitet."
+        correct = "Uppsala universitet är ett fullskaligt , internationellt orienterat forskningsuniversitet ."
         self.assertEqual(text, correct, f"Should be '{correct}' after ignoring the subtree, got '{text}' instead.")
 
     @data_from_file('t3.conll', udon2.ConllReader.read_file)
@@ -216,7 +213,7 @@ class TestNode(unittest.TestCase):
         rw = tree.children[0] # get the root word
         rw.prune('acl:relcl')
         text = rw.get_subtree_text()
-        correct = "Uppsala universitet är ett fullskaligt, internationellt orienterat forskningsuniversitet."
+        correct = "Uppsala universitet är ett fullskaligt , internationellt orienterat forskningsuniversitet ."
         self.assertEqual(text, correct, f"Should be '{correct}' after ignoring, got '{text}' instead.")
 
     @data_from_file('t3.conll', udon2.ConllReader.read_file)

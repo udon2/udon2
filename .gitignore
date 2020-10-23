@@ -14,7 +14,7 @@ udon2_cpp_src/html/
 udon2_cpp_src/latex/
 udon2_cpp_src/*.txt
 wheelhouse/
-boost_1_74_0/
+boost/
 boost_1_74_0.tar.bz2
 test_boost/
 *.txt

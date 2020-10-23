@@ -7,8 +7,9 @@ import setuptools
 from sysconfig import get_paths
 from pathlib import Path
 
+
+CUR_DIR = os.environ['CUR_DIR'] if os.environ.get('CUR_DIR') else Path(__file__).parent
 IS_WINDOWS = platform.system().lower() == 'windows'
-HOME_DIR = str(Path.home())
 C_SRC = 'udon2_cpp_src'
 README = "README.md"
 
@@ -21,14 +22,14 @@ with open(README, "r") as fh:
     long_description = fh.read()
 
 if IS_WINDOWS:
-    boost_include = [os.path.join(os.getcwd(), 'boost')]
-    boost_lib = glob.glob(os.path.join(os.getcwd(), 'boost', 'lib*-msvc-*'))
+    boost_include = [os.path.join(CUR_DIR, 'boost')]
+    boost_lib = glob.glob(os.path.join(CUR_DIR, 'boost', 'lib*-msvc-*'))
     include_extras = glob.glob(os.path.join(boost_lib[0], f"{boost_library}.lib")) + \
         glob.glob(os.path.join(boost_lib[0], f"{boost_library}.dll"))
 else:
     boost_library = f'boost_python{vinfo.major}{vinfo.minor}'
-    boost_include = [os.path.join(HOME_DIR, '.local', 'include')]
-    boost_lib = [os.path.join(HOME_DIR, '.local', 'lib')]
+    boost_include = [os.path.join(CUR_DIR, 'boost', 'include')]
+    boost_lib = [os.path.join(CUR_DIR, 'boost', 'lib')]
     include_extras = glob.glob(os.path.join(boost_lib[0], f"{boost_library}.so"))
 include_dirs = [path_info['include']] + boost_include
 library_dirs = [path_info['stdlib']] + boost_lib
@@ -110,5 +111,5 @@ setuptools.setup(
     ],
     ext_modules=[core_module, transformations_module, kernels_module],
     python_requires='>=3.6',
-    install_requires=["six", "svgling"]
+    install_requires=["six"],# "svgling"]
 )

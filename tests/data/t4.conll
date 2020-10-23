@@ -1,4 +1,184 @@
-1	Jag	jag	PRON	PN|UTR|SIN|DEF|SUB	Case=Nom|Definite=Def|Gender=Com|Number=Sing|PronType=Prs	2	nsubj	_	start_char=0|end_char=3
-2	hittade	hitta	VERB	VB|PRT|AKT	Mood=Ind|Tense=Past|VerbForm=Fin|Voice=Act	0	root	_	start_char=4|end_char=11
-3	en	en	DET	DT|UTR|SIN|IND	Definite=Ind|Gender=Com|Number=Sing|PronType=Art	4	det	_	start_char=12|end_char=14
-4	bok	bok	NOUN	NN|UTR|SIN|IND|NOM	Case=Nom|Definite=Ind|Gender=Com|Number=Sing	2	obj	_	start_char=15|end_char=18
+# sent_id a-ln94200-100-p1s1
+# orig_file_sentence ln94200_100#1
+1	Tatra	Tatra	PROPN	NNFS1-----A----	Case=Nom|Gender=Fem|NameType=Com|Negative=Pos|Number=Sing	0	root	_	SpaceAfter=No|LId=Tatra-1
+2	:	:	PUNCT	Z:-------------	_	1	punct	_	_
+3	mlčení	mlčení	NOUN	NNNS1-----A----	Case=Nom|Gender=Neut|Negative=Pos|Number=Sing	1	conj	_	LDeriv=mlčet
+4	před	před	ADP	RR--7----------	AdpType=Prep|Case=Ins	5	case	_	LId=před-1
+5	bouřkou	bouřka	NOUN	NNFS7-----A----	Case=Ins|Gender=Fem|Negative=Pos|Number=Sing	3	nmod	_	SpaceAfter=No
+6	?	?	PUNCT	Z:-------------	_	1	punct	_	_
+
+# sent_id a-ln94200-100-p2s1D
+# orig_file_sentence ln94200_100#2
+1	Poznámka	poznámka	NOUN	NNFS1-----A----	Case=Nom|Gender=Fem|Negative=Pos|Number=Sing	0	root	_	_
+
+# sent_id a-ln94200-100-p2s1E
+# orig_file_sentence ln94200_100#3
+1	Günter	Günter	PROPN	NNMS1-----A----	Animacy=Anim|Case=Nom|Gender=Masc|NameType=Giv|Negative=Pos|Number=Sing	0	root	_	_
+2	Motýl	Motýl	PROPN	NNMS1-----A----	Animacy=Anim|Case=Nom|Gender=Masc|NameType=Sur|Negative=Pos|Number=Sing	1	name	_	_
+
+# sent_id a-ln94200-100-p2s1C
+# orig_file_sentence ln94200_100#4
+1	Jestliže	jestliže	SCONJ	J,-------------	_	19	mark	_	_
+2	jeden	jeden	NUM	ClYS1----------	Case=Nom|Gender=Masc|Number=Sing|NumForm=Word|NumType=Card|NumValue=1,2,3	19	nsubj	_	LNumValue=1
+3	ze	z	ADP	RV--2----------	AdpType=Voc|Case=Gen	6	case	_	LId=z-1
+4	tří	tři	NUM	ClXP2----------	Case=Gen|Number=Plur|NumForm=Word|NumType=Card|NumValue=1,2,3	6	nummod	_	LNumValue=3
+5	amerických	americký	ADJ	AAMP2----1A----	Animacy=Anim|Case=Gen|Degree=Pos|Gender=Masc|Negative=Pos|Number=Plur	6	amod	_	_
+6	manažerů	manažer	NOUN	NNMP2-----A----	Animacy=Anim|Case=Gen|Gender=Masc|Negative=Pos|Number=Plur	2	nmod	_	_
+7	v	v	ADP	RR--6----------	AdpType=Prep|Case=Loc	9	case	_	LId=v-1
+8	kopřivnické	kopřivnický	ADJ	AAFS6----1A----	Case=Loc|Degree=Pos|Gender=Fem|Negative=Pos|Number=Sing	9	amod	_	_
+9	Tatře	Tatra	PROPN	NNFS6-----A----	Case=Loc|Gender=Fem|NameType=Com|Negative=Pos|Number=Sing	6	nmod	_	SpaceAfter=No|LId=Tatra-1
+10	,	,	PUNCT	Z:-------------	_	14	punct	_	_
+11	zástupce	zástupce	NOUN	NNMS1-----A----	Animacy=Anim|Case=Nom|Gender=Masc|Negative=Pos|Number=Sing	14	nmod	_	_
+12	generálního	generální	ADJ	AAMS2----1A----	Animacy=Anim|Case=Gen|Degree=Pos|Gender=Masc|Negative=Pos|Number=Sing	13	amod	_	_
+13	ředitele	ředitel	NOUN	NNMS2-----A----	Animacy=Anim|Case=Gen|Gender=Masc|Negative=Pos|Number=Sing	11	nmod	_	_
+14	David	David	PROPN	NNMS1-----A----	Animacy=Anim|Case=Nom|Gender=Masc|NameType=Giv|Negative=Pos|Number=Sing	2	appos	_	_
+15	Shelby	Shelby	PROPN	NNMS1-----A----	Animacy=Anim|Case=Nom|Gender=Masc|NameType=Geo,Sur|Negative=Pos|Number=Sing	14	name	_	SpaceAfter=No
+16	,	,	PUNCT	Z:-------------	_	14	punct	_	_
+17	pro	pro	ADP	RR--4----------	AdpType=Prep|Case=Acc	18	case	_	LId=pro-1
+18	ČTK	ČTK	PROPN	NNFXX-----A---8	Abbr=Yes|Gender=Fem|NameType=Com|Negative=Pos	19	nmod	_	LId=ČTK-1|LGloss=(Čs./Česká_tisková_kancelář)
+19	vysloví	vyslovit	VERB	VB-S---3P-AA---	Aspect=Perf|Mood=Ind|Negative=Pos|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act	38	advcl	_	_
+20	předpověď	předpověď	NOUN	NNFS4-----A----	Case=Acc|Gender=Fem|Negative=Pos|Number=Sing	19	dobj	_	_
+21	o	o	ADP	RR--6----------	AdpType=Prep|Case=Loc	23	case	_	LId=o-1
+22	letošní	letošní	ADJ	AAFS6----1A----	Case=Loc|Degree=Pos|Gender=Fem|Negative=Pos|Number=Sing	23	amod	_	_
+23	výrobě	výroba	NOUN	NNFS6-----A----	Case=Loc|Gender=Fem|Negative=Pos|Number=Sing	20	nmod	_	_
+24	1200	1200	NUM	C=-------------	NumForm=Digit|NumType=Card	26	nummod:gov	_	_
+25	nákladních	nákladní	ADJ	AAIP2----1A----	Animacy=Inan|Case=Gen|Degree=Pos|Gender=Masc|Negative=Pos|Number=Plur	26	amod	_	_
+26	vozů	vůz	NOUN	NNIP2-----A----	Animacy=Inan|Case=Gen|Gender=Masc|Negative=Pos|Number=Plur	23	nmod	_	_
+27	a	a	CONJ	J^-------------	_	19	cc	_	LId=a-1
+28	představenstvo	představenstvo	NOUN	NNNS1-----A----	Case=Nom|Gender=Neut|Negative=Pos|Number=Sing	32	nsubj	_	_
+29	takové	takový	DET	PDNS4----------	Case=Acc|Gender=Neut|Number=Sing|PronType=Dem	30	det	_	_
+30	číslo	číslo	NOUN	NNNS4-----A----	Case=Acc|Gender=Neut|Negative=Pos|Number=Sing	32	dobj	_	_
+31	oficiálně	oficiálně	ADV	Dg-------1A----	Degree=Pos|Negative=Pos	32	advmod	_	LDeriv=oficiální
+32	odmítne	odmítnout	VERB	VB-S---3P-AA---	Aspect=Perf|Mood=Ind|Negative=Pos|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act	19	conj	_	_
+33	jako	jako	SCONJ	J,-------------	_	34	mark	_	_
+34	tvrzení	tvrzení	NOUN	NNNS4-----A----	Case=Acc|Gender=Neut|Negative=Pos|Number=Sing	30	xcomp	_	LDeriv=tvrdit
+35	regionálního	regionální	ADJ	AAIS2----1A----	Animacy=Inan|Case=Gen|Degree=Pos|Gender=Masc|Negative=Pos|Number=Sing	36	amod	_	_
+36	tisku	tisk	NOUN	NNIS2-----A----	Animacy=Inan|Case=Gen|Gender=Masc|Negative=Pos|Number=Sing	34	nmod	_	SpaceAfter=No
+37	,	,	PUNCT	Z:-------------	_	19	punct	_	_
+38	svědčí	svědčit	VERB	VB-S---3P-AA---	Aspect=Imp|Mood=Ind|Negative=Pos|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act	0	root	_	_
+39	to	ten	PRON	PDNS1----------	Case=Nom|Gender=Neut|Number=Sing|PronType=Dem	38	nsubj	_	_
+40	přinejmenším	přinejmenším	ADV	Db-------------	_	42	advmod:emph	_	_
+41	o	o	ADP	RR--6----------	AdpType=Prep|Case=Loc	42	case	_	LId=o-1
+42	váhání	váhání	NOUN	NNNS6-----A----	Case=Loc|Gender=Neut|Negative=Pos|Number=Sing	38	dobj	_	LDeriv=váhat
+43	vyrukovat	vyrukovat	VERB	Vf--------A----	Aspect=Perf|Negative=Pos|VerbForm=Inf	42	acl	_	_
+44	se	s	ADP	RV--7----------	AdpType=Voc|Case=Ins	46	case	_	LId=s-1
+45	špatnou	špatný	ADJ	AAFS7----1A----	Case=Ins|Degree=Pos|Gender=Fem|Negative=Pos|Number=Sing	46	amod	_	_
+46	zprávou	zpráva	NOUN	NNFS7-----A----	Case=Ins|Gender=Fem|Negative=Pos|Number=Sing	43	nmod	_	SpaceAfter=No
+47	.	.	PUNCT	Z:-------------	_	38	punct	_	_
+
+# sent_id a-ln94200-100-p2s2
+# orig_file_sentence ln94200_100#5
+1	Pravda	pravda	NOUN	NNFS1-----A----	Case=Nom|Gender=Fem|Negative=Pos|Number=Sing	3	dep	_	_
+2	-	-	PUNCT	Z:-------------	_	1	punct	_	_
+3	je	být	VERB	VB-S---3P-AA---	Mood=Ind|Negative=Pos|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act	0	root	_	_
+4	zde	zde	ADV	Db-------------	_	3	advmod	_	_
+5	obchodní	obchodní	ADJ	AANS1----1A----	Case=Nom|Degree=Pos|Gender=Neut|Negative=Pos|Number=Sing	6	amod	_	_
+6	tajemství	tajemství	NOUN	NNNS1-----A----	Case=Nom|Gender=Neut|Negative=Pos|Number=Sing	3	nsubj	_	SpaceAfter=No
+7	.	.	PUNCT	Z:-------------	_	3	punct	_	_
+
+# sent_id a-ln94200-100-p2s3
+# orig_file_sentence ln94200_100#6
+1	Ale	ale	CONJ	J^-------------	_	10	cc	_	_
+2	také	také	ADV	Db-------------	_	10	advmod:emph	_	LGloss=(rovněž)
+3	-	-	PUNCT	Z:-------------	_	8	punct	_	_
+4	ekonomy	ekonom	NOUN	NNMP7-----A----	Animacy=Anim|Case=Ins|Gender=Masc|Negative=Pos|Number=Plur	8	dobj	_	_
+5	a	a	CONJ	J^-------------	_	4	cc	_	LId=a-1
+6	veřejností	veřejnost	NOUN	NNFS7-----A----	Case=Ins|Gender=Fem|Negative=Pos|Number=Sing	4	conj	_	LDeriv=veřejný
+7	široce	široce	ADV	Db-------------	_	8	advmod	_	_
+8	probírané	probíraný	ADJ	AANS1----1A----	Case=Nom|Degree=Pos|Gender=Neut|Negative=Pos|Number=Sing	10	amod	_	LDeriv=probírat
+9	-	-	PUNCT	Z:-------------	_	8	punct	_	_
+10	účinkování	účinkování	NOUN	NNNS1-----A----	Case=Nom|Gender=Neut|Negative=Pos|Number=Sing	0	root	_	LDeriv=účinkovat
+11	tří	tři	NUM	ClXP2----------	Case=Gen|Number=Plur|NumForm=Word|NumType=Card|NumValue=1,2,3	13	nummod	_	LNumValue=3
+12	amerických	americký	ADJ	AAMP2----1A----	Animacy=Anim|Case=Gen|Degree=Pos|Gender=Masc|Negative=Pos|Number=Plur	13	amod	_	_
+13	manažerů	manažer	NOUN	NNMP2-----A----	Animacy=Anim|Case=Gen|Gender=Masc|Negative=Pos|Number=Plur	10	nmod	_	_
+14	v	v	ADP	RR--6----------	AdpType=Prep|Case=Loc	16	case	_	LId=v-1
+15	rozhodujících	rozhodující	ADJ	AGFP6-----A----	Aspect=Imp|Case=Loc|Gender=Fem|Negative=Pos|Number=Plur|Tense=Pres|VerbForm=Part|Voice=Act	16	amod	_	LDeriv=rozhodovat
+16	funkcích	funkce	NOUN	NNFP6-----A----	Case=Loc|Gender=Fem|Negative=Pos|Number=Plur	13	nmod	_	_
+17	v	v	ADP	RR--6----------	AdpType=Prep|Case=Loc	18	case	_	LId=v-1
+18	Tatře	Tatra	PROPN	NNFS6-----A----	Case=Loc|Gender=Fem|NameType=Com|Negative=Pos|Number=Sing	16	nmod	_	SpaceAfter=No|LId=Tatra-1
+19	,	,	PUNCT	Z:-------------	_	21	punct	_	_
+20	kteří	který	PRON	P4MP1----------	Animacy=Anim|Case=Nom|Gender=Masc|Number=Plur|PronType=Int,Rel	21	nsubj	_	_
+21	přislíbili	přislíbit	VERB	VpMP---XR-AA---	Animacy=Anim|Aspect=Perf|Gender=Masc|Negative=Pos|Number=Plur|Tense=Past|VerbForm=Part|Voice=Act	13	acl	_	_
+22	světoznámého	světoznámý	ADJ	AAMS4----1A----	Animacy=Anim|Case=Acc|Degree=Pos|Gender=Masc|Negative=Pos|Number=Sing	23	amod	_	_
+23	výrobce	výrobce	NOUN	NNMS4-----A----	Animacy=Anim|Case=Acc|Gender=Masc|Negative=Pos|Number=Sing	26	dobj	_	_
+24	nákladních	nákladní	ADJ	AAIP2----1A----	Animacy=Inan|Case=Gen|Degree=Pos|Gender=Masc|Negative=Pos|Number=Plur	25	amod	_	_
+25	vozů	vůz	NOUN	NNIP2-----A----	Animacy=Inan|Case=Gen|Gender=Masc|Negative=Pos|Number=Plur	23	nmod	_	_
+26	zeštíhlit	zeštíhlit	VERB	Vf--------A----	Aspect=Perf|Negative=Pos|VerbForm=Inf	21	xcomp	_	_
+27	a	a	CONJ	J^-------------	_	26	cc	_	LId=a-1
+28	vyvést	vyvést	VERB	Vf--------A----	Negative=Pos|VerbForm=Inf	26	conj	_	_
+29	z	z	ADP	RR--2----------	AdpType=Prep|Case=Gen	30	case	_	LId=z-1
+30	krize	krize	NOUN	NNFS2-----A----	Case=Gen|Gender=Fem|Negative=Pos|Number=Sing	28	nmod	_	SpaceAfter=No
+31	.	.	PUNCT	Z:-------------	_	10	punct	_	_
+
+# sent_id a-ln94200-100-p2s4
+# orig_file_sentence ln94200_100#7
+1	Po	po	ADP	RR--6----------	AdpType=Prep|Case=Loc	4	case	_	LId=po-1
+2	půlroční	půlroční	ADJ	AAFS6----1A----	Case=Loc|Degree=Pos|Gender=Fem|Negative=Pos|Number=Sing	4	amod	_	_
+3	informační	informační	ADJ	AAFS6----1A----	Case=Loc|Degree=Pos|Gender=Fem|Negative=Pos|Number=Sing	4	amod	_	_
+4	bariéře	bariéra	NOUN	NNFS6-----A----	Case=Loc|Gender=Fem|Negative=Pos|Number=Sing	8	nmod	_	_
+5	ze	z	ADP	RV--2----------	AdpType=Voc|Case=Gen	6	case	_	LId=z-1
+6	strany	strana	NOUN	NNFS2-----A----	Case=Gen|Gender=Fem|Negative=Pos|Number=Sing	4	nmod	_	LId=strana-3|LGloss=(u_soudu,_na_úřadě,_smluvní_strany;_na_něčí_straně)
+7	Tatry	Tatra	PROPN	NNFS2-----A----	Case=Gen|Gender=Fem|NameType=Com|Negative=Pos|Number=Sing	6	nmod	_	LId=Tatra-1
+8	lze	lze	VERB	VB-S---3P-AA---	Mood=Ind|Negative=Pos|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act	0	root	_	_
+9	odhadovat	odhadovat	VERB	Vf--------A----	Aspect=Imp|Negative=Pos|VerbForm=Inf	8	csubj	_	SpaceAfter=No
+10	,	,	PUNCT	Z:-------------	_	15	punct	_	_
+11	že	že	SCONJ	J,-------------	_	15	mark	_	_
+12	se	se	PRON	P7-X4----------	Case=Acc|PronType=Prs|Reflex=Yes|Variant=Short	15	expl	_	LGloss=(zvr._zájmeno/částice)
+13	to	ten	PRON	PDNS1----------	Case=Nom|Gender=Neut|Number=Sing|PronType=Dem	15	nsubj	_	_
+14	spíše	spíše	ADV	Dg-------2A---1	Degree=Cmp|Negative=Pos	15	advmod	_	_
+15	nedaří	dařit	VERB	VB-S---3P-NA---	Aspect=Imp|Mood=Ind|Negative=Neg|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act	9	ccomp	_	_
+16	než	než	SCONJ	J,-------------	_	17	mark	_	LId=než-2
+17	daří	dařit	VERB	VB-S---3P-AA---	Aspect=Imp|Mood=Ind|Negative=Pos|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act	14	advcl	_	SpaceAfter=No
+18	.	.	PUNCT	Z:-------------	_	8	punct	_	_
+
+# sent_id a-ln94200-100-p2s5
+# orig_file_sentence ln94200_100#8
+1	K	k	ADP	RR--3----------	AdpType=Prep|Case=Dat	2	case	_	LId=k-1
+2	tomu	ten	PRON	PDZS3----------	Case=Dat|Gender=Masc,Neut|Number=Sing|PronType=Dem	27	advmod	_	SpaceAfter=No
+3	,	,	PUNCT	Z:-------------	_	6	punct	_	_
+4-5	aby	_	_	_	_	_	_	_	_
+4	aby	aby	SCONJ	J,-------------	_	6	mark	_	_
+5	by	být	AUX	Vc-------------	Mood=Cnd|Person=3|VerbForm=Fin	6	aux	_	_
+6	zjistil	zjistit	VERB	VpYS---XR-AA---	Aspect=Perf|Gender=Masc|Negative=Pos|Number=Sing|Tense=Past|VerbForm=Part|Voice=Act	2	acl	_	SpaceAfter=No
+7	,	,	PUNCT	Z:-------------	_	25	punct	_	_
+8	zda	zda	SCONJ	J,-------------	_	25	mark	_	_
+9	někdo	někdo	PRON	PZM-1----------	Animacy=Anim|Case=Nom|Gender=Masc|PronType=Ind	25	nsubj	_	_
+10	z	z	ADP	RR--2----------	AdpType=Prep|Case=Gen	11	case	_	LId=z-1
+11	Američanů	Američan	PROPN	NNMP2-----A----	Animacy=Anim|Case=Gen|Gender=Masc|NameType=Nat|Negative=Pos|Number=Plur	9	nmod	_	SpaceAfter=No
+12	,	,	PUNCT	Z:-------------	_	13	punct	_	_
+13	známých	známý	ADJ	AAMP2----1A----	Animacy=Anim|Case=Gen|Degree=Pos|Gender=Masc|Negative=Pos|Number=Plur	11	amod	_	LId=známý-2|LGloss=(co_[ne]známe)
+14	pod	pod	ADP	RR--7----------	AdpType=Prep|Case=Ins	15	case	_	LId=pod-1
+15	názvem	název	NOUN	NNIS7-----A----	Animacy=Inan|Case=Ins|Gender=Masc|Negative=Pos|Number=Sing	13	nmod	_	_
+16	firmy	firma	NOUN	NNFS2-----A----	Case=Gen|Gender=Fem|Negative=Pos|Number=Sing	15	nmod	_	_
+17	GSR	GSR	PROPN	NNXXX-----A---8	Abbr=Yes|NameType=Com|Negative=Pos	16	nmod	_	SpaceAfter=No
+18	,	,	PUNCT	Z:-------------	_	13	punct	_	_
+19	na	na	ADP	RR--6----------	AdpType=Prep|Case=Loc	21	case	_	LId=na-1
+20	středečním	středeční	ADJ	AANS6----1A----	Case=Loc|Degree=Pos|Gender=Neut|Negative=Pos|Number=Sing	21	amod	_	_
+21	zasedání	zasedání	NOUN	NNNS6-----A----	Case=Loc|Gender=Neut|Negative=Pos|Number=Sing	25	nmod	_	LDeriv=zasedat
+22	představenstva	představenstvo	NOUN	NNNS2-----A----	Case=Gen|Gender=Neut|Negative=Pos|Number=Sing	21	nmod	_	_
+23	byl	být	VERB	VpYS---XR-AA---	Gender=Masc|Negative=Pos|Number=Sing|Tense=Past|VerbForm=Part|Voice=Act	25	cop	_	_
+24	fyzicky	fyzicky	ADV	Dg-------1A----	Degree=Pos|Negative=Pos	25	advmod	_	LDeriv=fyzický
+25	přítomen	přítomný	ADJ	ACYS------A----	Gender=Masc|Negative=Pos|Number=Sing|Variant=Short	6	ccomp	_	SpaceAfter=No
+26	,	,	PUNCT	Z:-------------	_	25	punct	_	_
+27	spotřebuje	spotřebovat	VERB	VB-S---3P-AA---	Aspect=Perf|Mood=Ind|Negative=Pos|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act	0	root	_	_
+28	novinář	novinář	NOUN	NNMS1-----A----	Animacy=Anim|Case=Nom|Gender=Masc|Negative=Pos|Number=Sing	27	nsubj	_	_
+29	dvě	dva	NUM	ClHP4----------	Case=Acc|Gender=Fem,Neut|Number=Plur|NumForm=Word|NumType=Card|NumValue=1,2,3	30	nummod	_	LNumValue=2
+30	hodiny	hodina	NOUN	NNFP4-----A----	Case=Acc|Gender=Fem|Negative=Pos|Number=Plur	27	dobj	_	LGloss=(jednotka_času)
+31	času	čas	NOUN	NNIS2-----A----	Animacy=Inan|Case=Gen|Gender=Masc|Negative=Pos|Number=Sing	30	nmod	_	SpaceAfter=No
+32	:	:	PUNCT	Z:-------------	_	37	punct	_	_
+33-34	aby	_	_	_	_	_	_	_	_
+33	aby	aby	SCONJ	J,-------------	_	37	mark	_	_
+34	by	být	AUX	Vc-------------	Mood=Cnd|Person=3|VerbForm=Fin	37	aux	_	_
+35	se	se	PRON	P7-X4----------	Case=Acc|PronType=Prs|Reflex=Yes|Variant=Short	37	expl	_	LGloss=(zvr._zájmeno/částice)
+36	nakonec	nakonec	ADV	Db-------------	_	37	cc	_	_
+37	dozvěděl	dozvědět	VERB	VpYS---XR-AA---	Gender=Masc|Negative=Pos|Number=Sing|Tense=Past|VerbForm=Part|Voice=Act	27	advcl	_	SpaceAfter=No
+38	,	,	PUNCT	Z:-------------	_	40	punct	_	_
+39	že	že	SCONJ	J,-------------	_	40	mark	_	_
+40	ano	ano	PART	TT-------------	_	37	dep	_	SpaceAfter=No
+41	,	,	PUNCT	Z:-------------	_	40	punct	_	_
+42	ale	ale	CONJ	J^-------------	_	40	cc	_	_
+43	jmenovitě	jmenovitě	ADV	Dg-------1A----	Degree=Pos|Negative=Pos	46	advmod	_	LDeriv=jmenovitý
+44	vám	ty	PRON	PP-P3--2-------	Case=Dat|Number=Plur|Person=2|PronType=Prs	46	iobj	_	_
+45	to	ten	PRON	PDNS4----------	Case=Acc|Gender=Neut|Number=Sing|PronType=Dem	46	dobj	_	_
+46	neřeknu	říci	VERB	VB-S---1P-NA---	Aspect=Perf|Mood=Ind|Negative=Neg|Number=Sing|Person=1|Tense=Pres|VerbForm=Fin|Voice=Act	40	conj	_	SpaceAfter=No
+47	.	.	PUNCT	Z:-------------	_	27	punct	_	_

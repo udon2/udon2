@@ -13,13 +13,8 @@
  * NodeList methods
  */
 
-void NodeList::push_sorted(Node *node) {
-  // inserts in a lexicographical order
-  insert(upper_bound(begin(), end(), node, compare_node_by_string()), node);
-}
-
 NodeList::iterator NodeList::findById(Node *n) {
-  return find_if(begin(), end(), compare_node_by_id(n));
+  return find_if(begin(), end(), compare_to_node_by_id(n));
 }
 
 std::string NodeList::toString() {
@@ -39,12 +34,10 @@ std::string NodeList::toString() {
 
 void TreeList::freeMemory() {
   for (int i = 0, len = size(); i < len; i++) {
-    for (Node *snode : at(i)->getSubtreeNodes()) {
+    for (Node *snode : at(i)->linear()) {
       snode->freeMemory();
       delete snode;
     }
-    at(i)->freeMemory();
-    delete at(i);
   }
 }
 
@@ -90,7 +83,7 @@ Node::Node(Node *n) {
 }
 
 void Node::freeMemory() {
-  if (mwNode != NULL) delete mwNode;
+  if (mwNode != NULL && id == mwNode->getMaxId()) delete mwNode;
 }
 
 void Node::init(float id, std::string form, std::string lemma, std::string upos,
@@ -129,13 +122,6 @@ void Node::setParent(Node *n) {
   } else {
     this->parent = n;
   }
-}
-
-bool Node::isRoot() {
-  /**
-   * Check if the Node is a root pseudonode by checking if its parent is NULL.
-   */
-  return parent == NULL;
 }
 
 bool Node::has(std::string prop, std::string key, std::string value) {
@@ -206,27 +192,6 @@ bool Node::hasAny(std::string prop, std::string value) {
     }
   }
   return false;
-}
-
-void Node::_getSubtreeNodes(Node *node, NodeList *nodes) {
-  NodeList &ch = node->getChildren();
-  int len = ch.size();
-  if (len > 0) {
-    for (int i = 0; i < len; i++) {
-      nodes->push_back(ch[i]);
-      _getSubtreeNodes(ch[i], nodes);
-    }
-  }
-}
-
-NodeList Node::getSubtreeNodes() {
-  /**
-   * Get a list of all nodes in the subtree in the BFS order.
-   */
-  NodeList all;
-  all.reserve(this->subtreeSize());
-  _getSubtreeNodes(this, &all);
-  return all;
 }
 
 bool Node::isIgnored() {
@@ -345,7 +310,7 @@ void Node::copyChildren(Node *node) {
    */
   children = NodeList();
   for (Node *n : node->getChildren()) {
-    children.push_sorted(new Node(n));
+    children.push_sorted(new Node(n), compare_node_by_string());
   }
 }
 
@@ -355,7 +320,7 @@ void Node::addChild(Node *node) {
    * stored in a lexicographical order of Node's string representations, i.e.
    * UPOS|DEPREL|FORM
    */
-  children.push_sorted(node);
+  children.push_sorted(node, compare_node_by_string());
 }
 
 std::string Node::getSubtreeText() {
@@ -363,49 +328,43 @@ std::string Node::getSubtreeText() {
    * Generate a text of the subtree induced by its node using the current FORM
    * values of all nodes in the subtree except the ignored nodes.
    */
-  // TODO(dmytro): Fix SpaceAfter=No thing
-  // TODO(dmytro): Ignore root
-  // TODO(dmytro): Fix multiword tokens
-  std::queue<Node *> nodes;
-  for (int i = 0, len = children.size(); i < len; i++) {
-    nodes.push(children[i]);
-  }
-
-  std::map<float, std::string> words;
-  std::map<float, bool> isPunct;
-  int wordsNum;
-  if (!isIgnored()) {
-    words[id] = form;
-    wordsNum = 1;
-  } else {
-    wordsNum = 0;
-  }
-
-  while (!nodes.empty()) {
-    if (!nodes.front()->isIgnored() &&
-        words.find(nodes.front()->getId()) == words.end()) {
-      words[nodes.front()->getId()] = nodes.front()->getForm();
-      isPunct[nodes.front()->getId()] = nodes.front()->getUpos() == "PUNCT";
-      wordsNum++;
-    }
-
-    // add children of the head node to the stack
-    NodeList &ch = nodes.front()->getChildren();
-    for (int i = 0, len = ch.size(); i < len; i++) {
-      nodes.push(ch[i]);
-    }
-    nodes.pop();
-  }
+  NodeList linear = this->linear();
+  size_t sz = linear.size();
 
   std::ostringstream os;
-  int j = 0;
-  for (std::map<float, std::string>::iterator it = words.begin();
-       it != words.end(); it++) {
-    if (j > 0 && j < wordsNum && !isPunct[it->first]) os << " ";
-    j++;
-    os << it->second;
+  for (size_t j = 0; j < sz; j++) {
+    if (linear[j]->isRoot() || linear[j]->isIgnored()) continue;
+    MultiWordNode *mw = linear[j]->getMultiWord();
+    if (mw != NULL) {
+      if (linear[j]->getId() == mw->getMinId()) {
+        os << mw->getToken();
+      } else if (linear[j]->getId() == mw->getMaxId() && j < sz - 1) {
+        Util::FeatMap misc = linear[j]->getMisc();
+        if (misc.count("SpaceAfter") == 0 || misc["SpaceAfter"] != "No")
+          os << " ";
+      }
+      continue;
+    }
+
+    Util::FeatMap misc = linear[j]->getMisc();
+    os << linear[j]->getForm();
+    if (j < sz - 1 &&
+        (misc.count("SpaceAfter") == 0 || misc["SpaceAfter"] != "No"))
+      os << " ";
   }
   return os.str();
+}
+
+template <class Compare>
+void Node::_linear(Node *node, NodeList *nodes, Compare cmp) {
+  NodeList &ch = node->getChildren();
+  int len = ch.size();
+  if (len > 0) {
+    for (int i = 0; i < len; i++) {
+      nodes->push_sorted(ch[i], cmp);
+      _linear(ch[i], nodes, cmp);
+    }
+  }
 }
 
 NodeList Node::linear() {
@@ -413,32 +372,10 @@ NodeList Node::linear() {
    * Represent a subtree induced by the current node in a linear order, as they
    * appear in the original sentence.
    */
-  std::queue<Node *> nodes;
-  for (int i = 0, len = children.size(); i < len; i++) {
-    nodes.push(children[i]);
-  }
-
-  std::map<float, Node *> words;
-  words[id] = this;
-
-  while (!nodes.empty()) {
-    if (words.find(nodes.front()->getId()) == words.end()) {
-      words[nodes.front()->getId()] = nodes.front();
-    }
-
-    // add children of the head node to the stack
-    NodeList &ch = nodes.front()->getChildren();
-    for (int i = 0, len = ch.size(); i < len; i++) {
-      nodes.push(ch[i]);
-    }
-    nodes.pop();
-  }
-
   NodeList linear;
-  for (std::map<float, Node *>::iterator it = words.begin(); it != words.end();
-       it++) {
-    linear.push_back(it->second);
-  }
+  linear.reserve(this->subtreeSize());
+  linear.push_back(this);
+  _linear(this, &linear, compare_node_by_id());
   return linear;
 }
 
@@ -447,25 +384,10 @@ NodeList Node::linearSorted() {
    * Represent a subtree induced by the current node in a linear order, sorted
    * lexicographically based on their string representation.
    */
-  std::queue<Node *> nodes;
-  for (int i = 0, len = children.size(); i < len; i++) {
-    nodes.push(children[i]);
-  }
-
   NodeList linear;
+  linear.reserve(this->subtreeSize());
   linear.push_back(this);
-
-  while (!nodes.empty()) {
-    linear.push_sorted(nodes.front());
-
-    // add children of the head node to the stack
-    NodeList &ch = nodes.front()->getChildren();
-    for (int i = 0, len = ch.size(); i < len; i++) {
-      nodes.push(ch[i]);
-    }
-    nodes.pop();
-  }
-
+  _linear(this, &linear, compare_node_by_string());
   return linear;
 }
 
@@ -500,6 +422,7 @@ NodeList Node::selectBy(std::string prop, std::string value, bool negate) {
    * `value`. If `negate` is true, then the exact opposite happens, i.e. only
    * nodes with a property `prop` being NOT equal to `value` will be selected.
    */
+  // TODO(dmytro): benchmark if recursive is faster
   getterptr getterFn = getterByProp(prop);
   if (getterFn == NULL) return NodeList();
 
@@ -589,7 +512,7 @@ GroupedNodes Node::groupBy(std::string prop) {
     if (gn.find(val) == gn.end()) {
       gn[val] = NodeList();
     }
-    gn[val].push_sorted(n);
+    gn[val].push_sorted(n, compare_node_by_string());
   }
   return gn;
 }

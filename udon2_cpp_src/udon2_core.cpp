@@ -118,7 +118,6 @@ BOOST_PYTHON_MODULE(core) {
       .def("has_any", &Node::hasAny)
       .def("copy_children", &Node::copyChildren)  // no
       .def("add_child", &Node::addChild)
-      .def("get_subtree_nodes", &Node::getSubtreeNodes)  // no
       .def("remove_child", &Node::removeChild)
       .def("is_root", &Node::isRoot)            // no
       .def("is_leaf", &Node::isLeaf)            // no
