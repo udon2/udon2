@@ -33,7 +33,12 @@ CPLUS_INCLUDE_PATH="$CPLUS_INCLUDE_PATH:$PYTHON_LIBS" ./b2 python=3.6,3.7,3.8,3.
 cd ..
 
 # Compile wheels
-mkdir wheelhouse
+if [ ! -d "wheelhouse" ]; then
+    mkdir wheelhouse
+fi
+if [ ! -d "wheelhouse/${ARCH}/" ]; then
+    rm -rf "wheelhouse/${ARCH}/"
+fi
 mkdir "wheelhouse/${ARCH}/"
 for PYBIN in /opt/python/*/bin; do
     # "${PYBIN}/pip" install -r /io/dev-requirements.txt
