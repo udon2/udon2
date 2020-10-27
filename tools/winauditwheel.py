@@ -26,9 +26,13 @@ if __name__ == '__main__':
 
     path_info = sysconfig.get_paths()
 
+    print("winauditwheel started...")
+
     # 1. Find DLL names
     dlls = set()
-    for dll_fname in glob.glob(os.path.join('build', 'lib*', '*', '*.pyd')):
+    pyd_files = glob.glob(os.path.join('build', 'lib*', args.package, '*.pyd'))
+    print("Checking .pyd files:", pyd_files)
+    for dll_fname in pyd_files:
         p = pefile.PE(dll_fname)
         for entry in p.DIRECTORY_ENTRY_IMPORT:
             dlls.add(entry.dll)
@@ -88,3 +92,5 @@ if __name__ == '__main__':
             whl_path = Path(whl)
             for dll_file in glob.glob(os.path.join(whl_path.parent, '*.dll')):
                 new_whl.write(dll_file, os.path.join(args.package, os.path.basename(dll_file)))
+
+    print("winauditwheel finished...")
