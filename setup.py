@@ -26,7 +26,7 @@ if IS_WINDOWS:
     arch = platform.architecture()[0][:2]
     boost_library = f'boost_python{vinfo.major}{vinfo.minor}*'
     boost_include = [BOOST_DIR]
-    boost_lib = glob.glob(os.path.join(BOOST_DIR, f'lib{arch}-msvc-*'))
+    boost_lib = glob.glob(os.path.join(BOOST_DIR, f'lib{arch}-msvc-*')) + boost_include
     include_extras = glob.glob(os.path.join(boost_lib[0], f"{boost_library}.lib")) + \
         glob.glob(os.path.join(boost_lib[0], f"{boost_library}.dll"))
 else:
