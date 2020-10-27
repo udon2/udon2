@@ -32,9 +32,10 @@ if __name__ == '__main__':
         p = pefile.PE(dll_fname)
         for entry in p.DIRECTORY_ENTRY_IMPORT:
             dlls.add(entry.dll)
+    print("Found DLL names", dlls)
 
     # 2. Find the actual DLL files
-    search_paths = list([os.getcwd(), path_info['stdlib']] + sys.path)
+    search_paths = list([os.environ['BOOST_DIR'], path_info['stdlib']] + sys.path)
     redistribute = {}
     for dll in dlls:
         sdll = dll.decode('ascii')
@@ -47,6 +48,7 @@ if __name__ == '__main__':
         for d in os.environ['PATH'].split(';'):
             for f in glob.glob(os.path.join(d, sdll)):
                 redistribute[dll] = f
+    print("Found actual DLLs", redistribute)
 
     # 3. Copy the DLLs to the current folder and change names
     salt = hashlib.sha1(str.encode("{}_{}".format(args.package, args.version))).hexdigest()
@@ -57,6 +59,7 @@ if __name__ == '__main__':
         dest = "{}.{}{}".format(fn, salt, ext)
         shutil.copyfile(src, os.path.join('dist', dest))
         dll_map[bfname] = dest.encode("ascii")
+    print("DLL name mangling map", dll_map)
 
     # 4. Repair a wheel
     for whl in glob.glob(os.path.join('dist', '*.whl')):
