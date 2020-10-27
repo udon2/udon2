@@ -25,6 +25,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     path_info = sysconfig.get_paths()
+    arch = os.environ["PYTHON_ARCH"]
 
     print("winauditwheel started...")
 
@@ -51,6 +52,10 @@ if __name__ == '__main__':
 
         for d in os.environ['PATH'].split(';'):
             for f in glob.glob(os.path.join(d, sdll)):
+                p = pefile.PE(f)
+                machine_type = pefile.MACHINE_TYPE[p.FILE_HEADER.Machine]
+                if arch == '64' and machine_type != 'IMAGE_FILE_MACHINE_AMD64': continue
+                if arch == '32' and machine_type != 'IMAGE_FILE_MACHINE_I386': continue
                 redistribute[dll] = f
     print("Found actual DLLs", redistribute)
 
@@ -92,5 +97,12 @@ if __name__ == '__main__':
             whl_path = Path(whl)
             for dll_file in glob.glob(os.path.join(whl_path.parent, '*.dll')):
                 new_whl.write(dll_file, os.path.join(args.package, os.path.basename(dll_file)))
+
+        # Clean up everything except a new wheel
+        for folder, subfolders, filenames in os.walk(whl_repair_dir):
+            for filename in filenames:
+                if os.path.splitext()[1] != '.whl':
+                    file_path = os.path.join(folder, filename)
+                    os.remove(file_path)
 
     print("winauditwheel finished...")
