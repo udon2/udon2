@@ -71,8 +71,9 @@ if __name__ == '__main__':
     print("DLL name mangling map", dll_map)
 
     # 4. Repair a wheel
-    for whl in glob.glob(os.path.join('dist', '*.whl')):
-        whl_repair_dir = os.path.join('dist', 'whl_repair')
+    DIST_DIR = 'dist'
+    for whl in glob.glob(os.path.join(DIST_DIR, '*.whl')):
+        whl_repair_dir = os.path.join(DIST_DIR, 'whl_repair')
         with zipfile.ZipFile(whl, 'r') as zip_ref:
             zip_ref.extractall(whl_repair_dir)
 
@@ -99,10 +100,17 @@ if __name__ == '__main__':
                 new_whl.write(dll_file, os.path.join(args.package, os.path.basename(dll_file)))
 
         # Clean up everything except a new wheel
-        for folder, subfolders, filenames in os.walk(whl_repair_dir):
+        empty_folders = []
+        for folder, subfolders, filenames in os.walk(DIST_DIR):
             for filename in filenames:
-                if os.path.splitext()[1] != '.whl':
+                if os.path.splitext(filename)[1] != '.whl':
                     file_path = os.path.join(folder, filename)
                     os.remove(file_path)
+            if folder != DIST_DIR:
+                empty_folders.append(folder)
+
+        empty_folders.reverse()
+        for fd in empty_folders:
+            os.rmdir(fd)
 
     print("winauditwheel finished...")
