@@ -5,10 +5,8 @@ import platform
 import setuptools
 
 from sysconfig import get_paths
-from pathlib import Path
 
 
-CUR_DIR = Path(__file__).parent
 BOOST_DIR = os.environ['BOOST_DIR']
 IS_WINDOWS = platform.system().lower() == 'windows'
 C_SRC = 'udon2_cpp_src'
@@ -26,14 +24,11 @@ if IS_WINDOWS:
     arch = platform.architecture()[0][:2]
     boost_library = f'boost_python{vinfo.major}{vinfo.minor}*'
     boost_include = [BOOST_DIR]
-    boost_lib = glob.glob(os.path.join(BOOST_DIR, f'lib{arch}-msvc-*')) + boost_include
-    include_extras = glob.glob(os.path.join(boost_lib[0], f"{boost_library}.lib")) + \
-        glob.glob(os.path.join(boost_lib[0], f"{boost_library}.dll"))
+    boost_lib = glob.glob(os.path.join(BOOST_DIR, f'lib{arch}-msvc-*'))
 else:
     boost_library = f'boost_python{vinfo.major}{vinfo.minor}'
     boost_include = [os.path.join(BOOST_DIR, 'include')]
     boost_lib = [os.path.join(BOOST_DIR, 'lib')]
-    include_extras = glob.glob(os.path.join(boost_lib[0], f"{boost_library}.so"))
 include_dirs = [path_info['include']] + boost_include
 library_dirs = [path_info['stdlib']] + boost_lib
 libraries = [boost_library]
