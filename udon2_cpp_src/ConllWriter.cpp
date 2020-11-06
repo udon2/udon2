@@ -65,7 +65,7 @@ std::string ConllWriter::node2conllu(MultiWordNode* node) {
   return nodeRepr;
 }
 
-void ConllWriter::writeToFile(TreeList nodes, std::string fname) {
+void ConllWriter::writeToFile(TreeList* nodes, std::string fname) {
   /**
    * Write the subtree rooted at every Node from the list `nodes` to the file
    * `fname` in a [CoNLL-U
@@ -77,8 +77,9 @@ void ConllWriter::writeToFile(TreeList nodes, std::string fname) {
    */
   std::ofstream outFile;
   outFile.open(fname);
-  for (Node* node : nodes) {
-    NodeList linear = node->linear();
+  size_t len = nodes->size();
+  for (size_t i = 0; i < len; i++) {
+    NodeList linear = (*nodes)[i]->linear();
     int sz = linear.size();
     for (int j = 1; j < sz; j++) {
       MultiWordNode* mw = linear[j]->getMultiWord();

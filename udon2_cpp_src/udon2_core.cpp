@@ -53,9 +53,8 @@ BOOST_PYTHON_MODULE(core) {
       .def(bp::vector_indexing_suite<NodeList>())
       .def("__str__", &NodeList::toString);
 
-  bp::class_<TreeList>("TreeList")
-      .def(bp::vector_indexing_suite<TreeList>())
-      .def("__del__", &TreeList::freeMemory);
+  bp::class_<TreeList, TreeList *>("TreeList")
+      .def(bp::vector_indexing_suite<TreeList, true>());
 
   bp::class_<MultiWordNode, MultiWordNode *>("MultiWordNode",
                                              bp::init<int, int, std::string>())
@@ -64,35 +63,15 @@ BOOST_PYTHON_MODULE(core) {
       .def_readonly("token", &MultiWordNode::getToken)
       .def("__str__", &MultiWordNode::toString);
 
-  bp::class_<Node, Node *>("Node")
+  bp::class_<Node, Node *, std::shared_ptr<Node>>("Node")
       .def(bp::init<float, std::string, std::string, std::string, std::string,
                     std::string, std::string, std::string, Node *>())
       .add_property("id", &Node::getId, &Node::setId)
-      .add_property("form",
-                    bp::make_function(
-                        &Node::getForm,
-                        bp::return_value_policy<bp::copy_const_reference>()),
-                    &Node::setForm)
-      .add_property("lemma",
-                    bp::make_function(
-                        &Node::getLemma,
-                        bp::return_value_policy<bp::copy_const_reference>()),
-                    &Node::setLemma)
-      .add_property("xpos",
-                    bp::make_function(
-                        &Node::getXpos,
-                        bp::return_value_policy<bp::copy_const_reference>()),
-                    &Node::setXpos)
-      .add_property("upos",
-                    bp::make_function(
-                        &Node::getUpos,
-                        bp::return_value_policy<bp::copy_const_reference>()),
-                    &Node::setUpos)
-      .add_property("deprel",
-                    bp::make_function(
-                        &Node::getDeprel,
-                        bp::return_value_policy<bp::copy_const_reference>()),
-                    &Node::setDeprel)
+      .add_property("form", &Node::getForm, &Node::setForm)
+      .add_property("lemma", &Node::getLemma, &Node::setLemma)
+      .add_property("xpos", &Node::getXpos, &Node::setXpos)
+      .add_property("upos", &Node::getUpos, &Node::setUpos)
+      .add_property("deprel", &Node::getDeprel, &Node::setDeprel)
       // make_getter doesn't seem to work here, why?
       .add_property(
           "misc",
@@ -134,9 +113,11 @@ BOOST_PYTHON_MODULE(core) {
       .def("child_has_prop", &Node::childHasProp)                    // no
       .def("linear", &Node::linear)
       .def("linear_sorted", &Node::linearSorted)
-      .def("prune", &Node::prune)                                    // no
-      .def("copy", &Node::copy, bp::return_internal_reference<1>())  // no
-      .def("make_root", &Node::makeRoot)                             // no
+      .def("prune", &Node::prune)  // no
+      .def("copy", &Node::copy,
+           bp::return_value_policy<bp::manage_new_object>())  // no
+      .def("make_root", &Node::makeRoot,
+           bp::return_value_policy<bp::manage_new_object>())  // no
       .def("__str__", &Node::toString)
       .def("textual_intersect", &Node::textualIntersect,
            bp::return_internal_reference<1>())                // no
@@ -152,11 +133,14 @@ BOOST_PYTHON_MODULE(core) {
       .def("get_ignore_label", &Node::getIgnoreLabel)      // no
       .def("group_by", &Node::groupBy);                    // no
 
+  bp::register_ptr_to_python<std::shared_ptr<Node>>();
+
   bp::class_<ConllReader>("ConllReader")
-      .def("read_file", &ConllReader::readFile)
+      .def("read_file", &ConllReader::readFile,
+           bp::return_value_policy<bp::manage_new_object>())
       .staticmethod("read_file");
 
-  void (*writeToFile_TreeList)(TreeList, std::string) =
+  void (*writeToFile_TreeList)(TreeList *, std::string) =
       &ConllWriter::writeToFile;
   void (*writeToFile_Node)(Node *, std::string) = &ConllWriter::writeToFile;
 

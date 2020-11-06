@@ -11,9 +11,14 @@ class MultiWordNode {
   int minId;
   int maxId;
   std::string token;
+  int ref = 0;
 
  public:
   MultiWordNode(int minId, int maxId, std::string token);
+  explicit MultiWordNode(MultiWordNode* mw);
+  bool isReadyToDelete() { return ref <= 0; }
+  void decRef() { ref--; }
+  int getRef() { return ref; }
   int getMinId() { return minId; }
   int getMaxId() { return maxId; }
   std::string getToken() { return token; }

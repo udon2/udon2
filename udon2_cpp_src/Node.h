@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <memory>
 
 #include "MultiWordNode.h"
 
@@ -20,9 +21,10 @@
 class Node;
 struct NodeComparator;
 
+typedef std::string (Node::*getterptr)();
+
 // if linting is enabled, cpplint thinks we try to take the address
-typedef const std::string &(Node::*getterptr)();  // NOLINT
-typedef Util::FeatMap &(Node::*kvgetterptr)();    // NOLINT
+typedef Util::FeatMap &(Node::*kvgetterptr)();  // NOLINT
 
 class NodeList : public std::vector<Node *> {
  public:
@@ -39,11 +41,12 @@ class NodeList : public std::vector<Node *> {
   std::string toString();
 };
 
-class TreeList : public std::vector<Node *> {
+class TreeList : public std::vector<std::shared_ptr<Node>> {
  public:
-  TreeList() : std::vector<Node *>() {}
-  TreeList(iterator a, iterator b) : std::vector<Node *>(a, b) {}
-  void freeMemory();
+  TreeList() : std::vector<std::shared_ptr<Node>>() {}
+  TreeList(iterator a, iterator b) : std::vector<std::shared_ptr<Node>>(a, b) {}
+  // ~TreeList();
+  // void freeMemory();
 };
 
 typedef std::map<std::string, NodeList> GroupedNodes;
@@ -81,20 +84,21 @@ class Node {
   Node(float id, std::string form, std::string lemma, std::string upos,
        std::string xpos, std::string feats, std::string deprel,
        std::string misc, Node *parent);
-  explicit Node(Node *n);
+  ~Node();
+  Node(Node *n, std::map<std::string, MultiWordNode *> *mw);
   void init(float id, std::string form, std::string lemma, std::string upos,
             std::string xpos, std::string feats, std::string deprel,
             std::string misc, Node *parent);
-  void freeMemory();
+  // void freeMemory();
 
   float getId() { return id; }
   // tried: const std::string &getForm() { return form; }
   // don't think it makes any difference performance-wise
-  const std::string &getForm() { return form; }
-  const std::string &getLemma() { return lemma; }
-  const std::string &getXpos() { return xpos; }
-  const std::string &getUpos() { return upos; }
-  const std::string &getDeprel() { return deprel; }
+  std::string getForm() { return form; }
+  std::string getLemma() { return lemma; }
+  std::string getXpos() { return xpos; }
+  std::string getUpos() { return upos; }
+  std::string getDeprel() { return deprel; }
   Util::FeatMap &getFeats() { return feats; }
   Util::FeatMap &getMisc() { return misc; }
   Node *getParent() { return parent; }
@@ -143,7 +147,7 @@ class Node {
   void hardResetSubtree();
 
   Node *copy();
-  void makeRoot();
+  Node *makeRoot();
 
   int subtreeSize();
 
@@ -153,8 +157,9 @@ class Node {
   template <class Compare>
   NodeList linearBy(Compare cmp);
 
-  void copyChildren(Node *node);
+  void copyChildren(Node *node, std::map<std::string, MultiWordNode *> *mw);
   void addChild(Node *node);
+  void removeChild(Node *node);
 
   NodeList selectBy(std::string prop, std::string value, bool negate = false);
   NodeList selectByDeprelChain(std::string value);
@@ -174,7 +179,6 @@ class Node {
       std::string query);  // TODO(dmytro): implement a query language
 
   void prune(std::string rel);
-  void removeChild(Node *node);
 
   Node *textualIntersect(std::string text);
 

@@ -85,7 +85,7 @@ kernels_module = setuptools.Extension(
 
 setuptools.setup(
     name="udon2", # Replace with your own username
-    version="0.1a1",
+    version="0.1b1",
     author="Dmytro Kalpakchi",
     author_email="dmytroka@kth.se",
     description="Prepare your UD trees to be served!",
@@ -109,5 +109,5 @@ setuptools.setup(
     ],
     ext_modules=[core_module, transformations_module, kernels_module],
     python_requires='>=3.6',
-    install_requires=["six"],# "svgling"]
+    install_requires=["six", "svgling"]
 )

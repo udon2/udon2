@@ -12,7 +12,7 @@
 #include "MultiWordNode.h"
 #include "Util.h"
 
-Node* ConllReader::initNodes(std::vector<std::string> words) {
+std::shared_ptr<Node> ConllReader::initNodes(std::vector<std::string> words) {
   int N = words.size();
   // To avoid C2131 on Windows
   Node** nodes = new Node*[N + 1];  // with a root
@@ -69,13 +69,13 @@ Node* ConllReader::initNodes(std::vector<std::string> words) {
     }
   }
 
-  Node* root = nodes[0];
+  std::shared_ptr<Node> root(nodes[0]);
   for (int i = j; i < N + 1; i++) delete nodes[i];
   delete[] nodes;
   return root;  // root pseudonode
 }
 
-TreeList ConllReader::readFile(std::string fname) {
+TreeList* ConllReader::readFile(std::string fname) {
   /**
    * Reads a file `fname` in a [CoNLL-U
    * format](https://universaldependencies.org/format.html).
@@ -91,7 +91,7 @@ TreeList ConllReader::readFile(std::string fname) {
   std::ifstream conllFile(fname);
   std::string line;
 
-  TreeList forest;
+  TreeList* forest = new TreeList();
   std::vector<std::string> words;
 
   if (conllFile.is_open()) {
@@ -100,7 +100,7 @@ TreeList ConllReader::readFile(std::string fname) {
         // end of sentence
         if (words.size() > 0) {
           // std::cout << "Hello" << std::endl;
-          forest.push_back(initNodes(words));
+          forest->push_back(initNodes(words));
           // std::cout << "world" << std::endl;
           words.clear();
         }
@@ -113,7 +113,7 @@ TreeList ConllReader::readFile(std::string fname) {
     }
 
     if (words.size() > 0) {
-      forest.push_back(initNodes(words));
+      forest->push_back(initNodes(words));
       words.clear();
     }
   }

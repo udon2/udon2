@@ -6,8 +6,10 @@
 
 from __future__ import unicode_literals
 
+import re
+
 from udon2 import Node
-# import svgling
+import svgling
 
 from .render import DependencyRenderer
 from .utils import is_in_jupyter
@@ -22,21 +24,27 @@ def render_dep_tree(node, fname, img_format='svg', page=False, minify=False):
             f.write(render(node, page=page, minify=minify))
 
 
-# def tree2list(node):
-#     if not node.children:
-#         return node.form
-#     lst = [node.form]
-#     for x in node.children:
-#         res = tree2list(x)
-#         if res:
-#             lst.append(res)
-#     return lst
+def tree2list(node):
+    if not node.children:
+        return node.form
+    lst = [node.form]
+    for x in node.children:
+        res = tree2list(x)
+        if res:
+            lst.append(res)
+    return lst
 
 
-# def render_tree(node, fname, img_format='svg'):
-#     options = svgling.core.TreeOptions()
-#     with open(fname, 'w') as f:
-#         f.write(svgling.core.TreeLayout(tree2list(node), options=options)._repr_svg_())
+def render_tree(node, fname, img_format='svg'):
+    base_pixl = 16
+    options = svgling.core.TreeOptions()
+    with open(fname, 'w') as f:
+        svg_string = svgling.core.TreeLayout(tree2list(node), options=options)._repr_svg_()
+        ems = set(re.findall(r"\d+.?\d*em", svg_string))
+        for em in ems:
+            px = float(em[:-2]) * base_pixl
+            svg_string = svg_string.replace(em, "{}px".format(px))
+        f.write(svg_string)
 
 
 def render(

@@ -32,14 +32,20 @@ std::string NodeList::toString() {
  * TreeList methods
  */
 
-void TreeList::freeMemory() {
-  for (int i = 0, len = size(); i < len; i++) {
-    for (Node *snode : at(i)->linear()) {
-      snode->freeMemory();
-      delete snode;
-    }
-  }
-}
+// void TreeList::freeMemory() {
+//   for (int i = 0, len = size(); i < len; i++) {
+//     for (Node *snode : at(i)->linear()) {
+//       snode->freeMemory();
+//       delete snode;
+//     }
+//   }
+// }
+// TreeList::~TreeList() {
+//   std::cout << "~TreeList" << std::endl;
+//   for (int i = 0, len = size(); i < len; i++) {
+//     delete at(i);
+//   }
+// }
 
 /*
  * Node methods
@@ -68,7 +74,9 @@ Node::Node(float id, std::string form, std::string lemma, std::string upos,
   if (parent != NULL) parent->addChild(this);
 }
 
-Node::Node(Node *n) {
+Node::Node(Node *n, std::map<std::string, MultiWordNode *> *mw) {
+  // Multi-word nodes are not copied, since this node is only a part of the
+  // multi-word one
   this->id = n->getId();
   this->form = n->getForm();
   this->lemma = n->getLemma();
@@ -78,12 +86,35 @@ Node::Node(Node *n) {
   this->parent = n->getParent();
   this->feats = n->getFeats();
   this->misc = n->getMisc();
-  this->copyChildren(n);
+  this->copyChildren(n, mw);
   this->mIgnoreLabel = n->getIgnoreLabel();
 }
 
-void Node::freeMemory() {
-  if (mwNode != NULL && id == mwNode->getMaxId()) delete mwNode;
+Node *Node::copy() {
+  std::map<std::string, MultiWordNode *> *mw =
+      new std::map<std::string, MultiWordNode *>();
+  Node *n = new Node(this, mw);
+  delete mw;
+  return n;
+}
+
+// void Node::freeMemory() {
+//   if (mwNode != NULL && id == mwNode->getMaxId()) delete mwNode;
+// }
+
+Node::~Node() {
+  // std::cout << "~Node -- " << form << std::endl;
+  for (int i = 0, sz = this->children.size(); i < sz; i++)
+    delete this->children[i];
+  if (mwNode != NULL) {
+    mwNode->decRef();
+    // std::cout << mwNode->getMaxId() << " " << mwNode->isReadyToDelete() <<
+    // std::endl;
+    if (mwNode->isReadyToDelete()) {
+      delete mwNode;
+      mwNode = NULL;
+    }
+  }
 }
 
 void Node::init(float id, std::string form, std::string lemma, std::string upos,
@@ -99,6 +130,39 @@ void Node::init(float id, std::string form, std::string lemma, std::string upos,
   this->misc = Util::parseUniversalFormat(misc);
   if (parent != NULL) parent->addChild(this);
   this->feats = Util::parseUniversalFormat(feats);
+}
+
+void Node::copyChildren(Node *node,
+                        std::map<std::string, MultiWordNode *> *mw) {
+  /**
+   * Copy children of Node `node` to the current Node.
+   */
+  children = NodeList();
+  for (Node *n : node->getChildren()) {
+    children.push_back(new Node(n, mw));
+    // std::cout << children[children.size() - 1]->toString() << std::endl;
+    if (n->getMultiWord() != NULL) {
+      std::string key = n->getMultiWord()->toString();
+      if (mw->count(key) == 0)
+        (*mw)[key] = new MultiWordNode(n->getMultiWord());
+      children[children.size() - 1]->setMultiWord((*mw)[key]);
+    }
+  }
+}
+
+void Node::addChild(Node *node) {
+  /**
+   * Add `node` as a child of the current Node. Note that all children are
+   * stored in a lexicographical order of Node's string representations, i.e.
+   * UPOS|DEPREL|FORM
+   */
+  children.push_sorted(node, compare_node_by_string());
+}
+
+void Node::removeChild(Node *node) {
+  std::vector<Node *>::iterator it =
+      find(children.begin(), children.end(), node);
+  if (it != children.end()) children.erase(it);
 }
 
 void Node::setParent(Node *n) {
@@ -291,9 +355,11 @@ int Node::_subtreeSize(Node *n) {
   NodeList &ch = n->getChildren();
   int len = ch.size();
   int sz = len;
+  // std::cout << "S " << sz << " " << n->getForm() << std::endl;
   for (int i = 0; i < len; i++) {
     sz += _subtreeSize(ch[i]);
   }
+  // std::cout << "E " << sz << std::endl;
   return sz;
 }
 
@@ -302,25 +368,6 @@ int Node::subtreeSize() {
    * Get the number of nodes in the subtree induced by the current node.
    */
   return _subtreeSize(this);
-}
-
-void Node::copyChildren(Node *node) {
-  /**
-   * Copy children of Node `node` to the current Node.
-   */
-  children = NodeList();
-  for (Node *n : node->getChildren()) {
-    children.push_sorted(new Node(n), compare_node_by_string());
-  }
-}
-
-void Node::addChild(Node *node) {
-  /**
-   * Add `node` as a child of the current Node. Note that all children are
-   * stored in a lexicographical order of Node's string representations, i.e.
-   * UPOS|DEPREL|FORM
-   */
-  children.push_sorted(node, compare_node_by_string());
 }
 
 std::string Node::getSubtreeText() {
@@ -372,11 +419,11 @@ NodeList Node::linear() {
    * Represent a subtree induced by the current node in a linear order, as they
    * appear in the original sentence.
    */
-  NodeList linear;
-  linear.reserve(this->subtreeSize());
-  linear.push_back(this);
-  _linear(this, &linear, compare_node_by_id());
-  return linear;
+  NodeList lin;
+  lin.reserve(this->subtreeSize());
+  lin.push_back(this);
+  _linear(this, &lin, compare_node_by_id());
+  return lin;
 }
 
 NodeList Node::linearSorted() {
@@ -384,11 +431,11 @@ NodeList Node::linearSorted() {
    * Represent a subtree induced by the current node in a linear order, sorted
    * lexicographically based on their string representation.
    */
-  NodeList linear;
-  linear.reserve(this->subtreeSize());
-  linear.push_back(this);
-  _linear(this, &linear, compare_node_by_string());
-  return linear;
+  NodeList lin;
+  lin.reserve(this->subtreeSize());
+  lin.push_back(this);
+  _linear(this, &lin, compare_node_by_string());
+  return lin;
 }
 
 getterptr Node::getterByProp(std::string prop) {
@@ -682,6 +729,7 @@ void Node::prune(std::string rel) {
       if (chain.size() == 1) {
         // TODO(dmytro): do not erase directly, but mark it instead
         //                should be able to reset it later?
+        delete *node;
         node = children.erase(node);
       } else {
         std::vector<std::string> subChain(chain.begin() + 1, chain.end());
@@ -692,12 +740,6 @@ void Node::prune(std::string rel) {
       ++node;
     }
   }
-}
-
-void Node::removeChild(Node *node) {
-  std::vector<Node *>::iterator it =
-      find(children.begin(), children.end(), node);
-  if (it != children.end()) children.erase(it);
 }
 
 /*
@@ -745,12 +787,11 @@ bool Node::childHasProp(std::string prop, std::string value) {
   return false;
 }
 
-Node *Node::copy() { return new Node(this); }
-
-void Node::makeRoot() {
+Node *Node::makeRoot() {
   Node *newRoot = new Node();
   this->deprel = "root";
   this->parent = newRoot;
+  return newRoot;
 }
 
 std::string Node::toString() {
