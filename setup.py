@@ -65,7 +65,7 @@ transformations_module = setuptools.Extension(
         os.path.join(C_SRC, 'transformations.cpp'),
         os.path.join(C_SRC, 'udon2_transform.cpp')
     ],
-    extra_objects=compiled_shared_obj_files_iter(['Util', 'Node']), # sort of lazy eval here to reuse the already compiled files
+    extra_objects=compiled_shared_obj_files_iter(['Util', 'MultiWordNode', 'Node']), # sort of lazy eval here to reuse the already compiled files
     include_dirs=include_dirs,
     library_dirs=library_dirs,
     libraries=libraries
@@ -77,7 +77,7 @@ kernels_module = setuptools.Extension(
         os.path.join(C_SRC, 'kernels.cpp'),
         os.path.join(C_SRC, 'udon2_kernels.cpp')
     ],
-    extra_objects=compiled_shared_obj_files_iter(['Util', 'Node', 'transformations']), # sort of lazy eval here to reuse the already compiled files
+    extra_objects=compiled_shared_obj_files_iter(['Util', 'MultiWordNode', 'Node', 'transformations']), # sort of lazy eval here to reuse the already compiled files
     include_dirs=include_dirs,
     library_dirs=library_dirs,
     libraries=libraries
