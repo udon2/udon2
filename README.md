@@ -8,4 +8,4 @@ UDon2 is a library for manipulating dependency trees in the Universal Dependenci
 Our online documentation is available at https://udon2.github.io/
 
 ## Contributing
-This section is in progress.
+Please check our [contribution guidelines](https://github.com/udon2/udon2/blob/master/CONTRIBUTING.md).
