@@ -4,7 +4,7 @@
 
 ## Code of Conduct
 
-We want our open source community to be inclusive and to follow high standards of communication. By participating and contributing to this project, you agree to uphold our Code of Conduct.
+We want our open source community to be inclusive and to follow high standards of communication. By participating and contributing to this project, you agree to uphold our [Code of Conduct](https://github.com/udon2/udon2/blob/master/CODE_OF_CONDUCT.md).
 
 ## How Can I Contribute?
 
