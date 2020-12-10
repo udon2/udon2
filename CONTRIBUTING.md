@@ -47,3 +47,6 @@ We follow the ["fork-and-pull" Git workflow](https://github.com/susam/gitpr). Th
 7. Push changes to your fork
 8. Open a PR in the original repository and wait for a code review.
 
+## Attribution
+These guidelines is an adaptation of [Atom guidelines](https://github.com/atom/atom/blob/master/CONTRIBUTING.md) and [Auth0 open source template](https://github.com/auth0/open-source-template/blob/master/GENERAL-CONTRIBUTING.md).
+
