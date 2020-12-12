@@ -9,3 +9,15 @@ Our online documentation is available at https://udon2.github.io/
 
 ## Contributing
 Please check our [contribution guidelines](https://github.com/udon2/udon2/blob/master/CONTRIBUTING.md).
+
+## Citing
+The associated paper is accepted to the Universal Dependencies Workshop 2020 @ COLING 2020. If UDon2 is of any use in your research, please cite the paper.
+```
+@inproceedings{kalpakchi2020udon2,
+  title={UDon2: a library for manipulating Universal Dependencies trees},
+  author={Kalpakchi, Dmytro and Boye, Johan},
+  booktitle={Proceedings of the Fourth Workshop on Universal Dependencies (UDW 2020)},
+  pages={120--125},
+  year={2020}
+}
+```
