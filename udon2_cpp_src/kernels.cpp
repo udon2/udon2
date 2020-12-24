@@ -40,18 +40,16 @@ float ConvPartialTreeKernel::ptkSumDeltaP(NodeList ch1, NodeList ch2) {
     }
   }
 
-  for (int j = 0; j <= ch2_size; j++) DP[0][j] = 0;
+  // for (int j = 0; j <= ch2_size; j++) DP[0][j] = 0;
 
-  for (int i = 0; i <= ch1_size; i++) DP[i][0] = 0;
+  // for (int i = 0; i <= ch1_size; i++) DP[i][0] = 0;
 
   for (int l = 1; l < lmin; l++) {
     kernel_mat[l] = 0;
 
-    // for (int j = 0; j <= ch2_size; j++)
-    //     DP[l-1][j] = 0;
+    for (int j = 0; j <= ch2_size; j++) DP[l - 1][j] = 0;
 
-    // for (int i = 0; i <= ch1_size; i++)
-    //     DP[i][l-1] = 0;
+    for (int i = 0; i <= ch1_size; i++) DP[i][l - 1] = 0;
 
     for (int i = l; i <= ch1_size; i++) {
       for (int j = l; j <= ch2_size; j++) {

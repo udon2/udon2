@@ -18,3 +18,4 @@ boost/
 boost_1_74_0.tar.bz2
 test_boost/
 *.txt
+__pycache__/*

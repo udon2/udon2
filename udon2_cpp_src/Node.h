@@ -187,6 +187,7 @@ class Node {
 
   std::string toString();
   std::string subtreeToString();
+  std::string toCharniakString(std::string prop);
 };
 
 struct compare_to_node_by_id : public std::unary_function<Node *, bool> {

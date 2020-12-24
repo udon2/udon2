@@ -127,3 +127,40 @@ write   0.42 +/- 0.0
 text    0.24 +/- 0.0
 relchain    0.14 +/- 0.0
 save    3.34 +/- 0.03
+
+
+
+
+udon2 -- machine-specific
+load    1.79 +/- 0.11
+read    0.75 +/- 0.03
+write   0.36 +/- 0.02
+text    0.2 +/- 0.01
+relchain    0.1 +/- 0.0
+save    2.42 +/- 0.12
+
+
+Line #    Mem usage    Increment   Line Contents
+================================================
+     3     16.8 MiB     16.8 MiB   @profile
+     4                             def load():
+     5     19.7 MiB      2.9 MiB       import udon2
+     6    569.6 MiB    549.9 MiB       roots = udon2.ConllReader.read_file('cs-ud-train-l.conllu')
+     7
+     8    569.6 MiB      0.0 MiB       for root in roots:
+     9    569.6 MiB      0.0 MiB           nodes = root.linear()
+    10    569.6 MiB      0.0 MiB           for j in range(len(nodes)):
+    11    569.6 MiB      0.0 MiB               form_lemma = nodes[j].form + nodes[j].lemma
+    12
+    13    569.6 MiB      0.0 MiB       for root in roots:
+    14    569.6 MiB      0.0 MiB           selected = root.select_by_deprel_chain('nmod.case')
+    15
+    16    569.6 MiB      0.0 MiB       for root in roots:
+    17    569.6 MiB      0.0 MiB           nodes = root.linear()
+    18    569.6 MiB      0.0 MiB           for j in range(len(nodes)):
+    19    569.6 MiB      0.0 MiB               nodes[j].deprel = 'dep'
+    20
+    21    569.6 MiB      0.0 MiB       for root in roots:
+    22    569.6 MiB      0.0 MiB           root.get_subtree_text()
+    23
+    24    569.6 MiB      0.0 MiB       udon2.ConllWriter.write_to_file(roots, 'out.conllu')

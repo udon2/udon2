@@ -119,6 +119,7 @@ BOOST_PYTHON_MODULE(core) {
       .def("make_root", &Node::makeRoot,
            bp::return_value_policy<bp::manage_new_object>())  // no
       .def("__str__", &Node::toString)
+      .def("to_charniak_string", &Node::toCharniakString)
       .def("textual_intersect", &Node::textualIntersect,
            bp::return_internal_reference<1>())                // no
       .def("ignore", &Node::ignore, node_ignore_overloads())  // no

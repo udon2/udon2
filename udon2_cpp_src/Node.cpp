@@ -825,6 +825,20 @@ std::string Node::_subtreeToString(int depth) {
 
 std::string Node::subtreeToString() { return _subtreeToString(0); }
 
+std::string Node::toCharniakString(std::string prop) {
+  getterptr getterFn = getterByProp(prop);
+  if (getterFn == NULL) return prop + " is an invalid property";
+  std::string res = "(" + (this->*getterFn)();
+  int N = children.size();
+  if (N > 0) {
+    for (int i = 0; i < N; i++) {
+      res += children[i]->toCharniakString(prop);
+    }
+  }
+  res += ")";
+  return res;
+}
+
 // TODO(dmytro): rename method - not really an intersect
 Node *Node::textualIntersect(std::string text) {
   // TODO(dmytro): maybe return a NodeList instead?

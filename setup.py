@@ -1,5 +1,6 @@
 import os
 import sys
+import codecs
 import glob
 import platform
 import setuptools
@@ -11,6 +12,21 @@ BOOST_DIR = os.environ['BOOST_DIR']
 IS_WINDOWS = platform.system().lower() == 'windows'
 C_SRC = 'udon2_cpp_src'
 README = "README.md"
+
+
+def read(rel_path):
+    here = os.path.abspath(os.path.dirname(__file__))
+    with codecs.open(os.path.join(here, rel_path), 'r') as fp:
+        return fp.read()
+
+
+def get_version(rel_path):
+    for line in read(rel_path).splitlines():
+        if line.startswith('__version__'):
+            delim = '"' if '"' in line else "'"
+            return line.split(delim)[1]
+    else:
+        raise RuntimeError("Unable to find version string.")
 
 
 vinfo = sys.version_info
@@ -85,7 +101,7 @@ kernels_module = setuptools.Extension(
 
 setuptools.setup(
     name="udon2", # Replace with your own username
-    version="0.1b0",
+    version=get_version("src/udon2/__init__.py"),
     author="Dmytro Kalpakchi",
     author_email="dmytroka@kth.se",
     description="Prepare your UD trees to be served!",
@@ -102,7 +118,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
-        "License :: OSI Approved :: GNU Affero General Public License v3",
+        "License :: OSI Approved :: MIT License",
         "Operating System :: POSIX :: Linux",
         "Operating System :: Microsoft :: Windows",
         "Topic :: Scientific/Engineering"
