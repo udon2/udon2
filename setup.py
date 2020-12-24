@@ -10,6 +10,7 @@ from sysconfig import get_paths
 
 BOOST_DIR = os.environ['BOOST_DIR']
 IS_WINDOWS = platform.system().lower() == 'windows'
+IS_LINUX = platform.system().lower() == 'linux'
 C_SRC = 'udon2_cpp_src'
 README = "README.md"
 
@@ -41,12 +42,15 @@ if IS_WINDOWS:
     boost_library = f'boost_python{vinfo.major}{vinfo.minor}*'
     boost_include = [BOOST_DIR]
     boost_lib = glob.glob(os.path.join(BOOST_DIR, f'lib{arch}-msvc-*'))
-else:
+elif IS_LINUX:
     arch = platform.machine()
     syst = platform.system().lower()
     boost_library = f'boost_python{vinfo.major}{vinfo.minor}'
     boost_include = [os.path.join(BOOST_DIR, 'include')]
-    boost_lib = [os.path.join(BOOST_DIR, 'lib'), os.path.join(BOOST_DIR, 'lib', f"{arch}-{syst}-*")]
+    boost_lib = [os.path.join(BOOST_DIR, 'lib'), os.path.join(BOOST_DIR, 'lib', f"{arch}-{syst}-gnu")]
+else:
+    raise RuntimeError("The platform is not supported!")
+
 include_dirs = [path_info['include']] + boost_include
 library_dirs = [path_info['stdlib']] + boost_lib
 libraries = [boost_library]
