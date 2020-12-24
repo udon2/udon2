@@ -3,4 +3,5 @@ python:
   - "3.8"
 before_install:
   - sudo apt-get -y install libboost-python-dev
+  - BOOST_DIR=/usr/lib pip install .
 script: python -m unittest
