@@ -2,5 +2,5 @@ language: python
 python:
   - "3.8"
 install:
-  - apt install libboost-python-dev
+  - sudo apt install libboost-python-dev
 script: python -m unittest
