@@ -18,10 +18,10 @@ from .utils import is_in_jupyter
 _html = {}
 RENDER_WRAPPER = None
 
-def render_dep_tree(node, fname, img_format='svg', page=False, minify=False):
+def render_dep_tree(node, fname, img_format='svg', page=False, options={}, minify=False):
     if (img_format == 'svg'):
         with open(fname, 'w') as f:
-            f.write(render(node, page=page, minify=minify))
+            f.write(render(node, page=page, minify=minify, options=options))
 
 
 def tree2list(node):
@@ -89,8 +89,21 @@ def parse_deps(orig_doc, options={}):
     doc (Doc): Document do parse.
     RETURNS (dict): Generated dependency parse keyed by words and arcs.
     """
+    def get_tag(w):
+        s = ""
+        if options.get('include_upos', True):
+            s += w.upos
+        if options.get('include_xpos', False):
+            s += "/{}".format(w.xpos) if s else w.xpos
+        return s
+
     doc = orig_doc # might reparse it later
-    words = [{"text": w.form, "tag": w.upos, "morph": str(w.feats).split("|")} for w in doc.linear()]
+    words = [{
+        "id": "{}: ".format(int(w.id)) if options.get('include_ids', False) else '',
+        "text": w.form,
+        "tag": get_tag(w),
+        "morph": str(w.feats).split("|") if options.get('include_morph', True) else ''
+    } for w in doc.linear()]
     id2index = {w.id : i for i, w in enumerate(doc.linear())}
     arcs = []
     for word in doc.linear():

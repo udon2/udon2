@@ -82,7 +82,7 @@ class DependencyRenderer(object):
         self.max_morph = max([len(w['morph']) for w in words])
         self.height = self.offset_y + (self.max_morph + 1) * self.word_spacing
         self.id = render_id
-        words = [self.render_word(w["text"], w["tag"], w["morph"], i) for i, w in enumerate(words)]
+        words = [self.render_word(w["text"], w["tag"], w["morph"], w['id'], i) for i, w in enumerate(words)]
         arcs = [
             self.render_arrow(a["label"], a["start"], a["end"], a["dir"], i)
             for i, a in enumerate(arcs)
@@ -99,7 +99,7 @@ class DependencyRenderer(object):
             dir=self.direction,
         )
 
-    def render_word(self, text, tag, morph, i):
+    def render_word(self, text, tag, morph, idx, i):
         """Render individual word.
 
         text (unicode): Word text.
@@ -116,7 +116,7 @@ class DependencyRenderer(object):
             TPL_DEP_MORPH.format(dy="{}em".format(2 + i * 0.1), morph=m, x=x)
             for i, m in enumerate(morph)
         ])
-        return TPL_DEP_WORDS.format(text=html_text, tag=tag, morph=html_morph, x=x, y=y)
+        return TPL_DEP_WORDS.format(text=html_text, id=idx, tag=tag, morph=html_morph, x=x, y=y)
 
     def render_arrow(self, label, start, end, direction, i):
         """Render individual arrow.

@@ -15,7 +15,7 @@ TPL_DEP_SVG = """
 
 TPL_DEP_WORDS = """
 <text class="token" fill="currentColor" text-anchor="middle" y="{y}">
-    <tspan class="word" fill="currentColor" x="{x}" font-size="2em">{text}</tspan>
+    <tspan class="word" fill="currentColor" x="{x}" font-size="2em">{id}{text}</tspan>
     <tspan class="tag" dy="2em" fill="currentColor" x="{x}" font-size="2em">{tag}</tspan>
     {morph}
 </text>

@@ -32,21 +32,6 @@ std::string NodeList::toString() {
  * TreeList methods
  */
 
-// void TreeList::freeMemory() {
-//   for (int i = 0, len = size(); i < len; i++) {
-//     for (Node *snode : at(i)->linear()) {
-//       snode->freeMemory();
-//       delete snode;
-//     }
-//   }
-// }
-// TreeList::~TreeList() {
-//   std::cout << "~TreeList" << std::endl;
-//   for (int i = 0, len = size(); i < len; i++) {
-//     delete at(i);
-//   }
-// }
-
 /*
  * Node methods
  */

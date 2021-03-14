@@ -45,8 +45,6 @@ class TreeList : public std::vector<std::shared_ptr<Node>> {
  public:
   TreeList() : std::vector<std::shared_ptr<Node>>() {}
   TreeList(iterator a, iterator b) : std::vector<std::shared_ptr<Node>>(a, b) {}
-  // ~TreeList();
-  // void freeMemory();
 };
 
 typedef std::map<std::string, NodeList> GroupedNodes;
