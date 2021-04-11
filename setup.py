@@ -63,6 +63,7 @@ core_module = setuptools.Extension(
         os.path.join(C_SRC, 'MultiWordNode.cpp'),
         os.path.join(C_SRC, 'ConllReader.cpp'),
         os.path.join(C_SRC, 'ConllWriter.cpp'),
+        os.path.join(C_SRC, 'Importer.cpp'),
         os.path.join(C_SRC, 'udon2_core.cpp')
     ],
     include_dirs=include_dirs,

@@ -125,8 +125,6 @@ class Node {
   bool hasAll(std::string prop, std::string value);
   bool hasAny(std::string prop, std::string value);
 
-  NodeList getSubtreeNodes();
-
   bool isRoot() {
     /**
      * Check if the Node is a root pseudonode by checking if its parent is NULL.

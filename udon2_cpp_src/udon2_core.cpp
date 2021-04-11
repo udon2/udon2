@@ -20,6 +20,7 @@
 
 #include "ConllReader.h"
 #include "ConllWriter.h"
+#include "Importer.h"
 #include "Util.h"
 #include "map_indexing_suite_v2.hpp"
 
@@ -149,4 +150,12 @@ BOOST_PYTHON_MODULE(core) {
       .def("write_to_file", writeToFile_Node)
       .def("write_to_file", writeToFile_TreeList)
       .staticmethod("write_to_file");
+
+  bp::class_<Importer>("Importer")
+      .def("from_conll_file", &Importer::fromConllFile,
+           bp::return_value_policy<bp::manage_new_object>())
+      .def("from_stanza", &Importer::fromStanza,
+           bp::return_value_policy<bp::manage_new_object>())
+      .staticmethod("from_conll_file")
+      .staticmethod("from_stanza");
 }

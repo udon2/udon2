@@ -68,6 +68,8 @@ float ConvPartialTreeKernel::ptkSumDeltaP(NodeList ch1, NodeList ch2) {
     S += kernel_mat[i];
   }
 
+  delete[] kernel_mat;
+
   return S;
 }
 
@@ -154,6 +156,9 @@ float ConvPartialTreeKernel::eval(Node *root1, Node *root2) {
       }
     }
   }
+
+  delete r1;
+  delete r2;
 
   return value;
 }
