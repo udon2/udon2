@@ -17,6 +17,191 @@ struct UniversalToken {
   bool operator<(const UniversalToken &o) const { return code < o.code; }
 };
 
+const struct UniversalToken ADJ_UPOS = {"ADJ", "adjective"};
+const struct UniversalToken ADP_UPOS = {"ADP", "adposition"};
+const struct UniversalToken ADV_UPOS = {"ADV", "adverb"};
+const struct UniversalToken AUX_UPOS = {"AUX", "auxiliary"};
+const struct UniversalToken CCONJ_UPOS = {"CCONJ", "coordinating conjunction"};
+const struct UniversalToken DET_UPOS = {"DET", "determiner"};
+const struct UniversalToken INTJ_UPOS = {"INTJ", "interjection"};
+const struct UniversalToken NOUN_UPOS = {"NOUN", "noun"};
+const struct UniversalToken NUM_UPOS = {"NUM", "numeral"};
+const struct UniversalToken PART_UPOS = {"PART", "particle"};
+const struct UniversalToken PRON_UPOS = {"PRON", "pronoun"};
+const struct UniversalToken PROPN_UPOS = {"PROPN", "proper noun"};
+const struct UniversalToken PUNCT_UPOS = {"PUNCT", "punctuation"};
+const struct UniversalToken SCONJ_UPOS = {"SCONJ", "subordinating conjunction"};
+const struct UniversalToken SYM_UPOS = {"SYM", "symbol"};
+const struct UniversalToken VERB_UPOS = {"VERB", "verb"};
+const struct UniversalToken X_UPOS = {"X", "other"};
+
+const UniversalToken UPOS_TAGS[] = {
+    ADJ_UPOS,   ADP_UPOS, AUX_UPOS,  CCONJ_UPOS, DET_UPOS,   INTJ_UPOS,
+    NOUN_UPOS,  NUM_UPOS, PART_UPOS, PRON_UPOS,  PROPN_UPOS, PUNCT_UPOS,
+    SCONJ_UPOS, SYM_UPOS, VERB_UPOS, X_UPOS};
+
+const int NUM_UPOS_TAGS = 17;
+
+const struct UniversalToken ACL_DEPREL = {
+    "acl", "clausal modifier of noun (adnominal clause)"};
+const struct UniversalToken ACL__RELCL_DEPREL = {"acl:relcl",
+                                                 "relative clause modifier"};
+const struct UniversalToken ADVCL_DEPREL = {"advcl",
+                                            "adverbial clause modifier"};
+const struct UniversalToken ADVMOD_DEPREL = {"advmod", "adverbial modifier"};
+const struct UniversalToken ADVMOD__EMPH_DEPREL = {
+    "advmod:emph", "emphasizing word, intensifier"};
+const struct UniversalToken ADVMOD__LMOD_DEPREL = {
+    "advmod:lmod", "locative adverbial modifier"};
+const struct UniversalToken AMOD_DEPREL = {"amod", "adjectival modifier"};
+const struct UniversalToken APPOS_DEPREL = {"appos", "appositional modifier"};
+const struct UniversalToken AUX_DEPREL = {"aux", "auxiliary"};
+const struct UniversalToken AUX__PASS_DEPREL = {"aux:pass",
+                                                "passive auxiliary"};
+const struct UniversalToken CASE_DEPREL = {"case", "case marking"};
+const struct UniversalToken CC_DEPREL = {"cc", "coordinating conjunction"};
+const struct UniversalToken CC__PRECONJ_DEPREL = {"cc:preconj", "preconjunct"};
+const struct UniversalToken CCOMP_DEPREL = {"ccomp", "clausal complement"};
+const struct UniversalToken CLF_DEPREL = {"clf", "classifier"};
+const struct UniversalToken COMPOUND_DEPREL = {"compound", "compound"};
+const struct UniversalToken COMPOUND__LVC_DEPREL = {"compound:lvc",
+                                                    "light verb construction"};
+const struct UniversalToken COMPOUND__PRT_DEPREL = {"compound:prt",
+                                                    "phrasal verb particle"};
+const struct UniversalToken COMPOUND__REDUP_DEPREL = {"compound:redup",
+                                                      "reduplicated compounds"};
+const struct UniversalToken COMPOUNT__SVC_DEPREL = {"compound:svc",
+                                                    "serial verb compounds"};
+const struct UniversalToken CONJ_DEPREL = {"conj", "conjunct"};
+const struct UniversalToken COP_DEPREL = {"cop", "copula"};
+const struct UniversalToken CSUBJ_DEPREL = {"csubj", "clausal subject"};
+const struct UniversalToken CSUBJ__PASS_DEPREL = {"csubj:pass",
+                                                  "clausal passive subject"};
+const struct UniversalToken DEP_DEPREL = {"dep", "unspecified dependency"};
+const struct UniversalToken DET_DEPREL = {"det", "determiner"};
+const struct UniversalToken DET__NUMGOV_DEPREL = {
+    "det:numgov", "pronominal quantifier governing the case of the noun"};
+const struct UniversalToken DET__NUMMOD_DEPREL = {
+    "det:nummod", "pronominal quantifier agreeing in case with the noun"};
+const struct UniversalToken DET__POSS_DEPREL = {"det:poss",
+                                                "possessive determiner"};
+const struct UniversalToken DISCOURSE_DEPREL = {"discourse",
+                                                "discourse element"};
+const struct UniversalToken DISLOCATED_DEPREL = {"dislocated",
+                                                 "dislocated elements"};
+const struct UniversalToken EXPL_DEPREL = {"expl", "expletive"};
+const struct UniversalToken EXPL__IMPERS_DEPREL = {"expl:impers",
+                                                   "impersonal expletive"};
+const struct UniversalToken EXPL__PASS_DEPREL = {
+    "expl:pass", "reflexive pronoun used in reflexive passive"};
+const struct UniversalToken EXPL__PV_DEPREL = {
+    "expl:pv", "reflexive clitic with an inherently reflexive verb"};
+const struct UniversalToken FIXED_DEPREL = {"fixed",
+                                            "fixed multiword expression"};
+const struct UniversalToken FLAT_DEPREL = {"flat", "flat multiword expression"};
+const struct UniversalToken FLAT__FOREIGN_DEPREL = {"flat:foreign",
+                                                    "foreign words"};
+const struct UniversalToken FLAT__NAME_DEPREL = {"flat:name", "names"};
+const struct UniversalToken GOESWITH_DEPREL = {"goeswith", "goes with"};
+const struct UniversalToken IOBJ_DEPREL = {"iobj", "indirect object"};
+const struct UniversalToken LIST_DEPREL = {"list", "list"};
+const struct UniversalToken MARK_DEPREL = {"mark", "marker"};
+const struct UniversalToken NMOD_DEPREL = {"nmod", "nominal modifier"};
+const struct UniversalToken NMOD__POSS_DEPREL = {"nmod:poss",
+                                                 "possessive nominal modifier"};
+const struct UniversalToken NMOD__TMOD_DEPREL = {"nmod:tmod",
+                                                 "temporal modifier"};
+const struct UniversalToken NSUBJ_DEPREL = {"nsubj", "nominal subject"};
+const struct UniversalToken NSUBJ__PASS_DEPREL = {"nsubj:pass",
+                                                  "passive nominal subject"};
+const struct UniversalToken NUMMOD_DEPREL = {"nummod", "numeric modifier"};
+const struct UniversalToken NUMMOD__GOV_DEPREL = {
+    "nummod:gov", "numeric modifier governing the case of the noun"};
+const struct UniversalToken OBJ_DEPREL = {"obj", "object"};
+const struct UniversalToken OBL_DEPREL = {"obl", "oblique nominal"};
+const struct UniversalToken OBL__AGENT_DEPREL = {"obl:agent", "agent modifier"};
+const struct UniversalToken OBL__ARG_DEPREL = {"obl:arg", "oblique argument"};
+const struct UniversalToken OBL__LMOD_DEPREL = {"obl:lmod",
+                                                "locative modifier"};
+const struct UniversalToken OBL__TMOD_DEPREL = {"obl:tmod",
+                                                "temporal modifier"};
+const struct UniversalToken ORPHAN_DEPREL = {"orphan", "orphan"};
+const struct UniversalToken PARATAXIS_DEPREL = {"parataxis", "parataxis"};
+const struct UniversalToken PUNCT_DEPREL = {"punct", "punctuation"};
+const struct UniversalToken REPARANDUM_DEPREL = {"reparandum",
+                                                 "overridden disfluency"};
+const struct UniversalToken ROOT_DEPREL = {"root", "root"};
+const struct UniversalToken VOCATIVE_DEPREL = {"vocative", "vocative"};
+const struct UniversalToken XCOMP_DEPREL = {"xcomp", "open clausal complement"};
+
+const UniversalToken DEPRELS[] = {
+    ACL_DEPREL,
+    ACL__RELCL_DEPREL,
+    ADVCL_DEPREL,
+    ADVMOD_DEPREL,
+    ADVMOD__EMPH_DEPREL,
+    ADVMOD__LMOD_DEPREL,
+    AMOD_DEPREL,
+    APPOS_DEPREL,
+    AUX_DEPREL,
+    AUX__PASS_DEPREL,
+    CASE_DEPREL,
+    CC_DEPREL,
+    CC__PRECONJ_DEPREL,
+    CCOMP_DEPREL,
+    CLF_DEPREL,
+    COMPOUND_DEPREL,
+    COMPOUND__LVC_DEPREL,
+    COMPOUND__PRT_DEPREL,
+    COMPOUND__REDUP_DEPREL,
+    COMPOUNT__SVC_DEPREL,
+    CONJ_DEPREL,
+    COP_DEPREL,
+    CSUBJ_DEPREL,
+    CSUBJ__PASS_DEPREL,
+    DEP_DEPREL,
+    DET_DEPREL,
+    DET__NUMGOV_DEPREL,
+    DET__NUMMOD_DEPREL,
+    DET__POSS_DEPREL,
+    DISCOURSE_DEPREL,
+    DISLOCATED_DEPREL,
+    EXPL_DEPREL,
+    EXPL__IMPERS_DEPREL,
+    EXPL__PASS_DEPREL,
+    EXPL__PV_DEPREL,
+    FIXED_DEPREL,
+    FLAT_DEPREL,
+    FLAT__FOREIGN_DEPREL,
+    FLAT__NAME_DEPREL,
+    GOESWITH_DEPREL,
+    IOBJ_DEPREL,
+    LIST_DEPREL,
+    MARK_DEPREL,
+    NMOD_DEPREL,
+    NMOD__POSS_DEPREL,
+    NMOD__TMOD_DEPREL,
+    NSUBJ_DEPREL,
+    NSUBJ__PASS_DEPREL,
+    NUMMOD_DEPREL,
+    NUMMOD__GOV_DEPREL,
+    OBJ_DEPREL,
+    OBL_DEPREL,
+    OBL__AGENT_DEPREL,
+    OBL__ARG_DEPREL,
+    OBL__LMOD_DEPREL,
+    OBL__TMOD_DEPREL,
+    ORPHAN_DEPREL,
+    PARATAXIS_DEPREL,
+    PUNCT_DEPREL,
+    REPARANDUM_DEPREL,
+    ROOT_DEPREL,
+    VOCATIVE_DEPREL,
+    XCOMP_DEPREL,
+};
+
+const int NUM_DEPRELS = 63;
+
 typedef std::map<UniversalToken, std::vector<UniversalToken>> UniversalMap;
 
 /**
@@ -126,7 +311,7 @@ const struct UniversalToken VOICE_UFEAT = {"Voice", "voice"};
  */
 const struct UniversalToken ABBR__YES_UVAL = {"Yes", "it is abbreviation"};
 const struct UniversalToken ADPTYPE__PREP_UVAL = {"Prep", "preposition"};
-const struct UniversalToken ADPTYPE__POST_UVAL = {"Post", "postposition"};
+const struct UniversalToken ADPTYPE__UPOST_UVAL = {"Post", "postposition"};
 const struct UniversalToken ADPTYPE__CIRC_UVAL = {"Circ", "circumposition"};
 const struct UniversalToken ADPTYPE__VOC_UVAL = {"Voc",
                                                  "vocalized preposition"};
@@ -203,8 +388,8 @@ const struct UniversalToken DEFINITE__DEF_UVAL = {"Def", "definite"};
 const struct UniversalToken DEFINITE__CONS_UVAL = {
     "Cons", "construct state / reduced definiteness"};
 const struct UniversalToken DEFINITE__COM_UVAL = {"Com", "complex"};
-const struct UniversalToken DEGREE__POS_UVAL = {"Pos",
-                                                "positive, first degree"};
+const struct UniversalToken DEGREE__UPOS_UVAL = {"Pos",
+                                                 "positive, first degree"};
 const struct UniversalToken DEGREE__EQU_UVAL = {"Equ", "equative"};
 const struct UniversalToken DEGREE__CMP_UVAL = {"Cmp",
                                                 "comparative, second degree"};
@@ -468,8 +653,8 @@ const struct UniversalToken PERSON__SUBJ__2_UVAL = {"2",
                                                     "second person subject"};
 const struct UniversalToken PERSON__SUBJ__3_UVAL = {"3",
                                                     "third person subject"};
-const struct UniversalToken POLARITY__POS_UVAL = {"Pos",
-                                                  "positive, affirmative"};
+const struct UniversalToken POLARITY__UPOS_UVAL = {"Pos",
+                                                   "positive, affirmative"};
 const struct UniversalToken POLARITY__NEG_UVAL = {"Neg", "negative"};
 const struct UniversalToken POLITE__INFM_UVAL = {"Infm", "informal register"};
 const struct UniversalToken POLITE__FORM_UVAL = {"Form", "formal register"};
@@ -582,7 +767,7 @@ const struct UniversalToken VOICE__CAU_UVAL = {"Cau", "causative voice"};
 const UniversalMap UNIVERSAL_FEATURES = {
     {ABBR_UFEAT, {ABBR__YES_UVAL}},
     {ADPTYPE_UFEAT,
-     {ADPTYPE__PREP_UVAL, ADPTYPE__POST_UVAL, ADPTYPE__CIRC_UVAL,
+     {ADPTYPE__PREP_UVAL, ADPTYPE__UPOST_UVAL, ADPTYPE__CIRC_UVAL,
       ADPTYPE__VOC_UVAL}},
     {ADVTYPE_UFEAT,
      {ADVTYPE__MAN_UVAL, ADVTYPE__LOC_UVAL, ADVTYPE__TIM_UVAL,
@@ -609,7 +794,7 @@ const UniversalMap UNIVERSAL_FEATURES = {
      {DEFINITE__IND_UVAL, DEFINITE__SPEC_UVAL, DEFINITE__DEF_UVAL,
       DEFINITE__CONS_UVAL, DEFINITE__COM_UVAL}},
     {DEGREE_UFEAT,
-     {DEGREE__POS_UVAL, DEGREE__EQU_UVAL, DEGREE__CMP_UVAL, DEGREE__SUP_UVAL,
+     {DEGREE__UPOS_UVAL, DEGREE__EQU_UVAL, DEGREE__CMP_UVAL, DEGREE__SUP_UVAL,
       DEGREE__ABS_UVAL}},
     {DEIXIS_UFEAT,
      {DEIXIS__PROX_UVAL, DEIXIS__MED_UVAL, DEIXIS__REMT_UVAL, DEIXIS__NVIS_UVAL,
@@ -854,7 +1039,7 @@ const UniversalMap UNIVERSAL_FEATURES = {
       PERSON__OBJ__2_UVAL,  PERSON__OBJ__3_UVAL,  PERSON__PSOR__1_UVAL,
       PERSON__PSOR__2_UVAL, PERSON__PSOR__3_UVAL, PERSON__SUBJ__1_UVAL,
       PERSON__SUBJ__2_UVAL, PERSON__SUBJ__3_UVAL}},
-    {POLARITY_UFEAT, {POLARITY__POS_UVAL, POLARITY__NEG_UVAL}},
+    {POLARITY_UFEAT, {POLARITY__UPOS_UVAL, POLARITY__NEG_UVAL}},
     {POLITE_UFEAT,
      {POLITE__INFM_UVAL, POLITE__FORM_UVAL, POLITE__ELEV_UVAL,
       POLITE__HUMB_UVAL, POLITE__ABS__INFM_UVAL, POLITE__ABS__FORM_UVAL,

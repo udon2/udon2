@@ -20,6 +20,9 @@ std::string stringJoin(std::string v[], size_t size, char joinStr);
 FeatMap parseUniversalFormat(std::string feats);
 std::string stringifyFeatMap(FeatMap feats);
 
+std::string getRandomProp(std::string prop);
+std::string getRandomString();
+
 };  // namespace Util
 
 #endif  // UDON2_CPP_SRC_UTIL_H_

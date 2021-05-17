@@ -22,6 +22,7 @@ class Node;
 struct NodeComparator;
 
 typedef std::string (Node::*getterptr)();
+typedef void (Node::*setterptr)(std::string);
 
 // if linting is enabled, cpplint thinks we try to take the address
 typedef Util::FeatMap &(Node::*kvgetterptr)();  // NOLINT
@@ -67,6 +68,8 @@ class Node {
 
   getterptr getterByProp(std::string prop);
   kvgetterptr kvgetterByProp(std::string prop);
+  setterptr setterByProp(std::string prop);
+  std::string getRandomProp(std::string prop);
   void accumulateByDeprelChain(std::string value, NodeList *res, int depth);
 
   std::string _subtreeToString(int);
@@ -144,6 +147,7 @@ class Node {
 
   Node *copy();
   Node *makeRoot();
+  Node *distort(float prob, std::string csvProps);
 
   int subtreeSize();
 

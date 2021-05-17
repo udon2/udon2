@@ -4,12 +4,17 @@
 
 #include "Util.h"
 
+#include <stdlib.h>
+
 #include <sstream>
 #include <iostream>
 #include <functional>
+#include <random>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/join.hpp>
+
+#include "constants.h"
 
 namespace Util {
 std::vector<std::string> stringSplit(std::string strToSplit) {
@@ -66,5 +71,30 @@ std::string stringifyFeatMap(FeatMap feats) {
     it++;
   }
   return stringJoin(vec, "|");
+}
+
+std::string getRandomString() {
+  std::string str("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+
+  std::random_device rd;
+  std::mt19937 generator(rd());
+
+  std::shuffle(str.begin(), str.end(), generator);
+
+  return str.substr(0, std::rand() % 20 + 3);
+}
+
+std::string getRandomProp(std::string prop) {
+  std::string value = "";
+  if (prop == "upos") {
+    int rnd = std::rand() % constants::NUM_UPOS_TAGS;
+    value = constants::UPOS_TAGS[rnd].code;
+  } else if (prop == "deprel") {
+    int rnd = std::rand() % constants::NUM_DEPRELS;
+    value = constants::DEPRELS[rnd].code;
+  } else if (prop == "form" || prop == "lemma") {
+    value = getRandomString();
+  }
+  return value;
 }
 }  // namespace Util

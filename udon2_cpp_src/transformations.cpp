@@ -8,7 +8,7 @@
 #include <map>
 
 namespace transformations {
-Node *toPCT(Node *n) {
+Node *toPCT(Node *n, bool includeForm) {
   std::queue<Node *> nodes;
   NodeList &children = n->getChildren();
   for (int i = 0, len = children.size(); i < len; i++) {
@@ -19,7 +19,9 @@ Node *toPCT(Node *n) {
       new Node(n->getId(), n->getDeprel(), "", "", "", "", "", "", NULL);
   Node *posNode = new Node(n->getId() + 0.1f, n->getUpos(), "", "", "", "", "",
                            "", rootRelNode);
-  new Node(n->getId() + 0.2f, n->getForm(), "", "", "", "", "", "", posNode);
+  if (includeForm) {
+    new Node(n->getId() + 0.2f, n->getForm(), "", "", "", "", "", "", posNode);
+  }
 
   std::map<float, Node *> nodesMap;
   nodesMap[n->getId()] = posNode;
@@ -32,8 +34,10 @@ Node *toPCT(Node *n) {
                  nodesMap[nodes.front()->getParent()->getId()]);
     Node *posNode = new Node(frontId + 0.1f, nodes.front()->getUpos(), "", "",
                              "", "", "", "", relNode);
-    new Node(frontId + 0.2f, nodes.front()->getForm(), "", "", "", "", "", "",
-             posNode);
+    if (includeForm) {
+      new Node(frontId + 0.2f, nodes.front()->getForm(), "", "", "", "", "", "",
+               posNode);
+    }
 
     nodesMap[frontId] = posNode;
 
@@ -47,7 +51,7 @@ Node *toPCT(Node *n) {
   return rootRelNode;
 }
 
-Node *toGRCT(Node *n) {
+Node *toGRCT(Node *n, bool includeForm) {
   std::queue<Node *> nodes;
   NodeList &children = n->getChildren();
   for (int i = 0, len = children.size(); i < len; i++) {
@@ -58,7 +62,10 @@ Node *toGRCT(Node *n) {
       new Node(n->getId(), n->getDeprel(), "", "", "", "", "", "", NULL);
   Node *posNode = new Node(n->getId() + 0.1f, n->getUpos(), "", "", "", "", "",
                            "", relNode);
-  new Node(n->getId() + 0.2f, n->getForm(), "", "", "", "", "", "", posNode);
+
+  if (includeForm) {
+    new Node(n->getId() + 0.2f, n->getForm(), "", "", "", "", "", "", posNode);
+  }
 
   std::map<float, Node *> nodesMap;
   nodesMap[n->getId()] = relNode;
@@ -71,8 +78,10 @@ Node *toGRCT(Node *n) {
                  nodesMap[nodes.front()->getParent()->getId()]);
     Node *posNode = new Node(frontId + 0.1f, nodes.front()->getUpos(), "", "",
                              "", "", "", "", relNode);
-    new Node(frontId + 0.2f, nodes.front()->getForm(), "", "", "", "", "", "",
-             posNode);
+    if (includeForm) {
+      new Node(frontId + 0.2f, nodes.front()->getForm(), "", "", "", "", "", "",
+               posNode);
+    }
 
     nodesMap[frontId] = relNode;
 

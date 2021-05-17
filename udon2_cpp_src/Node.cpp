@@ -4,6 +4,8 @@
 
 #include "Node.h"
 
+#include <stdlib.h> /* srand, rand */
+
 #include <algorithm>
 #include <iostream>
 #include <map>
@@ -438,6 +440,21 @@ getterptr Node::getterByProp(std::string prop) {
   return getterFn;
 }
 
+setterptr Node::setterByProp(std::string prop) {
+  setterptr setterFn = NULL;
+  if (prop == "upos")
+    setterFn = &Node::setUpos;
+  else if (prop == "xpos")
+    setterFn = &Node::setXpos;
+  else if (prop == "lemma")
+    setterFn = &Node::setLemma;
+  else if (prop == "deprel")
+    setterFn = &Node::setDeprel;
+  else if (prop == "form")
+    setterFn = &Node::setForm;
+  return setterFn;
+}
+
 kvgetterptr Node::kvgetterByProp(std::string prop) {
   kvgetterptr getterFn = NULL;
   if (prop == "feats")
@@ -777,6 +794,47 @@ Node *Node::makeRoot() {
   this->deprel = "root";
   this->parent = newRoot;
   return newRoot;
+}
+
+Node *Node::distort(float prob, std::string csvProps) {
+  Node *clone = this->copy();
+  float rnd;
+  std::vector<std::string> props = Util::stringSplit(csvProps, ',');
+
+  std::queue<Node *> nodes;
+  for (int i = 0, len = clone->children.size(); i < len; i++) {
+    nodes.push(clone->children[i]);
+  }
+
+  while (!nodes.empty()) {
+    if (!nodes.front()->isIgnored()) {
+      rnd = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
+      if (rnd <= prob) {
+        // distort
+        for (std::string p : props) {
+          rnd = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
+          if (rnd <= prob) {
+            getterptr getterFn = getterByProp(p);
+            setterptr setterFn = setterByProp(p);
+            std::string taboo = (nodes.front()->*getterFn)();
+            std::string value = Util::getRandomProp(p);
+            while (value == taboo) {
+              value = Util::getRandomProp(p);
+            }
+            (nodes.front()->*setterFn)(value);
+          }
+        }
+      }
+
+      // add children of the head node to the stack
+      NodeList &ch = nodes.front()->getChildren();
+      for (int i = 0, len = ch.size(); i < len; i++) {
+        nodes.push(ch[i]);
+      }
+    }
+    nodes.pop();
+  }
+  return clone;
 }
 
 std::string Node::toString() {

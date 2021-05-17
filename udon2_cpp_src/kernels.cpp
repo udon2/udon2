@@ -101,6 +101,8 @@ float ConvPartialTreeKernel::eval(Node *root1, Node *root2) {
    * - POS-tag centered tree (PCT)
    * - Grammatical relation centered tree (GRCT)
    * - Lexical centered tree (LCT)
+   * - Syntax-only GRCT or PCT, i.e., excluding forms (soGRCT and soPCT
+   * respectively)
    *
    * For now we set \mu and \lambda to 1
    */
@@ -125,6 +127,22 @@ float ConvPartialTreeKernel::eval(Node *root1, Node *root2) {
                          : transformations::toLCT(root1);
     r2 = root2->isRoot() ? transformations::toLCT(root2->getChildren()[0])
                          : transformations::toLCT(root2);
+  } else if (treeRepresentation == "soPCT") {
+    // syntax only PCT
+    r1 = root1->isRoot()
+             ? transformations::toPCT(root1->getChildren()[0], false)
+             : transformations::toPCT(root1, false);
+    r2 = root2->isRoot()
+             ? transformations::toPCT(root2->getChildren()[0], false)
+             : transformations::toPCT(root2, false);
+  } else if (treeRepresentation == "soGRCT") {
+    // syntax only GRCT
+    r1 = root1->isRoot()
+             ? transformations::toGRCT(root1->getChildren()[0], false)
+             : transformations::toGRCT(root1, false);
+    r2 = root2->isRoot()
+             ? transformations::toGRCT(root2->getChildren()[0], false)
+             : transformations::toGRCT(root2, false);
   } else {
     return -1;
   }
