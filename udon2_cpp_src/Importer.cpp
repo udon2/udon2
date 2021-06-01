@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmytro Kalpakchi
+ * Copyright 2021 Dmytro Kalpakchi
  */
 
 #include "Importer.h"  // <string> is included via this header
@@ -28,13 +28,13 @@ TreeList* Importer::fromStanza(boost::python::list lst) {
     for (boost::python::ssize_t j = 0; j < nwords; j++) {
       boost::python::dict word = (boost::python::dict)words[j];
 
-      boost::python::extract<std::string> text(word.get("text"));
-      boost::python::extract<std::string> lemma(word.get("lemma"));
-      boost::python::extract<std::string> upos(word.get("upos"));
-      boost::python::extract<std::string> xpos(word.get("upos"));
-      boost::python::extract<std::string> feats(word.get("feats"));
-      boost::python::extract<std::string> deprel(word.get("deprel"));
-      boost::python::extract<std::string> misc(word.get("misc"));
+      boost::python::extract<std::string> text(word.get("text", ""));
+      boost::python::extract<std::string> lemma(word.get("lemma", ""));
+      boost::python::extract<std::string> upos(word.get("upos", ""));
+      boost::python::extract<std::string> xpos(word.get("xpos", ""));
+      boost::python::extract<std::string> feats(word.get("feats", ""));
+      boost::python::extract<std::string> deprel(word.get("deprel", ""));
+      boost::python::extract<std::string> misc(word.get("misc", ""));
       boost::python::extract<int> id(word.get("id"));
       boost::python::extract<int> dephead(word.get("head"));
 

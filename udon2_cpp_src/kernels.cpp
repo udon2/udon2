@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmytro Kalpakchi
+ * Copyright 2021 Dmytro Kalpakchi
  */
 
 #include "kernels.h"
@@ -12,8 +12,13 @@
 
 namespace kernels {
 ConvPartialTreeKernel::ConvPartialTreeKernel(std::string repr, float mu,
-                                             float lambda)
-    : treeRepresentation(repr), mu(mu), lambda(lambda) {
+                                             float lambda, bool includeForm,
+                                             bool includeFeats)
+    : treeRepresentation(repr),
+      mu(mu),
+      lambda(lambda),
+      includeForm(includeForm),
+      includeFeats(includeFeats) {
   lambda2 = lambda * lambda;
 }
 
@@ -113,36 +118,30 @@ float ConvPartialTreeKernel::eval(Node *root1, Node *root2) {
   Node *r1;
   Node *r2;
   if (treeRepresentation == "PCT") {
-    r1 = root1->isRoot() ? transformations::toPCT(root1->getChildren()[0])
-                         : transformations::toPCT(root1);
-    r2 = root2->isRoot() ? transformations::toPCT(root2->getChildren()[0])
-                         : transformations::toPCT(root2);
+    r1 = root1->isRoot()
+             ? transformations::toPCT(root1->getChildren()[0], includeForm,
+                                      includeFeats)
+             : transformations::toPCT(root1, includeForm, includeFeats);
+    r2 = root2->isRoot()
+             ? transformations::toPCT(root2->getChildren()[0], includeForm,
+                                      includeFeats)
+             : transformations::toPCT(root2, includeForm, includeFeats);
   } else if (treeRepresentation == "GRCT") {
-    r1 = root1->isRoot() ? transformations::toGRCT(root1->getChildren()[0])
-                         : transformations::toGRCT(root1);
-    r2 = root2->isRoot() ? transformations::toGRCT(root2->getChildren()[0])
-                         : transformations::toGRCT(root2);
+    r1 = root1->isRoot()
+             ? transformations::toGRCT(root1->getChildren()[0], includeForm,
+                                       includeFeats)
+             : transformations::toGRCT(root1, includeForm, includeFeats);
+    r2 = root2->isRoot()
+             ? transformations::toGRCT(root2->getChildren()[0], includeForm,
+                                       includeFeats)
+             : transformations::toGRCT(root2, includeForm, includeFeats);
   } else if (treeRepresentation == "LCT") {
-    r1 = root1->isRoot() ? transformations::toLCT(root1->getChildren()[0])
-                         : transformations::toLCT(root1);
-    r2 = root2->isRoot() ? transformations::toLCT(root2->getChildren()[0])
-                         : transformations::toLCT(root2);
-  } else if (treeRepresentation == "soPCT") {
-    // syntax only PCT
     r1 = root1->isRoot()
-             ? transformations::toPCT(root1->getChildren()[0], false)
-             : transformations::toPCT(root1, false);
+             ? transformations::toLCT(root1->getChildren()[0], includeFeats)
+             : transformations::toLCT(root1, includeFeats);
     r2 = root2->isRoot()
-             ? transformations::toPCT(root2->getChildren()[0], false)
-             : transformations::toPCT(root2, false);
-  } else if (treeRepresentation == "soGRCT") {
-    // syntax only GRCT
-    r1 = root1->isRoot()
-             ? transformations::toGRCT(root1->getChildren()[0], false)
-             : transformations::toGRCT(root1, false);
-    r2 = root2->isRoot()
-             ? transformations::toGRCT(root2->getChildren()[0], false)
-             : transformations::toGRCT(root2, false);
+             ? transformations::toLCT(root2->getChildren()[0], includeFeats)
+             : transformations::toLCT(root2, includeFeats);
   } else {
     return -1;
   }

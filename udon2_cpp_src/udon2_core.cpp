@@ -1,20 +1,7 @@
 /*
- * Copyright 2020 Dmytro Kalpakchi
+ * Copyright 2021 Dmytro Kalpakchi
  */
 
-/**
- * \mainpage My Personal Index Page
- *
- * \section intro_sec Introduction
- *
- * This is the introduction.
- *
- * \section install_sec Installation
- *
- * \subsection step1 Step 1: Opening the box
- *
- * etc...
- */
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 

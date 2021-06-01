@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmytro Kalpakchi
+ * Copyright 2021 Dmytro Kalpakchi
  */
 
 #include <boost/python.hpp>
@@ -7,9 +7,11 @@
 #include "transformations.h"
 
 BOOST_PYTHON_FUNCTION_OVERLOADS(transform_to_pct_overloads,
-                                transformations::toPCT, 1, 2);
+                                transformations::toPCT, 1, 3);
 BOOST_PYTHON_FUNCTION_OVERLOADS(transform_to_grct_overloads,
-                                transformations::toGRCT, 1, 2);
+                                transformations::toGRCT, 1, 3);
+BOOST_PYTHON_FUNCTION_OVERLOADS(transform_to_lct_overloads,
+                                transformations::toLCT, 1, 2);
 
 BOOST_PYTHON_MODULE(transform) {
   namespace bp = boost::python;
@@ -21,5 +23,5 @@ BOOST_PYTHON_MODULE(transform) {
   bp::def("to_grct", &transformations::toGRCT,
           transform_to_grct_overloads()[bp::return_internal_reference<1>()]);
   bp::def("to_lct", &transformations::toLCT,
-          bp::return_internal_reference<1>());
+          transform_to_lct_overloads()[bp::return_internal_reference<1>()]);
 }

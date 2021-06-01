@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmytro Kalpakchi
+ * Copyright 2021 Dmytro Kalpakchi
  */
 
 #ifndef UDON2_CPP_SRC_UTIL_H_

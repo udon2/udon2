@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmytro Kalpakchi
+ * Copyright 2021 Dmytro Kalpakchi
  */
 
 #ifndef UDON2_CPP_SRC_NODE_H_
@@ -107,7 +107,6 @@ class Node {
     return children;
   }  // children are sorted by means of NodeComparator
   MultiWordNode *getMultiWord() { return mwNode; }
-  std::string getFeatsAsString();
   std::string getSubtreeText();
 
   void setId(float idx) { id = idx; }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmytro Kalpakchi
+ * Copyright 2021 Dmytro Kalpakchi
  */
 
 #ifndef UDON2_CPP_SRC_KERNELS_H_
@@ -23,6 +23,12 @@ class ConvPartialTreeKernel {
   // lambda ^ 2
   float lambda2;
 
+  // whether to include lexicals in the transformation
+  bool includeForm;
+
+  // whether to include universal features in the transformation
+  bool includeFeats;
+
   // cache for calculated delta values
   // id1 -> id2 -> delta
   // NOTE: each ID is float to accommodate GRCT, PCT and LCT,
@@ -35,7 +41,8 @@ class ConvPartialTreeKernel {
   float ptkSumDeltaP(NodeList ch1, NodeList ch2);
 
  public:
-  ConvPartialTreeKernel(std::string, float, float);
+  ConvPartialTreeKernel(std::string, float mu = 1.0f, float lambda = 1.0f,
+                        bool includeForm = true, bool includeFeats = false);
 
   float eval(Node *root1, Node *root2);
 };

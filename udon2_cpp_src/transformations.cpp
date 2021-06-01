@@ -1,14 +1,15 @@
 /*
- * Copyright 2020 Dmytro Kalpakchi
+ * Copyright 2021 Dmytro Kalpakchi
  */
 
 #include "transformations.h"
+#include "Util.h"
 
 #include <queue>
 #include <map>
 
 namespace transformations {
-Node *toPCT(Node *n, bool includeForm) {
+Node *toPCT(Node *n, bool includeForm, bool includeFeats) {
   std::queue<Node *> nodes;
   NodeList &children = n->getChildren();
   for (int i = 0, len = children.size(); i < len; i++) {
@@ -21,6 +22,11 @@ Node *toPCT(Node *n, bool includeForm) {
                            "", rootRelNode);
   if (includeForm) {
     new Node(n->getId() + 0.2f, n->getForm(), "", "", "", "", "", "", posNode);
+  }
+
+  if (includeFeats) {
+    new Node(n->getId() + 0.3f, Util::stringifyFeatMap(n->getFeats()), "", "",
+             "", "", "", "", posNode);
   }
 
   std::map<float, Node *> nodesMap;
@@ -39,6 +45,12 @@ Node *toPCT(Node *n, bool includeForm) {
                posNode);
     }
 
+    if (includeFeats) {
+      new Node(frontId + 0.3f,
+               Util::stringifyFeatMap(nodes.front()->getFeats()), "", "", "",
+               "", "", "", posNode);
+    }
+
     nodesMap[frontId] = posNode;
 
     // add children of the head node to the stack
@@ -51,7 +63,7 @@ Node *toPCT(Node *n, bool includeForm) {
   return rootRelNode;
 }
 
-Node *toGRCT(Node *n, bool includeForm) {
+Node *toGRCT(Node *n, bool includeForm, bool includeFeats) {
   std::queue<Node *> nodes;
   NodeList &children = n->getChildren();
   for (int i = 0, len = children.size(); i < len; i++) {
@@ -65,6 +77,11 @@ Node *toGRCT(Node *n, bool includeForm) {
 
   if (includeForm) {
     new Node(n->getId() + 0.2f, n->getForm(), "", "", "", "", "", "", posNode);
+  }
+
+  if (includeFeats) {
+    new Node(n->getId() + 0.3f, Util::stringifyFeatMap(n->getFeats()), "", "",
+             "", "", "", "", posNode);
   }
 
   std::map<float, Node *> nodesMap;
@@ -83,6 +100,12 @@ Node *toGRCT(Node *n, bool includeForm) {
                posNode);
     }
 
+    if (includeFeats) {
+      new Node(frontId + 0.3f,
+               Util::stringifyFeatMap(nodes.front()->getFeats()), "", "", "",
+               "", "", "", posNode);
+    }
+
     nodesMap[frontId] = relNode;
 
     // add children of the head node to the stack
@@ -95,7 +118,7 @@ Node *toGRCT(Node *n, bool includeForm) {
   return nodesMap[n->getId()];
 }
 
-Node *toLCT(Node *n) {
+Node *toLCT(Node *n, bool includeFeats) {
   std::queue<Node *> nodes;
   NodeList &children = n->getChildren();
   for (int i = 0, len = children.size(); i < len; i++) {
@@ -106,6 +129,11 @@ Node *toLCT(Node *n) {
       new Node(n->getId() + 0.2f, n->getForm(), "", "", "", "", "", "", NULL);
   new Node(n->getId(), n->getDeprel(), "", "", "", "", "", "", formNode);
   new Node(n->getId() + 0.1f, n->getUpos(), "", "", "", "", "", "", formNode);
+
+  if (includeFeats) {
+    new Node(n->getId() + 0.3f, Util::stringifyFeatMap(n->getFeats()), "", "",
+             "", "", "", "", formNode);
+  }
 
   std::map<float, Node *> nodesMap;
   nodesMap[n->getId()] = formNode;
@@ -120,6 +148,12 @@ Node *toLCT(Node *n) {
              formNode);
     new Node(frontId, nodes.front()->getDeprel(), "", "", "", "", "", "",
              formNode);
+
+    if (includeFeats) {
+      new Node(frontId + 0.3f,
+               Util::stringifyFeatMap(nodes.front()->getFeats()), "", "", "",
+               "", "", "", formNode);
+    }
 
     nodesMap[frontId] = formNode;
 
