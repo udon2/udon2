@@ -122,7 +122,8 @@ BOOST_PYTHON_MODULE(core) {
       .def("hard_reset_subtree", &Node::hardResetSubtree)  // no
       .def("is_ignored", &Node::isIgnored)                 // no
       .def("get_ignore_label", &Node::getIgnoreLabel)      // no
-      .def("group_by", &Node::groupBy);                    // no
+      .def("group_by", &Node::groupBy)                     // no
+      .def("is_projective", &Node::isProjective);
 
   bp::register_ptr_to_python<std::shared_ptr<Node>>();
 

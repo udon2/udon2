@@ -279,5 +279,17 @@ class TestNode(unittest.TestCase):
     def test_textual_intersect(self, trees):
         pass
 
+    @data_from_file('non-proj.conllu', udon2.ConllReader.read_file)
+    def test_projectivity_all_non_proj(self, trees):
+        for i, n in enumerate(trees):
+            self.assertEqual(n.is_projective(), False, "Failed to identify projectivity in 'non-proj.conllu': expected {}, got {} for tree {}".format(False, True, i))
+
+    @data_from_file('projectivities.conll', udon2.ConllReader.read_file)
+    def test_projectivity_all_non_proj(self, trees):
+        correct = [True, False, False, False, False, False]
+        for i, n in enumerate(trees):
+            is_proj = n.is_projective()
+            self.assertEqual(is_proj, correct[i], "Failed to identify projectivity in 'projectivities.conll': expected {}, got {} for tree {}".format(correct[i], is_proj, i))
+
 if __name__ == '__main__':
     unittest.main()

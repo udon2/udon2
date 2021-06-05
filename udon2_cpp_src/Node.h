@@ -80,6 +80,8 @@ class Node {
   template <class Compare>
   void _linear(Node *node, NodeList *nodes, Compare cmp);
 
+  void accumulateHeads(Node *node, std::map<int, int> *heads);
+
  public:
   Node();
   Node(float id, std::string form, std::string lemma, std::string upos,
@@ -187,6 +189,8 @@ class Node {
   std::string toString();
   std::string subtreeToString();
   std::string toCharniakString(std::string prop);
+
+  bool isProjective();
 };
 
 struct compare_to_node_by_id : public std::unary_function<Node *, bool> {

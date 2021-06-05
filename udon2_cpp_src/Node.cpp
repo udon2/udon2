@@ -917,3 +917,39 @@ Node *Node::textualIntersect(std::string text) {
     return NULL;
   }
 }
+
+void Node::accumulateHeads(Node *node, std::map<int, int> *heads) {
+  NodeList &ch = node->getChildren();
+  int len = ch.size();
+  // std::cout << "S " << sz << " " << n->getForm() << std::endl;
+  for (int i = 0; i < len; i++) {
+    (*heads)[ch[i]->getId()] = node->getId();
+    accumulateHeads(ch[i], heads);
+  }
+}
+
+bool Node::isProjective() {
+  std::map<int, int> heads;
+
+  accumulateHeads(this, &heads);
+
+  // for(auto it = heads.cbegin(); it != heads.cend(); ++it) {
+  //   std::cout << it->first << " " << it->second << "\n";
+  // }
+
+  for (auto it = heads.cbegin(); it != heads.cend(); ++it) {
+    bool startFirst = it->first < it->second;
+    int i = startFirst ? it->first : it->second;
+    int j = startFirst ? it->second : it->first;
+
+    for (int k = i + 1; k < j; k++) {
+      if (heads.find(k) != heads.end()) {
+        if (heads[k] < i || heads[k] > j) {
+          return false;
+        }
+      }
+    }
+  }
+
+  return true;
+}

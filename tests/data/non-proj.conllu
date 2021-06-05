@@ -1,0 +1,39 @@
+# sent_id = 1
+# text = a b c d
+1	a	_	_	_	_	0	w	_	_
+2	b	_	_	_	_	1	x	_	_
+3	c	_	_	_	_	1	y	_	_
+4	d	_	_	_	_	2	z	_	_
+
+# sent_id = 2
+# text = a b c d
+1	a	_	_	_	_	3	w	_	_
+2	b	_	_	_	_	4	x	_	_
+3	c	_	_	_	_	4	y	_	_
+4	d	_	_	_	_	0	z	_	_
+
+# sent_id = 3
+# text = a b c d e
+1	a	_	_	_	_	4	v	_	_
+2	b	_	_	_	_	4	w	_	_
+3	c	_	_	_	_	1	x	_	_
+4	d	_	_	_	_	0	y	_	_
+5	e	_	_	_	_	3	z	_	_
+
+# sent_id = 4
+# text = a b c d e
+1	a	_	_	_	_	3	v	_	_
+2	b	_	_	_	_	4	w	_	_
+3	c	_	_	_	_	0	x	_	_
+4	d	_	_	_	_	1	y	_	_
+5	e	_	_	_	_	3	z	_	_
+
+# two level up
+# sent_id = 5
+# text = a b c d e f
+1	a	_	_	_	_	2	v	_	_
+2	b	_	_	_	_	0	w	_	_
+3	c	_	_	_	_	2	x	_	_
+4	d	_	_	_	_	3	y	_	_
+5	e	_	_	_	_	2	z	_	_
+6	f	_	_	_	_	4	m	_	_
