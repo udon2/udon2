@@ -66,10 +66,6 @@ class Node {
   Util::FeatMap feats;  // m
   Util::FeatMap misc;
 
-  getterptr getterByProp(std::string prop);
-  kvgetterptr kvgetterByProp(std::string prop);
-  setterptr setterByProp(std::string prop);
-  std::string getRandomProp(std::string prop);
   void accumulateByDeprelChain(std::string value, NodeList *res, int depth);
 
   std::string _subtreeToString(int);
@@ -125,6 +121,10 @@ class Node {
 
   void setFeats(std::string fstr) { feats = Util::parseUniversalFormat(fstr); }
 
+  static getterptr getterByProp(std::string prop);
+  static kvgetterptr kvgetterByProp(std::string prop);
+  static setterptr setterByProp(std::string prop);
+
   bool has(std::string prop, std::string key, std::string val);
   bool hasAll(std::string prop, std::string value);
   bool hasAny(std::string prop, std::string value);
@@ -148,7 +148,6 @@ class Node {
 
   Node *copy();
   Node *makeRoot();
-  Node *distort(float prob, std::string csvProps);
 
   int subtreeSize();
 

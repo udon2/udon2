@@ -16,13 +16,14 @@ TPL_DEP_SVG = """
 TPL_DEP_WORDS = """
 <text class="token" fill="currentColor" text-anchor="middle" y="{y}">
     <tspan class="word" fill="currentColor" x="{x}" font-size="2em">{id}{text}</tspan>
-    <tspan class="tag" dy="2em" fill="currentColor" x="{x}" font-size="2em">{tag}</tspan>
-    {morph}
+    <tspan class="tag" dy="2em" fill="currentColor" x="{x}" font-size="2em">{upos}</tspan>
+    <tspan class="tag" dy="2em" fill="currentColor" x="{x}" font-size="2em">{xpos}</tspan>
+    {feats}
 </text>
 """
 
-TPL_DEP_MORPH = """
-<tspan class="tag" dy="{dy}" fill="currentColor" x="{x}" font-size="1.75em">{morph}</tspan>
+TPL_DEP_FEATS = """
+<tspan class="tag" dy="{dy}" fill="currentColor" x="{x}" font-size="1.75em">{feats}</tspan>
 """
 
 

@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 
 import uuid
 
-from .templates import TPL_DEP_SVG, TPL_DEP_WORDS, TPL_DEP_ARCS, TPL_DEP_MORPH
+from .templates import TPL_DEP_SVG, TPL_DEP_WORDS, TPL_DEP_ARCS, TPL_DEP_FEATS
 from .templates import TPL_FIGURE, TPL_TITLE, TPL_PAGE
 from .utils import escape_html, minify_html
 
@@ -35,6 +35,8 @@ class DependencyRenderer(object):
         self.color = options.get("color", "#000000")
         self.bg = options.get("bg", "#ffffff")
         self.font = options.get("font", "Arial")
+        self.has_upos = options.get('include_upos', True)
+        self.has_xpos = options.get('include_xpos', False)
         self.direction = DEFAULT_DIR
 
     def render(self, parsed, page=False, minify=False):
@@ -79,10 +81,10 @@ class DependencyRenderer(object):
         self.highest_level = len(self.levels)
         self.offset_y = self.distance / 2 * self.highest_level + self.arrow_stroke
         self.width = self.offset_x + len(words) * self.distance
-        self.max_morph = max([len(w['morph']) for w in words])
-        self.height = self.offset_y + (self.max_morph + 1) * self.word_spacing
+        self.max_feats = max([len(w['feats']) for w in words])
+        self.height = self.offset_y + (1.1 * self.max_feats + 2 * (self.has_upos + self.has_xpos)) * self.word_spacing
         self.id = render_id
-        words = [self.render_word(w["text"], w["tag"], w["morph"], w['id'], i) for i, w in enumerate(words)]
+        words = [self.render_word(w["text"], w["upos"], w["xpos"], w["feats"], w['id'], i) for i, w in enumerate(words)]
         arcs = [
             self.render_arrow(a["label"], a["start"], a["end"], a["dir"], i)
             for i, a in enumerate(arcs)
@@ -99,7 +101,7 @@ class DependencyRenderer(object):
             dir=self.direction,
         )
 
-    def render_word(self, text, tag, morph, idx, i):
+    def render_word(self, text, upos, xpos, feats, idx, i):
         """Render individual word.
 
         text (unicode): Word text.
@@ -111,12 +113,12 @@ class DependencyRenderer(object):
         x = self.offset_x + i * self.distance
         if self.direction == "rtl":
             x = self.width - x
-        html_text = escape_html(text)
-        html_morph = "\n".join([
-            TPL_DEP_MORPH.format(dy="{}em".format(2 + i * 0.1), morph=m, x=x)
-            for i, m in enumerate(morph)
+        svg_text = escape_html(text)
+        svg_feats = "\n".join([
+            TPL_DEP_FEATS.format(dy="2em", feats=m, x=x)
+            for i, m in enumerate(feats)
         ])
-        return TPL_DEP_WORDS.format(text=html_text, id=idx, tag=tag, morph=html_morph, x=x, y=y)
+        return TPL_DEP_WORDS.format(text=svg_text, id=idx, upos=upos, xpos=xpos, feats=svg_feats, x=x, y=y)
 
     def render_arrow(self, label, start, end, direction, i):
         """Render individual arrow.

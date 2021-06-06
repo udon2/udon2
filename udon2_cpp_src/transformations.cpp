@@ -7,6 +7,7 @@
 
 #include <queue>
 #include <map>
+#include <vector>
 
 namespace transformations {
 Node *toPCT(Node *n, bool includeForm, bool includeFeats) {
@@ -165,5 +166,47 @@ Node *toLCT(Node *n, bool includeFeats) {
     nodes.pop();
   }
   return nodesMap[n->getId()];
+}
+
+Node *distort(Node *node, float prob, std::string csvProps) {
+  Node *clone = node->copy();
+  float rnd;
+  std::vector<std::string> props = Util::stringSplit(csvProps, ',');
+
+  std::queue<Node *> nodes;
+  NodeList &children = clone->getChildren();
+  for (int i = 0, len = children.size(); i < len; i++) {
+    nodes.push(children[i]);
+  }
+
+  while (!nodes.empty()) {
+    if (!nodes.front()->isIgnored()) {
+      rnd = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
+      if (rnd <= prob) {
+        // distort
+        for (std::string p : props) {
+          rnd = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
+          if (rnd <= prob) {
+            getterptr getterFn = Node::getterByProp(p);
+            setterptr setterFn = Node::setterByProp(p);
+            std::string taboo = (nodes.front()->*getterFn)();
+            std::string value = Util::getRandomProp(p);
+            while (value == taboo) {
+              value = Util::getRandomProp(p);
+            }
+            (nodes.front()->*setterFn)(value);
+          }
+        }
+      }
+
+      // add children of the head node to the stack
+      NodeList &ch = nodes.front()->getChildren();
+      for (int i = 0, len = ch.size(); i < len; i++) {
+        nodes.push(ch[i]);
+      }
+    }
+    nodes.pop();
+  }
+  return clone;
 }
 }  // namespace transformations

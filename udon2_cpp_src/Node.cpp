@@ -472,7 +472,7 @@ NodeList Node::selectBy(std::string prop, std::string value, bool negate) {
    * nodes with a property `prop` being NOT equal to `value` will be selected.
    */
   // TODO(dmytro): benchmark if recursive is faster
-  getterptr getterFn = getterByProp(prop);
+  getterptr getterFn = Node::getterByProp(prop);
   if (getterFn == NULL) return NodeList();
 
   std::queue<Node *> nodes;
@@ -549,7 +549,7 @@ NodeList Node::getByDeprelChain(std::string value) {
 }
 
 GroupedNodes Node::groupBy(std::string prop) {
-  getterptr getterFn = getterByProp(prop);
+  getterptr getterFn = Node::getterByProp(prop);
   if (getterFn == NULL) return GroupedNodes();
 
   GroupedNodes gn = GroupedNodes();
@@ -567,7 +567,7 @@ GroupedNodes Node::groupBy(std::string prop) {
 }
 
 NodeList Node::selectHaving(std::string prop, std::string value, bool negate) {
-  kvgetterptr getterFn = kvgetterByProp(prop);
+  kvgetterptr getterFn = Node::kvgetterByProp(prop);
   if (getterFn == NULL) return NodeList();
 
   std::queue<Node *> nodes;
@@ -706,7 +706,7 @@ NodeList Node::select(std::string query) {
  * `value`
  */
 NodeList Node::getBy(std::string prop, std::string value) {
-  getterptr getterFn = getterByProp(prop);
+  getterptr getterFn = Node::getterByProp(prop);
   if (getterFn == NULL) return NodeList();
 
   NodeList result;
@@ -749,7 +749,7 @@ void Node::prune(std::string rel) {
  * NOTE: excluding the node itself
  */
 bool Node::propExists(std::string prop, std::string value) {
-  getterptr getterFn = getterByProp(prop);
+  getterptr getterFn = Node::getterByProp(prop);
   if (getterFn == NULL) return false;
 
   std::queue<Node *> nodes;
@@ -778,7 +778,7 @@ bool Node::propExists(std::string prop, std::string value) {
  * NOTE: excluding the node itself
  */
 bool Node::childHasProp(std::string prop, std::string value) {
-  getterptr getterFn = getterByProp(prop);
+  getterptr getterFn = Node::getterByProp(prop);
   if (getterFn == NULL) return false;
 
   for (int i = 0, len = children.size(); i < len; i++) {
@@ -794,47 +794,6 @@ Node *Node::makeRoot() {
   this->deprel = "root";
   this->parent = newRoot;
   return newRoot;
-}
-
-Node *Node::distort(float prob, std::string csvProps) {
-  Node *clone = this->copy();
-  float rnd;
-  std::vector<std::string> props = Util::stringSplit(csvProps, ',');
-
-  std::queue<Node *> nodes;
-  for (int i = 0, len = clone->children.size(); i < len; i++) {
-    nodes.push(clone->children[i]);
-  }
-
-  while (!nodes.empty()) {
-    if (!nodes.front()->isIgnored()) {
-      rnd = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
-      if (rnd <= prob) {
-        // distort
-        for (std::string p : props) {
-          rnd = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
-          if (rnd <= prob) {
-            getterptr getterFn = getterByProp(p);
-            setterptr setterFn = setterByProp(p);
-            std::string taboo = (nodes.front()->*getterFn)();
-            std::string value = Util::getRandomProp(p);
-            while (value == taboo) {
-              value = Util::getRandomProp(p);
-            }
-            (nodes.front()->*setterFn)(value);
-          }
-        }
-      }
-
-      // add children of the head node to the stack
-      NodeList &ch = nodes.front()->getChildren();
-      for (int i = 0, len = ch.size(); i < len; i++) {
-        nodes.push(ch[i]);
-      }
-    }
-    nodes.pop();
-  }
-  return clone;
 }
 
 std::string Node::toString() {
@@ -869,7 +828,7 @@ std::string Node::_subtreeToString(int depth) {
 std::string Node::subtreeToString() { return _subtreeToString(0); }
 
 std::string Node::toCharniakString(std::string prop) {
-  getterptr getterFn = getterByProp(prop);
+  getterptr getterFn = Node::getterByProp(prop);
   if (getterFn == NULL) return prop + " is an invalid property";
   std::string res = "(" + (this->*getterFn)();
   int N = children.size();

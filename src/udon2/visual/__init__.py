@@ -89,20 +89,13 @@ def parse_deps(orig_doc, options={}):
     doc (Doc): Document do parse.
     RETURNS (dict): Generated dependency parse keyed by words and arcs.
     """
-    def get_tag(w):
-        s = ""
-        if options.get('include_upos', True):
-            s += w.upos
-        if options.get('include_xpos', False):
-            s += "/{}".format(w.xpos) if s else w.xpos
-        return s
-
     doc = orig_doc # might reparse it later
     words = [{
         "id": "{}: ".format(int(w.id)) if options.get('include_ids', False) else '',
         "text": w.form,
-        "tag": get_tag(w),
-        "morph": str(w.feats).split("|") if options.get('include_morph', True) else ''
+        "upos": w.upos if options.get('include_upos', True) else "",
+        "xpos": w.xpos if options.get('include_xpos', False) else "",
+        "feats": str(w.feats).split("|") if options.get('include_feats', True) else ''
     } for w in doc.linear()]
     id2index = {w.id : i for i, w in enumerate(doc.linear())}
     arcs = []

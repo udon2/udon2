@@ -104,8 +104,6 @@ BOOST_PYTHON_MODULE(core) {
       .def("prune", &Node::prune)  // no
       .def("copy", &Node::copy,
            bp::return_value_policy<bp::manage_new_object>())  // no
-      .def("distort", &Node::distort,
-           bp::return_value_policy<bp::manage_new_object>())
       .def("make_root", &Node::makeRoot,
            bp::return_value_policy<bp::manage_new_object>())  // no
       .def("__str__", &Node::toString)
