@@ -4,6 +4,7 @@ UDon2 is a library for manipulating dependency trees in the Universal Dependenci
 
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![Build Status](https://travis-ci.com/udon2/udon2.svg?branch=master)](https://travis-ci.com/udon2/udon2)
+[![Downloads](https://pepy.tech/badge/udon2)](https://pepy.tech/project/udon2)
 
 ## Documentation
 Our online documentation is available at https://udon2.github.io/
