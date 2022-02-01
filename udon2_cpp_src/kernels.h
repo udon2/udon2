@@ -15,13 +15,14 @@ class ConvPartialTreeKernel {
   std::string treeRepresentation;
 
   // the decay factor associated with the height of a partial tree
-  float mu;
+  long double p_mu;
 
   // the decay factor associated with the length of the child sequences
-  float lambda;
+  // we use lambda_ and not lambda, since "lambda" is a Python keyword
+  long double p_lambda;
 
   // lambda ^ 2
-  float lambda2;
+  long double lambda2;
 
   // whether to include lexicals in the transformation
   bool includeForm;
@@ -31,20 +32,22 @@ class ConvPartialTreeKernel {
 
   // cache for calculated delta values
   // id1 -> id2 -> delta
-  // NOTE: each ID is float to accommodate GRCT, PCT and LCT,
+  // NOTE: each ID is long double to accommodate GRCT, PCT and LCT,
   // where each rel node has ID equivalent to the original node
   //       each POS node has ID of the original node + 0.1
   //       each text node has ID of the original node + 0.2
-  std::map<float, std::map<float, float> > deltas;
+  std::map<long double, std::map<long double, long double> > deltas;
 
-  float ptkDelta(Node *n1, Node *n2);
-  float ptkSumDeltaP(NodeList ch1, NodeList ch2);
+  long double ptkDelta(Node *n1, Node *n2);
+  long double ptkSumDeltaP(NodeList ch1, NodeList ch2);
 
  public:
-  ConvPartialTreeKernel(std::string, float mu = 1.0f, float lambda = 1.0f,
-                        bool includeForm = true, bool includeFeats = false);
+  ConvPartialTreeKernel(std::string, long double p_mu = 1.0f,
+                        long double p_lambda = 1.0f, bool includeForm = true,
+                        bool includeFeats = false);
 
-  float eval(Node *root1, Node *root2);
+  // TODO(dmytro): Sometimes can get infinite?
+  long double eval(Node *root1, Node *root2);
 };
 }  // namespace kernels
 

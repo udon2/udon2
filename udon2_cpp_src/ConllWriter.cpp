@@ -65,6 +65,7 @@ std::string ConllWriter::node2conllu(MultiWordNode* node) {
   return nodeRepr;
 }
 
+// TODO(dmytro): check whether multi-word nodes are written
 void ConllWriter::writeToFile(TreeList* nodes, std::string fname) {
   /**
    * Write the subtree rooted at every Node from the list `nodes` to the file

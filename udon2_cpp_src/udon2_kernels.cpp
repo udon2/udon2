@@ -12,7 +12,7 @@ BOOST_PYTHON_MODULE(kernels) {
   bp::class_<kernels::ConvPartialTreeKernel>(
       "ConvPartialTreeKernel",
       bp::init<std::string, float, float, bool, bool>(
-          (bp::arg("repr"), bp::arg("mu") = 1.0, bp::arg("lambda") = 1.0,
+          (bp::arg("repr"), bp::arg("p_mu") = 1.0, bp::arg("p_lambda") = 1.0,
            bp::arg("includeForm") = true, bp::arg("includeFeats") = false)))
       .def("__call__", &kernels::ConvPartialTreeKernel::eval);
 }

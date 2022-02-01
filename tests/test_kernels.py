@@ -28,11 +28,11 @@ class TestKernels(unittest.TestCase):
 
             for sn1, sn2, kv in [(s1, s1, same_n1), (s2, s2, same_n2), (s1, s2, n1_n2)]:
                 with subprocess.Popen(
-                    ['java', '-Dorg.slf4j.simpleLogger.defaultLogLevel=error', '-jar', 'tests/external/TreeKernel.jar', sn1, sn2],
+                    ['java', '-Dorg.slf4j.simpleLogger.defaultLogLevel=error', '-jar', 'tests/external/TreeKernel.jar', "-s1", sn1, "-s2", sn2],
                     stdout=subprocess.PIPE
                 ) as proc:
                     output = proc.stdout.read()
-                    self.assertEqual(kv, float(output.strip()), "Not equal kernels!")
+                    self.assertEqual(round(kv, 5), round(float(output.strip()), 5), "Not equal kernels!")
 
     @data_from_file('t2.conll', udon2.ConllReader.read_file)
     def test_conv_pct_tree_kernel(self, trees):
@@ -51,11 +51,11 @@ class TestKernels(unittest.TestCase):
 
             for sn1, sn2, kv in [(s1, s1, same_n1), (s2, s2, same_n2), (s1, s2, n1_n2)]:
                 with subprocess.Popen(
-                    ['java', '-Dorg.slf4j.simpleLogger.defaultLogLevel=error', '-jar', 'tests/external/TreeKernel.jar', sn1, sn2],
+                    ['java', '-Dorg.slf4j.simpleLogger.defaultLogLevel=error', '-jar', 'tests/external/TreeKernel.jar', "-s1", sn1, "-s2", sn2],
                     stdout=subprocess.PIPE
                 ) as proc:
                     output = proc.stdout.read()
-                    self.assertEqual(kv, float(output.strip()), "Not equal kernels!")
+                    self.assertEqual(round(kv, 5), round(float(output.strip()), 5), "Not equal kernels!")
 
     @data_from_file('t2.conll', udon2.ConllReader.read_file)
     def test_conv_lct_tree_kernel(self, trees):
@@ -74,11 +74,84 @@ class TestKernels(unittest.TestCase):
 
             for sn1, sn2, kv in [(s1, s1, same_n1), (s2, s2, same_n2), (s1, s2, n1_n2)]:
                 with subprocess.Popen(
-                    ['java', '-Dorg.slf4j.simpleLogger.defaultLogLevel=error', '-jar', 'tests/external/TreeKernel.jar', sn1, sn2],
+                    ['java', '-Dorg.slf4j.simpleLogger.defaultLogLevel=error', '-jar', 'tests/external/TreeKernel.jar', "-s1", sn1, "-s2", sn2],
                     stdout=subprocess.PIPE
                 ) as proc:
                     output = proc.stdout.read()
-                    self.assertEqual(kv, float(output.strip()), "Not equal kernels!")
+                    self.assertEqual(round(kv, 5), round(float(output.strip()), 5), "Not equal kernels!")
+
+    @data_from_file('t2.conll', udon2.ConllReader.read_file)
+    def test_conv_grct_tree_kernel_mu(self, trees):
+        N = len(trees)
+        for i in range(1, N):
+            n1 = trees[i-1].children[0] if trees[i-1].is_root() else trees[i-1]
+            n2 = trees[i].children[0] if trees[i].is_root() else trees[i]
+
+            s1 = to_grct(n1).to_charniak_string("form")
+            s2 = to_grct(n2).to_charniak_string("form")
+
+            k = ConvPartialTreeKernel("GRCT", p_mu=0.4)
+            same_n1 = k(n1, n1)
+            same_n2 = k(n2, n2)
+            n1_n2 = k(n1, n2)
+
+            for sn1, sn2, kv in [(s1, s1, same_n1), (s2, s2, same_n2), (s1, s2, n1_n2)]:
+                with subprocess.Popen(
+                    ['java', '-Dorg.slf4j.simpleLogger.defaultLogLevel=error', '-jar', 'tests/external/TreeKernel.jar',
+                    "-s1", sn1, "-s2", sn2, "-mu", "0.4"],
+                    stdout=subprocess.PIPE
+                ) as proc:
+                    output = proc.stdout.read()
+                    self.assertEqual(round(kv, 5), round(float(output.strip()), 5), "Not equal kernels!")
+
+    @data_from_file('t2.conll', udon2.ConllReader.read_file)
+    def test_conv_grct_tree_kernel_lambda(self, trees):
+        N = len(trees)
+        for i in range(1, N):
+            n1 = trees[i-1].children[0] if trees[i-1].is_root() else trees[i-1]
+            n2 = trees[i].children[0] if trees[i].is_root() else trees[i]
+
+            s1 = to_grct(n1).to_charniak_string("form")
+            s2 = to_grct(n2).to_charniak_string("form")
+
+            k = ConvPartialTreeKernel("GRCT", p_lambda=0.4)
+            same_n1 = k(n1, n1)
+            same_n2 = k(n2, n2)
+            n1_n2 = k(n1, n2)
+
+            for sn1, sn2, kv in [(s1, s1, same_n1), (s2, s2, same_n2), (s1, s2, n1_n2)]:
+                with subprocess.Popen(
+                    ['java', '-Dorg.slf4j.simpleLogger.defaultLogLevel=error', '-jar', 'tests/external/TreeKernel.jar',
+                    "-s1", sn1, "-s2", sn2, "-lambda", "0.4"],
+                    stdout=subprocess.PIPE
+                ) as proc:
+                    output = proc.stdout.read()
+                    self.assertEqual(round(kv, 5), round(float(output.strip()), 5), "Not equal kernels!")
+
+    @data_from_file('t2.conll', udon2.ConllReader.read_file)
+    def test_conv_grct_tree_kernel_mu_and_lambda(self, trees):
+        N = len(trees)
+        for i in range(1, N):
+            n1 = trees[i-1].children[0] if trees[i-1].is_root() else trees[i-1]
+            n2 = trees[i].children[0] if trees[i].is_root() else trees[i]
+
+            s1 = to_grct(n1).to_charniak_string("form")
+            s2 = to_grct(n2).to_charniak_string("form")
+
+            k = ConvPartialTreeKernel("GRCT", p_mu=0.4, p_lambda=0.75)
+            same_n1 = k(n1, n1)
+            same_n2 = k(n2, n2)
+            n1_n2 = k(n1, n2)
+
+            for sn1, sn2, kv in [(s1, s1, same_n1), (s2, s2, same_n2), (s1, s2, n1_n2)]:
+                with subprocess.Popen(
+                    ['java', '-Dorg.slf4j.simpleLogger.defaultLogLevel=error', '-jar', 'tests/external/TreeKernel.jar',
+                    "-s1", sn1, "-s2", sn2, "-mu", "0.4", "-lambda", "0.75"],
+                    stdout=subprocess.PIPE
+                ) as proc:
+                    output = proc.stdout.read()
+                    self.assertEqual(round(kv, 5), round(float(output.strip()), 5), "Not equal kernels!")
+
 
 if __name__ == '__main__':
     unittest.main()

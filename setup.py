@@ -106,6 +106,28 @@ kernels_module = setuptools.Extension(
     libraries=libraries
 )
 
+helpers_module = setuptools.Extension(
+    'udon2.helpers',
+    sources=[
+        os.path.join(C_SRC, 'helpers.cpp'),
+        os.path.join(C_SRC, 'udon2_helpers.cpp')
+    ],
+    extra_objects=compiled_shared_obj_files_iter(['Util', 'MultiWordNode', 'Node']), # sort of lazy eval here to reuse the already compiled files
+    include_dirs=include_dirs,
+    library_dirs=library_dirs,
+    libraries=libraries
+)
+
+constants_module = setuptools.Extension(
+    'udon2.constants',
+    sources=[
+        os.path.join(C_SRC, 'udon2_constants.cpp')
+    ],
+    include_dirs=include_dirs,
+    library_dirs=library_dirs,
+    libraries=libraries
+)
+
 setuptools.setup(
     name="udon2", # Replace with your own username
     version=get_version("src/udon2/__init__.py"),
@@ -130,7 +152,7 @@ setuptools.setup(
         "Operating System :: Microsoft :: Windows",
         "Topic :: Scientific/Engineering"
     ],
-    ext_modules=[core_module, transformations_module, kernels_module],
+    ext_modules=[core_module, transformations_module, kernels_module, helpers_module, constants_module],
     python_requires='>=3.6',
     install_requires=["six", "svgling"]
 )

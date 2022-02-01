@@ -12,6 +12,17 @@ TreeList* Importer::fromConllFile(std::string fname) {
   return ConllReader::readFile(fname);
 }
 
+// TODO(dmytro): Stanza now produces MWT sometimes - make sure to include those
+// as well: Example:
+// {
+//   "id": [
+//     8,
+//     9
+//   ],
+//   "text": "Enron's",
+//   "start_char": 42,
+//   "end_char": 49
+// }
 TreeList* Importer::fromStanza(boost::python::list lst) {
   TreeList* forest = new TreeList();
 

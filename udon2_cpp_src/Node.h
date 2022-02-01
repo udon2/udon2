@@ -42,6 +42,7 @@ class NodeList : public std::vector<Node *> {
   std::string toString();
 };
 
+// TODO(dmytro): list manipulation operations (remove, replace, etc)
 class TreeList : public std::vector<std::shared_ptr<Node>> {
  public:
   TreeList() : std::vector<std::shared_ptr<Node>>() {}
@@ -161,6 +162,8 @@ class Node {
   void addChild(Node *node);
   void removeChild(Node *node);
 
+  // TODO(dmytro): fuzzy select, i.e. by form containing the string "2014"
+  // TODO(dmytro): get string indices of the matches returned by "select"
   NodeList selectBy(std::string prop, std::string value, bool negate = false);
   NodeList selectByDeprelChain(std::string value);
 
@@ -172,6 +175,8 @@ class Node {
 
   GroupedNodes groupBy(std::string prop);
 
+  // TODO(dmytro): isSubtreeIdentical
+  // TODO(dmytro): isIdentical should check FEATS as an option also
   bool isIdentical(Node *node, std::string excludeProps);
   NodeList selectIdentical(Node *node);
   NodeList selectIdenticalExcept(Node *node, std::string excludeProps);

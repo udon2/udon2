@@ -11,27 +11,28 @@
 #include "transformations.h"
 
 namespace kernels {
-ConvPartialTreeKernel::ConvPartialTreeKernel(std::string repr, float mu,
-                                             float lambda, bool includeForm,
+ConvPartialTreeKernel::ConvPartialTreeKernel(std::string repr, long double p_mu,
+                                             long double p_lambda,
+                                             bool includeForm,
                                              bool includeFeats)
     : treeRepresentation(repr),
-      mu(mu),
-      lambda(lambda),
+      p_mu(p_mu),
+      p_lambda(p_lambda),
       includeForm(includeForm),
       includeFeats(includeFeats) {
-  lambda2 = lambda * lambda;
+  lambda2 = p_lambda * p_lambda;
 }
 
-float ConvPartialTreeKernel::ptkSumDeltaP(NodeList ch1, NodeList ch2) {
-  float S = 0;
+long double ConvPartialTreeKernel::ptkSumDeltaP(NodeList ch1, NodeList ch2) {
+  long double S = 0;
   int ch1_size = ch1.size();
   int ch2_size = ch2.size();
 
   int lmin = ch1_size < ch2_size ? ch1_size : ch2_size;
 
-  std::map<int, std::map<int, float> > DPS;
-  std::map<int, std::map<int, float> > DP;
-  float *kernel_mat = new float[lmin];
+  std::map<int, std::map<int, long double> > DPS;
+  std::map<int, std::map<int, long double> > DP;
+  long double *kernel_mat = new long double[lmin];
 
   kernel_mat[0] = 0;
   for (int i = 1; i <= ch1_size; i++) {
@@ -58,8 +59,8 @@ float ConvPartialTreeKernel::ptkSumDeltaP(NodeList ch1, NodeList ch2) {
 
     for (int i = l; i <= ch1_size; i++) {
       for (int j = l; j <= ch2_size; j++) {
-        DP[i][j] = DPS[i][j] + lambda * DP[i][j - 1] + lambda * DP[i - 1][j] -
-                   lambda2 * DP[i - 1][j - 1];
+        DP[i][j] = DPS[i][j] + p_lambda * DP[i][j - 1] +
+                   p_lambda * DP[i - 1][j] - lambda2 * DP[i - 1][j - 1];
 
         if (ch1[i - 1]->getForm() == ch2[j - 1]->getForm()) {
           DPS[i][j] = ptkDelta(ch1[i - 1], ch2[j - 1]) * DP[i - 1][j - 1];
@@ -78,7 +79,7 @@ float ConvPartialTreeKernel::ptkSumDeltaP(NodeList ch1, NodeList ch2) {
   return S;
 }
 
-float ConvPartialTreeKernel::ptkDelta(Node *n1, Node *n2) {
+long double ConvPartialTreeKernel::ptkDelta(Node *n1, Node *n2) {
   if (deltas.count(n1->getId()) > 0 &&
       deltas[n1->getId()].count(n2->getId()) > 0) {
     return deltas[n1->getId()][n2->getId()];
@@ -87,15 +88,15 @@ float ConvPartialTreeKernel::ptkDelta(Node *n1, Node *n2) {
   if (n1->getForm() != n2->getForm()) {
     deltas[n1->getId()][n2->getId()] = 0;
   } else if (!n1->isLeaf() || !n2->isLeaf()) {
-    deltas[n1->getId()][n2->getId()] = mu * lambda2;
+    deltas[n1->getId()][n2->getId()] = p_mu * lambda2;
   } else {
     deltas[n1->getId()][n2->getId()] =
-        mu * (lambda2 + ptkSumDeltaP(n1->getChildren(), n2->getChildren()));
+        p_mu * (lambda2 + ptkSumDeltaP(n1->getChildren(), n2->getChildren()));
   }
   return deltas[n1->getId()][n2->getId()];
 }
 
-float ConvPartialTreeKernel::eval(Node *root1, Node *root2) {
+long double ConvPartialTreeKernel::eval(Node *root1, Node *root2) {
   /*
    * Implementation of Fast PTK presented in
    * Moschitti, A. (2006, September). Efficient convolution kernels for
@@ -113,7 +114,7 @@ float ConvPartialTreeKernel::eval(Node *root1, Node *root2) {
    */
 
   deltas.clear();
-  float value = 0;
+  long double value = 0;
 
   Node *r1;
   Node *r2;
