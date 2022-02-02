@@ -4,6 +4,7 @@ import codecs
 import glob
 import platform
 import setuptools
+import distutils
 
 from sysconfig import get_paths
 
@@ -14,6 +15,16 @@ IS_LINUX = platform.system().lower() == 'linux'
 IS_MAC = platform.system().lower() == 'darwin'
 C_SRC = 'udon2_cpp_src'
 README = "README.md"
+
+
+IS_CLANG = os.environ.get('CC', '') == "clang"
+
+if IS_CLANG or distutils.sysconfig_get_config_vars()['CC'] == 'clang':
+    try:
+        _ = os.environ['CFLAGS']
+    except KeyError:
+        os.environ['CFLAGS'] = ""
+    os.environ['CFLAGS'] += " -Wc++11-extensions"
 
 
 def read(rel_path):
