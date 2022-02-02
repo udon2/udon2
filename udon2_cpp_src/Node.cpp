@@ -437,6 +437,8 @@ getterptr Node::getterByProp(std::string prop) {
     getterFn = &Node::getDeprel;
   else if (prop == "form")
     getterFn = &Node::getForm;
+  else if (prop == "id")
+    getterFn = &Node::getIdAsString;
   return getterFn;
 }
 

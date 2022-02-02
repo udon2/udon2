@@ -11,10 +11,13 @@ Node *findCommonAncestor(Node *n1, Node *n2) {
   Node *n1p = n1, *n2p = n2;
 
   while (n1p->getParent() != n2 && n2p->getParent() != n1 &&
-         n1p->getParent() != n2p->getParent() && !n1p->getParent()->isRoot() &&
-         !n2p->getParent()->isRoot()) {
-    n1p = n1p->getParent();
-    n2p = n2p->getParent();
+         !n1p->getParent()->isRoot() && !n2p->getParent()->isRoot()) {
+    if (n2p->getParent()->getId() > n1p->getParent()->getId())
+      n2p = n2p->getParent();
+    else if (n2p->getParent()->getId() < n1p->getParent()->getId())
+      n1p = n1p->getParent();
+    else
+      break;
   }
 
   Node *ca = NULL;
@@ -42,16 +45,17 @@ Chain getDeprelChain(Node *n1, Node *n2) {
   n1Chain.push_back(n1p->getDeprel());
   n2Chain.push_back(n2p->getDeprel());
 
-  while (n1p->getParent() != n2 && n2p->getParent() != n1 &&
-         n1p->getParent() != n2p->getParent()) {
-    if (!n1p->getParent()->isRoot()) {
-      n1p = n1p->getParent();
-      n1Chain.push_back(n1p->getDeprel());
-    }
-
-    if (!n2p->getParent()->isRoot()) {
+  while (n1p->getParent() != n2 && n2p->getParent() != n1) {
+    if (!n2p->getParent()->isRoot() &&
+        n2p->getParent()->getId() > n1p->getParent()->getId()) {
       n2p = n2p->getParent();
       n2Chain.push_back(n2p->getDeprel());
+    } else if (!n1p->getParent()->isRoot() &&
+               n2p->getParent()->getId() < n1p->getParent()->getId()) {
+      n1p = n1p->getParent();
+      n1Chain.push_back(n1p->getDeprel());
+    } else {
+      break;
     }
   }
 

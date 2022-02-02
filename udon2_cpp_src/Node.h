@@ -5,6 +5,7 @@
 #ifndef UDON2_CPP_SRC_NODE_H_
 #define UDON2_CPP_SRC_NODE_H_
 
+#include <cmath>
 #include <algorithm>
 #include <functional>
 #include <map>
@@ -78,6 +79,16 @@ class Node {
   void _linear(Node *node, NodeList *nodes, Compare cmp);
 
   void accumulateHeads(Node *node, std::map<int, int> *heads);
+
+  std::string getIdAsString() {
+    if (fabs(ceilf(id) - id) < 1e-7) {
+      return std::to_string(static_cast<int>(id));
+    } else {
+      std::string repr = std::to_string(id);
+      repr.erase(repr.find_last_not_of('0') + 1, std::string::npos);
+      return repr;
+    }
+  }
 
  public:
   Node();

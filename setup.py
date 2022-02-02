@@ -4,9 +4,8 @@ import codecs
 import glob
 import platform
 import setuptools
-import distutils
 
-from sysconfig import get_paths
+from sysconfig import get_paths, get_config_vars
 
 
 BOOST_DIR = os.environ['BOOST_DIR']
@@ -19,7 +18,7 @@ README = "README.md"
 
 IS_CLANG = os.environ.get('CC', '') == "clang"
 
-if IS_CLANG or distutils.sysconfig_get_config_vars()['CC'] == 'clang':
+if IS_CLANG or get_config_vars()['CC'] == 'clang':
     try:
         _ = os.environ['CFLAGS']
     except KeyError:
