@@ -24,7 +24,7 @@ if IS_CLANG or distutils.sysconfig_get_config_vars()['CC'] == 'clang':
         _ = os.environ['CFLAGS']
     except KeyError:
         os.environ['CFLAGS'] = ""
-    os.environ['CFLAGS'] += " -Wc++11-extensions"
+    os.environ['CFLAGS'] += " -std=c++11 -Wc++11-extensions -Wc++11-extra-semi"
 
 
 def read(rel_path):
