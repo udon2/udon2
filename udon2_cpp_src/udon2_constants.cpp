@@ -20,7 +20,8 @@ BOOST_PYTHON_MODULE(constants) {
 
   bp::class_<constants::UniversalToken>("UniversalToken")
       .add_property("code", &constants::UniversalToken::code)
-      .add_property("name", &constants::UniversalToken::name);
+      .add_property("name", &constants::UniversalToken::name)
+      .def("__str__", &constants::UniversalToken::toString);
 
   bp::class_<constants::UniversalMap>("UniversalMap")
       .def(bp::map_indexing_suite_v2<constants::UniversalMap>());
@@ -79,5 +80,5 @@ BOOST_PYTHON_MODULE(constants) {
 
   DEFINE_CONSTANT("UPOS_TAGS", constants::UPOS_TAGS);
   DEFINE_CONSTANT("DEPRELS", constants::DEPRELS);
-  DEFINE_CONSTANT("UNIVERSAL_FEATURES", constants::UNIVERSAL_FEATURES);
+  DEFINE_CONSTANT("FEATS", constants::FEATS);
 }

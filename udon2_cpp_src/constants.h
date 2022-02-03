@@ -16,6 +16,8 @@ struct UniversalToken {
 
   bool operator<(const UniversalToken& o) const { return code < o.code; }
   bool operator==(const UniversalToken& o) const { return code == o.code; }
+
+  std::string toString() { return code + "/" + name; }
 };
 
 const struct UniversalToken ADJ_UPOS = {"ADJ", "adjective"};
@@ -40,9 +42,9 @@ const int NUM_UPOS_TAGS = 17;
 
 typedef struct UposArray {
   const UniversalToken tags[NUM_UPOS_TAGS] = {
-      ADJ_UPOS,   ADP_UPOS, AUX_UPOS,  CCONJ_UPOS, DET_UPOS,   INTJ_UPOS,
-      NOUN_UPOS,  NUM_UPOS, PART_UPOS, PRON_UPOS,  PROPN_UPOS, PUNCT_UPOS,
-      SCONJ_UPOS, SYM_UPOS, VERB_UPOS, X_UPOS};
+      ADJ_UPOS,   ADV_UPOS,   ADP_UPOS, AUX_UPOS,  CCONJ_UPOS, DET_UPOS,
+      INTJ_UPOS,  NOUN_UPOS,  NUM_UPOS, PART_UPOS, PRON_UPOS,  PROPN_UPOS,
+      PUNCT_UPOS, SCONJ_UPOS, SYM_UPOS, VERB_UPOS, X_UPOS};
 
   const UniversalToken& operator[](int i) const { return tags[i]; }
   int size() { return NUM_UPOS_TAGS; }
@@ -822,7 +824,7 @@ const struct UniversalToken VOICE__CAU_UVAL = {"Cau", "causative voice"};
  * Key-value pairs for Universal Features, as defined here
  * https://universaldependencies.org/u/feat/all.html
  */
-const UniversalMap UNIVERSAL_FEATURES = {
+const UniversalMap FEATS = {
     {ABBR_UFEAT.code, {ABBR__YES_UVAL}},
     {ADPTYPE_UFEAT.code,
      {ADPTYPE__PREP_UVAL, ADPTYPE__UPOST_UVAL, ADPTYPE__CIRC_UVAL,
