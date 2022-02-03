@@ -18,7 +18,7 @@ README = "README.md"
 
 IS_CLANG = os.environ.get('CC', '') == "clang"
 
-if IS_CLANG or get_config_vars()['CC'] == 'clang':
+if IS_CLANG or get_config_vars().get('CC', '') == 'clang':
     try:
         _ = os.environ['CFLAGS']
     except KeyError:
