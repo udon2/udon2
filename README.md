@@ -2,6 +2,8 @@
 ## Prepare your UD trees to be served!
 UDon2 is a library for manipulating dependency trees in the Universal Dependencies format. Written in C++ with Python bindings through Boost.Python. Pre-compiled for Python 3.7-3.9 on Linux (both i386 and x86_64), Windows (win32 and win_amd64) and macOS (x86_64 only).
 
+**Note:** Python 3.6 is supported for versions prior to v0.1.0 on Linux only (both i386 and x86_64).
+
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![Build Status](https://travis-ci.com/udon2/udon2.svg?branch=master)](https://travis-ci.com/udon2/udon2)
 [![Downloads](https://pepy.tech/badge/udon2)](https://pepy.tech/project/udon2)
