@@ -20,4 +20,3 @@ test_boost/
 *.txt
 __pycache__/*
 examples/
-tests/external/
