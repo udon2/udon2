@@ -8,7 +8,7 @@ UDon2 is a library for manipulating dependency trees in the Universal Dependenci
 [![Build Status](https://travis-ci.com/udon2/udon2.svg?branch=master)](https://travis-ci.com/udon2/udon2)
 [![Downloads](https://pepy.tech/badge/udon2)](https://pepy.tech/project/udon2)
 
-| :memo:        | The development is on hiatus until February 2024  |
+| :memo:        | This package is effectively archived, expect the new version in Q2 2026  |
 |---------------|:------------------------|
 
 ## Documentation
